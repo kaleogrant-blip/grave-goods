@@ -1,0 +1,17 @@
+{
+  "_comment": "The one list of in-app products. Read by scripts/gen-storekit.mjs (ios/App/GraveGoods.storekit), scripts/asc-products.mjs (App Store Connect), the build (www payments.js gets the ids and fallback prices) and docs/PLAY-PRODUCTS in store/play-listing.md. Prices are US-dollar base prices; Apple and Google convert them for other storefronts. v1 sells exactly one thing.",
+  "version": 1,
+  "products": [
+    {
+      "id": "gg_adfree",
+      "kind": "nonConsumable",
+      "referenceName": "Ad-free",
+      "usd": 2.99,
+      "familyShareable": false,
+      "reviewNote": "Buy: Settings > Remove ads. Restore: Settings > Restore purchases.",
+      "localizations": [
+        { "locale": "en-US", "displayName": "Ad-free", "description": "Removes every ad, for good. Nothing else changes: the whole game is free for everyone." }
+      ]
+    }
+  ]
+}

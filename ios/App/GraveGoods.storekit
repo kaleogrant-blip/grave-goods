@@ -1,0 +1,32 @@
+{
+  "identifier": "513398DA-97FA-3093-2148-ECAFD935A5DD",
+  "nonRenewingSubscriptions": [],
+  "products": [
+    {
+      "displayPrice": "2.99",
+      "familyShareable": false,
+      "internalID": "13CFE32C-0618-4D91-2C06-D59ED22A12E4",
+      "localizations": [
+        {
+          "description": "Removes every ad, for good. Nothing else changes: the whole game is free for everyone.",
+          "displayName": "Ad-free",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "gg_adfree",
+      "referenceName": "Ad-free",
+      "type": "NonConsumable"
+    }
+  ],
+  "settings": {
+    "_failTransactionsEnabled": false,
+    "_locale": "en_US",
+    "_storefront": "USA",
+    "_storeKitErrors": []
+  },
+  "subscriptionGroups": [],
+  "version": {
+    "major": 3,
+    "minor": 0
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "capacitor-play-billing",
+  "version": "1.0.0",
+  "description": "Thin Capacitor plugin over Google Play Billing Library 8 (one-time products), same JS contract as capacitor-storekit",
+  "main": "src/index.js",
+  "files": ["src", "android"],
+  "capacitor": { "android": { "src": "android" } },
+  "peerDependencies": { "@capacitor/core": ">=7.0.0" }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "capacitor-icloud-kv",
+  "version": "1.0.0",
+  "description": "Thin Capacitor plugin over NSUbiquitousKeyValueStore (iCloud key-value store)",
+  "main": "src/index.js",
+  "files": ["src", "ios", "CapacitorIcloudKv.podspec"],
+  "capacitor": { "ios": { "src": "ios" } },
+  "peerDependencies": { "@capacitor/core": ">=7.0.0" }
+}

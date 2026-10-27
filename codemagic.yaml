@@ -1,0 +1,212 @@
+# Codemagic CI for Grave Goods: iOS to TestFlight, iOS to App Store review, Android to Play internal testing.
+# Written without access to Codemagic's current UI or docs: every line marked VERIFY is a name or version worth checking against
+# https://docs.codemagic.io before the first run. Secrets and keys live in ONE Codemagic variable group called gg_secrets
+# (docs/TRACK-B.md, step 6 lists each name). Release notes: edit release_notes.json at the repo root (no < or > characters:
+# Apple's API answers 409 to them).
+#
+# Three workflows, same build steps up to the point where they differ:
+#   ios-testflight   every build goes to TestFlight; Google TEST ads (ADMOB_TESTING defaults to true)
+#   ios-release      same steps, build number from the CI build index, submitted for App Review with release_notes.json, REAL ads
+#   android-internal AAB signed with the keystore in gg_secrets, uploaded to the Play internal testing track
+#
+# Flags baked in by the build (scripts/build-www.mjs reads them): FLAGS_ADS_DEFAULT (true = ads on until remote config says otherwise),
+# ADMOB_TESTING, DEV (payments dev path; must stay "false" in anything a customer can get).
+
+workflows:
+  ios-testflight:
+    name: Grave Goods iOS to TestFlight
+    instance_type: mac_mini_m2        # VERIFY: Apple-silicon runner name
+    max_build_duration: 60
+    environment:
+      groups:
+        - gg_secrets                  # APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_PRIVATE_KEY, CERTIFICATE_PRIVATE_KEY,
+                                      # POSTHOG_KEY, POSTHOG_HOST, CONFIG_URL, ADMOB_APP_ID_IOS, ADMOB_REWARDED_ID_IOS, ADMOB_INTERSTITIAL_ID_IOS
+      vars:
+        BUNDLE_ID: "com.gravegoods.app"   # PLACEHOLDER: must equal appId in capacitor.config.ts and the Bundle ID registered at Apple
+        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_SCHEME: "App"
+        FLAGS_ADS_DEFAULT: "true"
+        ADMOB_TESTING: "true"         # Google's sample ads: safe to tap
+        DEV: "false"
+      node: 22.14.0                   # VERIFY: any 20+ that Codemagic offers
+      xcode: latest
+      cocoapods: default
+    # Manual start from the Codemagic UI. To build on every push to main instead, add:
+    # triggering:
+    #   events: [push]
+    #   branch_patterns:
+    #     - pattern: main
+    #       include: true
+    #       source: true
+
+    scripts:
+      - name: Install npm dependencies
+        script: npm ci
+      - name: Unit tests (node, no browser needed)
+        script: npm run test:unit
+      - name: Build the web bundle (www/index.html)
+        # CI=true makes a stale copy-patch in build-www.mjs fail the build instead of warning.
+        script: npm run build:www
+      - name: Capacitor sync (copies www, links plugins)
+        script: npx cap sync ios
+      - name: Apply iOS patches (entitlements, Info.plist, iOS 15, scheme, icon, bundle id)
+        script: node scripts/patch-ios.mjs
+      - name: Pod install
+        script: |
+          cd ios/App
+          pod install
+      - name: Set up keychain
+        script: keychain initialize
+      - name: Fetch signing files (automatic signing from the App Store Connect API key)
+        # --create makes the distribution certificate and the App Store profile if they do not exist yet.
+        script: app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+      - name: Add certificates to keychain
+        script: keychain add-certificates
+      - name: Point the Xcode project at the fetched profile
+        script: xcode-project use-profiles
+      - name: Set build number
+        # TestFlight needs a strictly increasing build number per version. Codemagic's BUILD_NUMBER only goes up.
+        script: |
+          sed -i '' "s/CURRENT_PROJECT_VERSION = [0-9]*;/CURRENT_PROJECT_VERSION = $BUILD_NUMBER;/g" ios/App/App.xcodeproj/project.pbxproj
+          grep -c "CURRENT_PROJECT_VERSION = $BUILD_NUMBER;" ios/App/App.xcodeproj/project.pbxproj
+      - name: Build the .ipa
+        script: xcode-project build-ipa --workspace "$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        # Upload only: the build shows up in TestFlight for INTERNAL testers after Apple finishes processing (about 10-30 min),
+        # with no review. For EXTERNAL testers, set submit_to_testflight: true and name the group in beta_groups (Beta App Review applies).
+        submit_to_testflight: false
+        # beta_groups:
+        #   - External Testers
+
+  ios-release:
+    name: Grave Goods iOS to the App Store
+    instance_type: mac_mini_m2        # VERIFY
+    max_build_duration: 60
+    environment:
+      groups:
+        - gg_secrets
+      vars:
+        BUNDLE_ID: "com.gravegoods.app"   # PLACEHOLDER: same as above
+        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_SCHEME: "App"
+        FLAGS_ADS_DEFAULT: "true"
+        ADMOB_TESTING: "false"        # REAL ads. Never tap them on your own device.
+        DEV: "false"
+      node: 22.14.0
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Install npm dependencies
+        script: npm ci
+      - name: Unit tests (node, no browser needed)
+        script: npm run test:unit
+      - name: Refuse a release with test ad ids or the dev path
+        script: |
+          test "$ADMOB_TESTING" = "false" || { echo "ADMOB_TESTING must be false for a release"; exit 1; }
+          test "$DEV" = "false" || { echo "DEV must be false for a release"; exit 1; }
+          test -n "$ADMOB_APP_ID_IOS" && test -n "$ADMOB_REWARDED_ID_IOS" && test -n "$ADMOB_INTERSTITIAL_ID_IOS" || { echo "set the three AdMob iOS ids in gg_secrets (docs/TRACK-B.md step 10)"; exit 1; }
+          test -f release_notes.json || { echo "release_notes.json is missing"; exit 1; }
+      - name: Build the web bundle (www/index.html)
+        script: npm run build:www
+      - name: Capacitor sync (copies www, links plugins)
+        script: npx cap sync ios
+      - name: Apply iOS patches (entitlements, Info.plist, iOS 15, scheme, icon, bundle id)
+        script: node scripts/patch-ios.mjs
+      - name: Pod install
+        script: |
+          cd ios/App
+          pod install
+      - name: Set up keychain
+        script: keychain initialize
+      - name: Fetch signing files
+        script: app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+      - name: Add certificates to keychain
+        script: keychain add-certificates
+      - name: Point the Xcode project at the fetched profile
+        script: xcode-project use-profiles
+      - name: Set build number from the CI build index
+        script: |
+          sed -i '' "s/CURRENT_PROJECT_VERSION = [0-9]*;/CURRENT_PROJECT_VERSION = $BUILD_NUMBER;/g" ios/App/App.xcodeproj/project.pbxproj
+          grep -c "CURRENT_PROJECT_VERSION = $BUILD_NUMBER;" ios/App/App.xcodeproj/project.pbxproj
+      - name: Build the .ipa
+        script: xcode-project build-ipa --workspace "$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        # Uploads, then submits THIS build for App Review. release_notes.json (repo root) fills "What's New".
+        # The first submission of the app must also carry the gg_adfree product: attach it to the version in App Store Connect
+        # once, by hand (docs/TRACK-B.md step 12). MANUAL = after approval you press Release yourself.
+        submit_to_app_store: true
+        release_type: MANUAL
+        cancel_previous_submissions: true
+
+  android-internal:
+    name: Grave Goods Android to Play internal testing
+    instance_type: linux_x2           # VERIFY: Linux runner name
+    max_build_duration: 60
+    environment:
+      groups:
+        - gg_secrets                  # ANDROID_KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD, GCLOUD_SERVICE_ACCOUNT_CREDENTIALS,
+                                      # POSTHOG_KEY, POSTHOG_HOST, CONFIG_URL, ADMOB_APP_ID_ANDROID, ADMOB_REWARDED_ID_ANDROID, ADMOB_INTERSTITIAL_ID_ANDROID
+      vars:
+        BUNDLE_ID: "com.gravegoods.app"   # PLACEHOLDER: same id as iOS (capacitor.config.ts appId); it is the Play package name and can never change
+        FLAGS_ADS_DEFAULT: "true"
+        ADMOB_TESTING: "true"         # internal testing uses Google's sample ads; set to "false" in the Play production build
+        DEV: "false"
+      node: 22.14.0
+      java: 21                        # VERIFY: Capacitor 7 / AGP 8.7 build with JDK 21
+    scripts:
+      - name: Install npm dependencies
+        script: npm ci
+      - name: Unit tests (node, no browser needed)
+        script: npm run test:unit
+      - name: Build the web bundle
+        script: npm run build:www
+      - name: Capacitor sync (copies www, links plugins)
+        script: npx cap sync android
+      - name: Apply Android patches (AdMob id, package, versionCode, signing, icons)
+        script: node scripts/patch-android.mjs
+      - name: Write the signing keystore from the secret
+        script: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$CM_BUILD_DIR/gg-release.keystore"
+          test -s "$CM_BUILD_DIR/gg-release.keystore" || { echo "ANDROID_KEYSTORE_BASE64 is empty or not base64"; exit 1; }
+          echo "KEYSTORE_PATH=$CM_BUILD_DIR/gg-release.keystore" >> $CM_ENV
+          echo "VERSION_CODE=$BUILD_NUMBER" >> $CM_ENV
+      - name: Build the signed AAB
+        script: |
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease
+      - name: Check the AAB exists
+        script: ls -l android/app/build/outputs/bundle/release/*.aab
+
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
+      - android/app/build/outputs/mapping/release/mapping.txt
+
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        # While the Play listing is still a draft (before the first review), Play only accepts draft releases:
+        submit_as_draft: true
+        # release_notes.json (repo root) is read for the release notes here too.

@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "version": 1,
+  "note": "shipped values of the build this file was extracted from",
+  "flags": {
+    "ads": true,
+    "adMemory": true,
+    "adSeal": true,
+    "adReroll": true,
+    "adChestPick": true,
+    "adInterstitial": true
+  },
+  "ads": {
+    "memoryPerRun": 1,
+    "sealBonus": 1,
+    "cooldownSec": 30,
+    "interstitialEvery": 2,
+    "interstitialMinGapSec": 180
+  },
+  "skill": {
+    "targets": [
+      300,
+      900,
+      4500
+    ],
+    "ch2T1": 400,
+    "firstReal": 200,
+    "deepMul": 1.6,
+    "long4": 0.75,
+    "seals": {
+      "free": 3,
+      "sack": 2,
+      "memory": 1
+    },
+    "fever": {
+      "grace": 1,
+      "decay": 0.15
+    },
+    "press2": {
+      "lucky": -2,
+      "tremor": 2
+    },
+    "cap": {
+      "fame": 120,
+      "reward": 1.5
+    },
+    "mercy": {
+      "free": 2
+    },
+    "rel2": 1.5
+  },
+  "luck": {
+    "press": {
+      "at": 0.8,
+      "w": {
+        "normal": 60,
+        "lucky": 30,
+        "tremor": 10
+      },
+      "luckyMult": 2,
+      "tremorCrack": 0.06
+    },
+    "near": {
+      "pct": 0.05
+    },
+    "coin": {
+      "min": 2500,
+      "p": 0.32,
+      "mult": 3
+    },
+    "jackpot": {
+      "at": 4,
+      "gold": 500
+    },
+    "tell": {
+      "chance": 0.15
+    }
+  },
+  "econ": {
+    "gold": {
+      "sealDiv": 100,
+      "chest": 15,
+      "tomb": 5,
+      "daily": 50,
+      "fenceSalvage": 10,
+      "sieve": 5
+    }
+  }
+}

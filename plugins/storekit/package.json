@@ -1,0 +1,9 @@
+{
+  "name": "capacitor-storekit",
+  "version": "1.0.0",
+  "description": "Thin Capacitor plugin over StoreKit 2 (products, purchase, restore, entitlements, transaction updates)",
+  "main": "src/index.js",
+  "files": ["src", "ios", "CapacitorStorekit.podspec"],
+  "capacitor": { "ios": { "src": "ios" } },
+  "peerDependencies": { "@capacitor/core": ">=7.0.0" }
+}
