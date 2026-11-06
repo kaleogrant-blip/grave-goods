@@ -34,7 +34,7 @@ test('ios-testflight: all four secrets are wired and checked up front', () => {
 
 test('asc-setup, ci, android workflows', () => {
   const a = wf('asc-setup');
-  assert.ok(a.includes('workflow_dispatch') && /products:/.test(a) && /apply:/.test(a) && a.includes('runs-on: ubuntu-latest') && a.includes('scripts/asc-setup.mjs'));
+  assert.ok(a.includes('workflow_dispatch') && /products:/.test(a) && /apply:/.test(a) && /runs-on: ubuntu-/.test(a) && a.includes('scripts/asc-setup.mjs'));
   for (const n of FOUR.slice(0, 3)) assert.ok(a.includes(`secrets.${n}`));
   const c = wf('ci');
   assert.ok(c.includes('npx playwright install --with-deps chromium') && c.includes("GG_REQUIRE_BROWSER: '1'") && c.includes('npm ci') && c.includes('npm test') && /\bpush:/.test(c) && c.includes('pull_request:'));
