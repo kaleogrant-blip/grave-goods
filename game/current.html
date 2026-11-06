@@ -1702,6 +1702,109 @@ header #walk.s11arm small{white-space:normal;font-size:9px;line-height:1}
   header #walk.s11arm small{font-size:8.5px}
 }
 
+
+/* ===== v1.0-rc8 (sprint 14, wall review): the wall gets the room =====
+   Portrait and short-of-landscape only: a one-line icon strip replaces the always-open Context Sheet (the sheet opens over the top of the wall on tap,
+   and by itself for a moment when a seal lands), the pouch becomes a drawer behind a fifth tray slot, and the frame gives up its slack so the wall
+   can be as wide as the glass. Landscape (the right-hand column) is untouched. */
+#strip,#pouchBtn{display:none}
+@media not all and (orientation:landscape) and (max-height:560px){
+ body{padding:6px calc(2px + env(safe-area-inset-right)) calc(3px + env(safe-area-inset-bottom)) calc(2px + env(safe-area-inset-left))}
+ .win.hx{--stripH:56px;gap:4px;padding:3px 4px 4px;border-width:2px}
+ .win.hx::before,.win.hx::after{width:14px;height:14px}
+ .win.hx::before{top:-3px;left:-3px}.win.hx::after{bottom:-3px;right:-3px}
+ .win.hx>#wrap{margin:0 -4px;border-width:2px}
+
+ /* ---- the strip: lamp, register, goal, finds, crack ---- */
+ #strip{all:unset;box-sizing:border-box;position:relative;display:grid;grid-template-columns:46px minmax(0,1fr) 46px;align-items:center;column-gap:4px;flex:none;height:var(--stripH);padding:3px 4px;border-radius:5px;cursor:pointer;
+   background:linear-gradient(180deg,#f4e8ca,#e3d2a6);color:var(--ink);-webkit-tap-highlight-color:transparent;
+   box-shadow:0 0 0 1px #000,inset 0 0 0 1px rgba(255,255,255,.4),inset 0 -2px 0 rgba(90,70,40,.22),0 2px 0 rgba(0,0,0,.55)}
+ #strip:focus-visible{outline:2px solid var(--brass2);outline-offset:2px}
+ #strip::after{content:"";position:absolute;left:50%;top:-1px;width:30px;height:4px;margin-left:-15px;border-radius:0 0 4px 4px;background:linear-gradient(180deg,#f0d27a,#a47c2c);box-shadow:0 1px 0 rgba(0,0,0,.6)}
+ .win.so #strip{box-shadow:0 0 0 1px #000,inset 0 0 0 2px var(--brass),0 2px 0 rgba(0,0,0,.55)}
+ .win.so #strip::after{height:5px;background:linear-gradient(180deg,#fff0b8,#c9a24a)}
+ .s14-g{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;height:100%;min-width:0}
+ .s14-g svg{display:block;width:24px;height:33px;overflow:visible}
+ .s14-g b{font:700 12px/12px var(--display);letter-spacing:0}
+ .s14-lamp b{color:#a4510a}.s14-crk b{color:#b0262d}
+ .s14-c{display:grid;grid-template-rows:auto auto;row-gap:3px;min-width:0;align-content:center}
+ .s14-reg{display:flex;align-items:baseline;justify-content:center;gap:5px;white-space:nowrap;min-width:0}
+ .s14-reg b{font:700 clamp(16px,5.6vw,23px)/1 var(--display);letter-spacing:0;transform-origin:50% 70%}
+ .s14-reg i{font:italic 700 13px/1 var(--body);color:#6b5634}
+ .s14-w{color:var(--pw,#17695a)}.s14-f{color:var(--pf,#7a2a6a)}.s14-t{color:#2b1d10}
+ .s14-row{display:flex;align-items:center;gap:5px;min-width:0}
+ .s14-bar{position:relative;flex:1;min-width:0;height:17px;border-radius:3px;background:#2b1d10;box-shadow:inset 0 0 0 1px #000,0 1px 0 rgba(255,255,255,.4);overflow:hidden}
+ .s14-bar u{position:absolute;left:0;top:0;bottom:0;width:0;text-decoration:none;background:linear-gradient(180deg,#f0d27a,#b88a2c);transition:width .4s cubic-bezier(.34,1.56,.64,1)}
+ .s14-bar.done u{background:linear-gradient(180deg,#8be07a,#3d9a2e)}
+ .s14-bar b{position:absolute;inset:0;display:grid;place-items:center;font:700 11px/1 var(--display);color:#fff;text-shadow:0 1px 0 #000,0 0 3px #000;white-space:nowrap}
+ .s14-chip{flex:none;max-width:46%;overflow:hidden;text-overflow:ellipsis;font:700 11px/15px var(--display);padding:0 6px;border-radius:8px;background:#3a2916;color:#f0d27a;box-shadow:inset 0 0 0 1px #000;white-space:nowrap}
+ .s14-chip[hidden]{display:none}
+ body:not(.rm) #strip.s14-hint::after{animation:s14Tab 1.3s ease-in-out infinite alternate;transform-origin:50% 0;box-shadow:0 1px 0 rgba(0,0,0,.6),0 0 8px rgba(240,210,122,.7)}
+ @keyframes s14Tab{from{opacity:.7;transform:scaleY(1)}to{opacity:1;transform:scaleY(2)}} /* opacity + transform only, so the breathing tab costs no layout or paint */
+ /* alive: the lamp's flame follows Fever and flares at full; the slab splinters with the Wall and shudders on every new crack */
+ .s14-lamp{--fev:0}.s14-lamp .s14-fl{transform-box:fill-box;transform-origin:50% 100%;transform:scale(calc(.45 + var(--fev)*.75));transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+ .s14-lamp svg{filter:drop-shadow(0 0 calc(var(--fev)*7px) rgba(255,154,31,.95))}
+ .s14-lamp.max svg{filter:drop-shadow(0 0 9px rgba(255,200,80,1))}
+ .s14-cr{fill:none;stroke:#8c1c22;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset .45s ease-out}
+ .s14-crk.hot svg path:first-child{stroke:#b0262d}
+ .s14-crk.hot svg{filter:drop-shadow(0 0 4px rgba(214,40,50,.8))}
+ body:not(.rm) .s14-lamp .s14-fl{animation:s14Flick 1.3s steps(6,end) infinite alternate}
+ body:not(.rm) .s14-lamp.max .s14-fl{animation:s14Flare .5s steps(4,end) infinite alternate}
+ body:not(.rm) .s14-crk.hot svg{animation:s14Throb .8s steps(4,end) infinite alternate}
+ @keyframes s14Flick{from{transform:scale(calc(.45 + var(--fev)*.75)) skewX(-3deg)}to{transform:scale(calc(.5 + var(--fev)*.75),calc(.42 + var(--fev)*.75)) skewX(3deg)}}
+ @keyframes s14Flare{from{transform:scale(1.05,1.0)}to{transform:scale(1.25,1.2)}}
+ @keyframes s14Throb{from{transform:scale(1)}to{transform:scale(1.07)}}
+ @keyframes s14Sway{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+
+ /* ---- the Context Sheet, opened: it drops over the top of the wall (the cave rows first) and looks exactly as before ---- */
+ .win.hx #top .bump{animation:none} /* the pop would scale past the right edge at 360 px and widen the page; the strip pops instead */
+ .win.hx>#top{position:absolute;left:4px;right:4px;top:var(--s14top,110px);z-index:4;margin:0;
+   visibility:hidden;opacity:0;transform:translateY(-12px);pointer-events:none;transition:opacity .16s ease-out,transform .22s cubic-bezier(.34,1.3,.64,1),visibility 0s linear .22s}
+ .win.hx.so>#top{visibility:visible;opacity:1;transform:none;pointer-events:auto;transition:opacity .16s ease-out,transform .22s cubic-bezier(.34,1.3,.64,1),visibility 0s;box-shadow:0 0 0 1px #000,0 16px 30px rgba(0,0,0,.65)}
+ .win.hx.so.auto>#top{pointer-events:none}
+ body.rm .win.hx>#top,body.rm .win.hx.so>#top{transition:none;transform:none}
+
+ /* ---- the pouch, a drawer over the foot of the wall, behind a fifth tray slot ---- */
+ .win.hx>#pouch{position:absolute;left:4px;right:4px;bottom:calc(var(--trayH) + 13px);z-index:4;height:calc(var(--bagH) + 14px);padding:7px 6px;margin:0;border-radius:6px;
+   background:linear-gradient(180deg,#4a3521,#35261a);box-shadow:0 0 0 1px #000,inset 0 0 0 1px rgba(240,210,122,.35),0 -8px 22px rgba(0,0,0,.6);
+   visibility:hidden;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .14s ease-out,transform .2s cubic-bezier(.34,1.3,.64,1),visibility 0s linear .2s}
+ .win.hx.pd>#pouch{visibility:visible;opacity:1;transform:none;pointer-events:auto;transition:opacity .14s ease-out,transform .2s cubic-bezier(.34,1.3,.64,1),visibility 0s}
+ .win.hx:has(#kswap:not([hidden]))>#pouch{bottom:calc(var(--trayH) + 61px)}
+ body.rm .win.hx>#pouch,body.rm .win.hx.pd>#pouch{transition:none;transform:none}
+ .hx .tools{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr) minmax(0,1fr) minmax(0,1.5fr) minmax(0,.8fr)}
+ .hx .tools #pouchBtn{all:unset;box-sizing:border-box;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;min-width:0;min-height:44px;height:100%;padding:0 2px 5px;border-radius:4px;cursor:pointer;-webkit-tap-highlight-color:transparent;
+   font:700 11.5px/12px var(--display);color:#f1e6cf;text-shadow:0 1px 0 #000;background:radial-gradient(120% 100% at 40% 0,#1f3433,#0f1b1a);
+   box-shadow:inset 0 3px 6px rgba(0,0,0,.85),inset 0 0 0 1px rgba(0,0,0,.65),0 1px 0 rgba(255,255,255,.18);transition:transform .06s,box-shadow .1s}
+ .hx .tools #pouchBtn small{display:block;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font:italic 500 10.5px/11px var(--body);color:#9fd8d0;text-shadow:none}
+ .hx .tools #pouchBtn:focus-visible{outline:2px solid var(--brass2);outline-offset:2px}
+ .hx .tools #pouchBtn:active{transform:translateY(2px) scale(.96)}
+ .hx .tools #pouchBtn.on,.win.pd .hx .tools #pouchBtn,.win.pd #pouchBtn{color:#fff;box-shadow:inset 0 3px 6px rgba(0,0,0,.6),inset 0 0 0 1.5px #4fe3d6,0 0 9px rgba(79,227,214,.5)}
+ .s14-bag{position:absolute;top:3px;left:50%;width:24px;height:28px;margin-left:-12px;pointer-events:none}.s14-bag svg{display:block;width:24px;height:28px}
+ .s14-pips{position:absolute;top:8px;left:50%;display:flex;gap:2px;transform:translateX(-50%);margin-top:12px;pointer-events:none}
+ .s14-pips i{width:6px;height:6px;border-radius:50%;background:var(--pc,transparent);box-shadow:0 0 0 1px rgba(0,0,0,.7);border:0}
+ .s14-pips i.e{background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(240,210,122,.4)}
+ /* the tray at 44 px+ on the shortest phones: five slots, two lines of small text at most */
+ .hx .tools :is(#pick,#hammer,#special,#seal) small{font-size:10px;line-height:10.5px}
+}
+/* more room (tall phones are width-bound, so the spare height goes to the strip, big and readable) */
+@media (min-height:760px){
+ .win.hx{--stripH:80px;--trayH:78px}
+ #strip{grid-template-columns:54px minmax(0,1fr) 54px;padding:5px 6px}
+ .s14-g svg{width:30px;height:41px}.s14-g b{font-size:14px;line-height:14px}
+ .s14-reg b{font-size:clamp(20px,7vw,30px)}.s14-reg i{font-size:16px}
+ .s14-bar{height:22px}.s14-bar b{font-size:12.5px}.s14-chip{font-size:12.5px;line-height:19px}
+ .s14-c{row-gap:6px}
+}
+@media (min-height:900px){.win.hx{--stripH:92px}}
+@media (max-height:700px){
+ .win.hx{--stripH:46px;--trayH:70px;gap:3px}
+ .s14-g svg{width:20px;height:28px}.s14-g b{font-size:11px;line-height:11px}
+ .s14-bar{height:15px}.s14-bar b{font-size:10px}.s14-chip{font-size:10px;line-height:14px;padding:0 5px}
+ #strip{padding:2px 3px;grid-template-columns:40px minmax(0,1fr) 40px}
+}
+/* High-contrast dirt also lifts the chrome a little */
+body.hc #wrap{box-shadow:inset 0 0 0 2px var(--iron),inset 0 0 0 3px #000}
+
 </style>
 
 <div class="win hx">
@@ -1715,6 +1818,11 @@ header #walk.s11arm small{white-space:normal;font-size:9px;line-height:1}
   <label>Effects<output id="volSo">80</output><input type="range" id="volS" min="0" max="100" step="1" aria-label="Effects volume"></label>
   <button id="volMute">Sound: on</button>
 </div>
+<button id="strip" type="button" aria-expanded="false" aria-controls="top" aria-label="Context sheet. Tap to open.">
+ <span class="s14-g s14-lamp" id="sLamp" aria-hidden="true"><svg viewBox="0 0 24 34"><g class="s14-bail"><path d="M8 8Q12 -1 16 8" fill="none" stroke="#7d5f22" stroke-width="1.7" stroke-linecap="round"/></g><rect x="7" y="6.5" width="10" height="3.4" rx="1.2" fill="#c9a24a" stroke="#5a4218" stroke-width="1"/><path d="M7.4 10H16.6L19 24.5Q19 27.6 12 27.6Q5 27.6 5 24.5Z" fill="rgba(255,226,150,.28)" stroke="#5a4218" stroke-width="1.3" stroke-linejoin="round"/><g class="s14-fl"><ellipse cx="12" cy="20" rx="3.6" ry="6" fill="#ff9a1f"/><ellipse cx="12" cy="21.6" rx="1.7" ry="3.4" fill="#fff3b0"/></g><rect x="4.6" y="27" width="14.8" height="4.6" rx="1.4" fill="#c9a24a" stroke="#5a4218" stroke-width="1"/></svg><b id="sFev">0%</b></span>
+ <span class="s14-c"><span class="s14-reg"><b class="s14-w" id="sW">0</b><i>&times;</i><b class="s14-f" id="sF">1</b><i>=</i><b class="s14-t" id="sT">0</b></span><span class="s14-row"><span class="s14-bar" id="sBarBox"><u id="sBar"></u><b id="sGoal">0 / 0</b></span><span class="s14-chip" id="sChip" hidden></span></span></span>
+ <span class="s14-g s14-crk" id="sCrack" aria-hidden="true"><svg viewBox="0 0 24 34"><path d="M3.4 3.4H20.6V30.6H3.4Z" fill="#d6c59c" stroke="#5a4630" stroke-width="1.5" stroke-linejoin="round"/><path d="M5 9H19M5 16H19M5 23H19" stroke="rgba(90,70,40,.28)" stroke-width="1"/><path class="s14-cr" pathLength="100" d="M12 3.6L10.6 10L13.6 14.6L10.8 19.5" /><path class="s14-cr" pathLength="100" d="M10.8 19.5L12.4 25L11.4 30.4"/><path class="s14-cr" pathLength="100" d="M13.6 14.6L18 17.4L19.8 22"/><path class="s14-cr" pathLength="100" d="M10.6 10L6 12.4L4.2 17.6"/></svg><b id="sCr">0%</b></span>
+</button>
 <section id="top" aria-label="Score">
  <span class="btl l" aria-hidden="true">Site GG-26</span><span class="btl r" aria-hidden="true">Ctx <span id="hudCtx">101</span> &middot; E4/N7</span><i class="cb" aria-hidden="true"></i>
  <div class="sheet" id="sheet">
@@ -1738,6 +1846,7 @@ header #walk.s11arm small{white-space:normal;font-size:9px;line-height:1}
   <button id="hammer" class="on">Hammer<small id="hamS">3×3 · 12 crack</small><small class="odds" id="hamO" hidden></small><span class="gi" aria-hidden="true"></span></button>
   <button id="special">Skill<small id="specS">—</small><span class="gi" aria-hidden="true"></span></button>
   <button id="seal">Seal<small id="sealS">bank what glows</small><span class="gi" aria-hidden="true"></span></button>
+  <button id="pouchBtn" type="button" aria-expanded="false" aria-controls="pouch" title="Open the pouch: your ores"><span class="s14-bag" aria-hidden="true"><svg viewBox="0 0 24 28"><path d="M8 7L9.4 2.6M16 7L14.6 2.6M9.4 2.6Q12 .8 14.6 2.6" fill="#e9eef2" stroke="#2b1d10" stroke-width="1.1" stroke-linecap="round"/><path d="M3.6 17Q3.6 9.4 8 7.8H16Q20.4 9.4 20.4 17Q20.4 25.6 12 25.6Q3.6 25.6 3.6 17Z" fill="#e8dcc0" stroke="#2b1d10" stroke-width="1.2"/><path d="M7.5 9.5H16.5" stroke="#b39a68" stroke-width="1.2"/></svg></span>Pouch<small id="pouchS">empty</small><span class="s14-pips" id="pouchP" aria-hidden="true"></span></button>
   <button id="kswap" type="button" hidden>Swap item</button>
 </div>
 </div>
@@ -3622,6 +3731,12 @@ function tileLight(px,py,x,y){ // the lamp's light on one tile (the last step of
   if(L<1){const q=Math.round((1-L)*85),ls=Ta._ls||(Ta._ls=[]);ctx.fillStyle=ls[q]||(ls[q]=`rgba(${Ta.dk},${(q/100).toFixed(2)})`)}
   else ctx.fillStyle=(LAMP9||Ta).lw||(Ta.lw=`rgba(${Ta.lamp},.08)`);
   ctx.fillRect(px,py,cell,cell);
+  { // sprint 14: each square reads as its own target (a lit top/left hair, a dark bottom/right hair); High-contrast dirt lifts the whole tile and doubles the hairs
+    const hc=SETTINGS.hc,e=(hc?2:1)/DK;
+    if(hc){ctx.fillStyle='rgba(255,240,215,.10)';ctx.fillRect(px,py,cell,cell)}
+    ctx.fillStyle=hc?'rgba(255,236,190,.18)':'rgba(255,236,190,.06)';ctx.fillRect(px,py,cell,e);ctx.fillRect(px,py,e,cell);
+    ctx.fillStyle=hc?'rgba(0,0,0,.6)':'rgba(0,0,0,.32)';ctx.fillRect(px,py+cell-e,cell,e);ctx.fillRect(px+cell-e,py,e,cell);
+  }
 }
 function drawTile(px,py,d,x,y,light,nl){
   for(let k=0;k<=8;k++){_tx[k]=Math.round((px+k*cell/8)*DK)/DK-px;_ty[k]=Math.round((py+k*cell/8)*DY)/DY-py} // edges on whole device px
@@ -3641,7 +3756,7 @@ function drawTile(px,py,d,x,y,light,nl){
   else{ctx.fillStyle=(LAMP9||Ta).lw||(Ta.lw=`rgba(${Ta.lamp},.08)`);ctx.fillRect(px,py,cell,cell)} // lamp colour on lit tiles
 }
 
-function lightAt(x,y){const lx=state.lamp?state.lamp.x:COLS/2,ly=state.lamp?state.lamp.y:0;const d=Math.hypot(x+.5-lx,y+.5-ly);const r=state.lampR||5.5;return Math.max(.28,Math.min(1,1.2-d/r))}
+function lightAt(x,y){const lx=state.lamp?state.lamp.x:COLS/2,ly=state.lamp?state.lamp.y:0;const d=Math.hypot(x+.5-lx,y+.5-ly);const r=state.lampR||5.5;return Math.max(SETTINGS.hc?.8:.5,Math.min(1,1.2-d/r))} // sprint 14: floor was .28
 const _rb={};
 function drawSprite(c,r,x0,y0,u){const d=RELIC_BY[r.name]||RELIC_BY[r.n]||r;let b=_rb[d.n];if(!b){b=_rb[d.n]=document.createElement('canvas');b.width=16;b.height=16;const bx=b.getContext('2d');for(let yy=0;yy<16;yy++)for(let xx=0;xx<16;xx++){const ch=d.px[yy][xx];if(ch===".")continue;bx.fillStyle=d.pal[ch];bx.fillRect(xx,yy,1,1)}}c.imageSmoothingEnabled=false;c.drawImage(b,x0,y0,16*u,16*u)}
 const RAIDERS={
@@ -3827,11 +3942,11 @@ function shake(n){if(!SETTINGS.shake||rmEff())return;shakeAmt=Math.max(shakeAmt,
 let DK=1,DY=1,_tx=[0,0,0,0,0,0,0,0,0],_ty=[0,0,0,0,0,0,0,0,0]; // device pixels per CSS px actually used by the wall canvas (set in size(), read by the pixel snappers) + scratch edge tables
 function size(){
   const wrap=document.getElementById('wrap'),R=ROWS+TOP;
-  const w=wrap.clientWidth-4,h=wrap.clientHeight-4,LOGH=58;
+  const w=wrap.clientWidth,h=wrap.clientHeight-2,LOGH=58; // sprint 14: the wall fills the frame (was -4 and -4)
   const K=Math.min(3,Math.max(1,window.devicePixelRatio||1)); // cap 3; fractional DPRs (2.625 Android) are honoured, not rounded
   // cell is a whole CSS px: the largest that fits. Within 6% of that (and never under 95% of the frame width) prefer a cell whose 8x8 art pixels
   // are a whole number of device pixels, then the one whose edges land closest to whole device pixels (largest wins ties, so any integer DPR just takes the biggest). A full-width wall beats a tidy ratio.
-  const fit=hh=>{const base=Math.max(16,Math.floor(Math.min(w/COLS,hh/R))),lo=Math.max(16,Math.ceil(base*.94),Math.ceil(wrap.clientWidth*.95/COLS));
+  const fit=hh=>{const base=Math.max(16,Math.floor(Math.min(w/COLS,hh/R))),lo=Math.max(16,Math.ceil(base*.985),Math.ceil(wrap.clientWidth*.95/COLS));
     for(let c=base;c>=lo;c--){const s=c*K/8;if(Math.abs(s-Math.round(s))<1e-6)return c}
     let best=base,bd=1;for(let c=base;c>=lo;c--){const d=Math.abs(c*K-Math.round(c*K));if(d<bd-1e-6){bd=d;best=c}}
     return best};
@@ -3901,6 +4016,7 @@ function draw(){
     if(!drawItem(f,x0,y0,cell/8,pal)){f.cells.forEach(([x,y])=>{ctx.fillStyle=pal[1];ctx.fillRect(x*cell+1,y*cell+1,cell-2,cell-2)})}
     // age tag
     ctx.fillStyle="rgba(10,8,6,.85)";ctx.fillRect(x0+2,y0+2,cell*.5,cell*.38);ctx.fillStyle="#fff6dc";ctx.font=`700 ${Math.floor(cell*.3)}px Cinzel, serif`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(f.age,x0+2+cell*.25,y0+2+cell*.2);
+    if(SETTINGS.hc){ctx.lineWidth=2;f.cells.forEach(([x,y])=>{ctx.strokeStyle="#000";ctx.strokeRect(x*cell+.5,y*cell+.5,cell-1,cell-1);ctx.strokeStyle="#fff6dc";ctx.strokeRect(x*cell+2,y*cell+2,cell-4,cell-4)});ctx.lineWidth=1} // sprint 14: High-contrast dirt rims every open find
     ctx.restore()});
   // relic artwork over exposed 2x2 relics
   state.finds.forEach(f=>{if(state.falling||!f.relic||f.banked||!RELIC_BY[f.name])return;if(!f.cells.every(([x,y])=>state.dirt[y][x]===0))return;const x0=Math.min(...f.cells.map(c=>c[0]))*cell,y0=Math.min(...f.cells.map(c=>c[1]))*cell;tickJuice(f.j);const bob=Math.sin(frame/12)*cell*.06;ctx.save();ctx.translate(x0+cell,y0+cell);ctx.scale(f.j.s,f.j.s);ctx.rotate(f.j.r);ctx.translate(-(x0+cell),-(y0+cell));const gl=ctx.createRadialGradient(x0+cell,y0+cell,cell*.3,x0+cell,y0+cell,cell*1.8);gl.addColorStop(0,`rgba(255,170,40,${.45+.15*Math.sin(frame/7)})`);gl.addColorStop(1,"rgba(255,170,40,0)");ctx.fillStyle=gl;ctx.fillRect(x0-cell,y0-cell,cell*4,cell*4);ctx.fillStyle="#2a1d08";ctx.fillRect(x0,y0+bob,cell*2,cell*2);drawSprite(ctx,f,x0,y0+bob,cell/8);const g=f.fin==="blighted"?((frame>>3)%2?"#c6f060":"#6a9a22"):(frame>>3)%2?"#ffd27a":"#ff9a1f";ctx.strokeStyle=g;ctx.lineWidth=2;ctx.strokeRect(x0+1,y0+1+bob,cell*2-2,cell*2-2);ctx.lineWidth=1;const sh=((frame*3)%(cell*6))-cell*2;const sg=ctx.createLinearGradient(x0+sh,y0,x0+sh+cell*.8,y0+cell*2);sg.addColorStop(0,"rgba(255,255,255,0)");sg.addColorStop(.5,"rgba(255,255,255,.35)");sg.addColorStop(1,"rgba(255,255,255,0)");ctx.fillStyle=sg;ctx.fillRect(x0,y0+bob,cell*2,cell*2);ctx.fillStyle="rgba(10,8,6,.85)";ctx.fillRect(x0+2,y0+2+bob,cell*.5,cell*.38);ctx.fillStyle="#fff6dc";ctx.font=`700 ${Math.floor(cell*.3)}px Cinzel, serif`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(f.age,x0+2+cell*.25,y0+2+cell*.2+bob);ctx.restore();if(frame%6===0)state.bursts.push({x:x0+Math.random()*cell*2,y:y0+Math.random()*cell*2,vx:0,vy:-.6,t:.8,c:"#ffe08a",star:true})});
@@ -3944,7 +4060,7 @@ function draw(){
   if(state.xray){ctx.strokeStyle="#fff";ctx.strokeRect((state.xray.x-state.xray.r)*cell+1,(state.xray.y-state.xray.r)*cell+1,cell*(2*state.xray.r+1)-2,cell*(2*state.xray.r+1)-2);state.xray.t--;if(state.xray.t<=0)state.xray=null}
   state.flash=state.flash.filter(f=>f.t>0);
   state.flash.forEach(f=>{ctx.fillStyle=`rgba(255,240,200,${f.t*.7})`;ctx.fillRect(f.x*cell,f.y*cell,cell,cell);f.t-=.15});
-  {const pv=previewCell();if(pv&&!state.over&&!state.sealing&&!state.falling){const pl=strikePlan(pv.x,pv.y);if(pl)drawPlan(pl)}}
+  {const pv=previewCell();if(pv&&!state.over&&!state.sealing&&!state.falling){const pl=strikePlan(pv.x,pv.y);if(pl)drawPlan(pl);if(confirmOn()&&(aimGet()||hold&&hold.aimed))drawAim(pv)}}
   ctx.restore();
 }
 let shownBanked=0,feedMode=false;
@@ -3995,7 +4111,23 @@ function drawPlan(pl){
 let hold=null; // finger held on the wall: {id,p0,cur,sx,sy,shown,moved,timer}
 function holdEnd(){if(hold){clearTimeout(hold.timer);hold=null}}
 function inWall(p){return p&&p.x>=0&&p.y>=0&&p.x<COLS&&p.y<ROWS}
-function previewCell(){return hold&&hold.shown?hold.cur:hover}
+let AIM=null; // sprint 14: the aimed square when Confirm digs is on: {x,y,st}
+const confirmOn=()=>!!SETTINGS.confirm;
+function aimSet(p){AIM=p?{x:p.x,y:p.y,st:state}:null}
+function aimGet(){return AIM&&state&&AIM.st===state&&!state.over?AIM:null}
+let _aimHints=0;
+function aimLift(h){const c=inWall(h.cur)?h.cur:null,pv=h.prev;
+  if(!c){aimSet(pv);return}
+  if(pv&&pv.x===c.x&&pv.y===c.y){aimSet(c);act(c);return}
+  aimSet(c);if(_aimHints++<2)log('Aimed. Tap the same square again to dig it.')}
+function s14Fire(t){const a=aimGet();if(confirmOn()&&a&&tool===t&&!PAUSE.on&&inWall(a)){act({x:a.x,y:a.y});return true}return false}
+function drawAim(c){const t=rmEff()?1:.5+.5*Math.sin(frame/6),x=c.x*cell,y=c.y*cell,w=Math.max(3,Math.round(cell/10)),k=Math.round(cell*.34);
+  ctx.save();ctx.fillStyle='rgba(255,246,200,'+(.12+.12*t).toFixed(2)+')';ctx.fillRect(x,y,cell,cell);
+  ctx.lineWidth=w;ctx.strokeStyle='#000';ctx.strokeRect(x+w/2,y+w/2,cell-w,cell-w);
+  ctx.lineWidth=w-1.5;ctx.strokeStyle=t>.5?'#fff6dc':'#ffd44a';ctx.strokeRect(x+w/2,y+w/2,cell-w,cell-w);
+  ctx.lineWidth=w;ctx.strokeStyle='#fff';ctx.beginPath();[[x,y,1,1],[x+cell,y,-1,1],[x,y+cell,1,-1],[x+cell,y+cell,-1,-1]].forEach(([cx,cy,sx,sy])=>{ctx.moveTo(cx+sx*k,cy);ctx.lineTo(cx,cy);ctx.lineTo(cx,cy+sy*k)});ctx.stroke();
+  ctx.restore()}
+function previewCell(){return hold&&(hold.shown||hold.aimed)?hold.cur:(aimGet()||hover)}
 function act(p){ // what one tap on the wall does
   if(PAUSE.on||LK.busy)return;
   luckSlipHide();
@@ -4011,13 +4143,14 @@ cv.addEventListener('pointerdown',e=>{e.preventDefault();if(PAUSE.on)return;cons
   if(touch)lastTouchT=e.timeStamp;else if(e.timeStamp-lastTouchT<800)return; // a mouse event right after a touch is the browser echoing it: one tap, one strike
   if(!touch){if(inWall(p))act(p);return}
   holdEnd();if(!inWall(p))return;try{cv.setPointerCapture(e.pointerId)}catch(x){}
-  const now=instantTool(),h=hold={id:e.pointerId,p0:p,cur:p,sx:e.clientX,sy:e.clientY,t0:e.timeStamp,shown:false,moved:false,fire:!now,timer:0};
+  const cf=confirmOn(),now=!cf&&instantTool(),h=hold={id:e.pointerId,p0:p,cur:p,sx:e.clientX,sy:e.clientY,t0:e.timeStamp,shown:false,moved:false,fire:!now,aimed:cf,prev:cf?aimGet():null,timer:0};
+  if(cf){aimSet(p);hap(6)}
   if(now)act(p);
   h.timer=setTimeout(()=>{if(hold===h){h.shown=true;if(!now)hap(8)}},250)});
 cv.addEventListener('pointermove',e=>{
-  if(e.pointerType==="touch"){if(hold&&hold.id===e.pointerId){const p=pos(e);hold.cur=inWall(p)?p:null;if(Math.hypot(e.clientX-hold.sx,e.clientY-hold.sy)>14)hold.moved=true}}
+  if(e.pointerType==="touch"){if(hold&&hold.id===e.pointerId){const p=pos(e);hold.cur=inWall(p)?p:null;if(hold.aimed&&hold.cur)aimSet(hold.cur);if(Math.hypot(e.clientX-hold.sx,e.clientY-hold.sy)>14)hold.moved=true}}
   else hover=pos(e)});
-cv.addEventListener('pointerup',e=>{if(e.pointerType!=="touch"||PAUSE.on)return;lastTouchT=e.timeStamp;if(!hold||hold.id!==e.pointerId)return;const h=hold;holdEnd();if(h.fire&&!h.moved&&e.timeStamp-h.t0<250)act(h.p0)}); // only the one-shot tools still wait for the lift; judged by event time, so a busy frame cannot turn a tap into a hold
+cv.addEventListener('pointerup',e=>{if(e.pointerType!=="touch"||PAUSE.on)return;lastTouchT=e.timeStamp;if(!hold||hold.id!==e.pointerId)return;const h=hold;holdEnd();if(h.aimed){aimLift(h);return}if(h.fire&&!h.moved&&e.timeStamp-h.t0<250)act(h.p0)}); // only the one-shot tools still wait for the lift; judged by event time, so a busy frame cannot turn a tap into a hold
 cv.addEventListener('pointercancel',holdEnd);
 cv.addEventListener('pointerleave',e=>{if(e.pointerType!=="touch")hover=null});
 
@@ -4435,8 +4568,8 @@ window.addEventListener('pagehide',auHide);window.addEventListener('pageshow',au
 // controls
 function setTool(t){tool=t;if(t!=="lode"&&t!=="blast"&&state)state.activeOre=-1;["pick","hammer"].forEach(k=>document.getElementById(k).classList.toggle('on',t===k));document.getElementById('special').classList.toggle('on',t==="xray")}
 [0,1,2,3].forEach(k=>document.getElementById('ore'+k).onclick=()=>useOre(k));
-document.getElementById('pick').onclick=()=>setTool("pick");
-document.getElementById('hammer').onclick=()=>setTool("hammer");
+document.getElementById('pick').onclick=()=>{if(!s14Fire("pick"))setTool("pick")};
+document.getElementById('hammer').onclick=()=>{if(!s14Fire("hammer"))setTool("hammer")};
 document.getElementById('special').onclick=()=>{if(PAUSE.on||LK.busy)return;if((cls&&cls.skill&&!state.skillUsed)||state.codexXray){setTool(tool==="xray"?"pick":"xray");log("Tap the wall to X-ray a patch.")}};
 document.getElementById('seal').onclick=seal;document.getElementById('walk').onclick=walkAway;
 document.getElementById('music')&&(document.getElementById('music').onclick=()=>{const mb=document.getElementById('music');if(MUSIC.on){clearInterval(MUSIC.timer);MUSIC.on=false;MUSIC.muted=true;SFX.off=true;mb.textContent='♪ off'}else{MUSIC.muted=false;SFX.off=false;startMusic();mb.textContent='♪ on'}});
@@ -5277,7 +5410,7 @@ function sumExtras(kind){
 // when they exist (and say "Coming next sprint" when they do not). Render into #card like every other screen and make your Back button call
 // showMenu(). showMenu() is pause-aware: while a run is paused it re-opens the pause card instead, so Settings and How to play opened from
 // Pause come back to Pause. uiToast(text) is a toast that shows above the overlay. window.onRunAbandon(stats) is called (if defined) when a run is abandoned.
-const GAME_VERSION='v1.0-rc7b';
+const GAME_VERSION='v1.0-rc8';
 const PAUSE={on:false,mg:null,cLeft:0};
 function uiReduce(){try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}}
 let _toastT=0;
@@ -5632,7 +5765,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseOpen()
 // ===================== SPRINT 5 / UI-B: settings, how to play, stats =====================
 // One SETTINGS object (rw_settings), applied live. Screens are exposed as window.showSettings(back), window.showHowTo(back), window.showStats(back).
 const _mm=window.matchMedia.bind(window),_RMQ='(prefers-reduced-motion: reduce)';
-const SET_DEF={music:.8,sfx:.8,sound:true,haptics:true,speed:1,rm:null,shake:true,cb:false,lefty:false,coin:true,crt:true}; // rm:null = follow the device's reduce-motion preference
+const SET_DEF={music:.8,sfx:.8,sound:true,haptics:true,speed:1,rm:null,shake:true,cb:false,lefty:false,coin:true,crt:true,confirm:false,hc:false}; // rm:null = follow the device's reduce-motion preference
 function setLoad(){
   const S=Object.assign({},SET_DEF);let raw=null;
   try{raw=JSON.parse(Store.get('rw_settings')||'null')}catch(e){raw=null}
@@ -5641,7 +5774,7 @@ function setLoad(){
   if(raw){
     if(v01(raw.music)!==null)S.music=v01(raw.music);
     if(v01(raw.sfx)!==null)S.sfx=v01(raw.sfx);
-    ['sound','haptics','shake','cb','lefty','coin','crt'].forEach(k=>{if(typeof raw[k]==='boolean')S[k]=raw[k]});
+    ['sound','haptics','shake','cb','lefty','coin','crt','confirm','hc'].forEach(k=>{if(typeof raw[k]==='boolean')S[k]=raw[k]});
     if(typeof raw.rm==='boolean')S.rm=raw.rm;
     if(raw.speed===1||raw.speed===2||raw.speed===4)S.speed=raw.speed;
   }else{S.music=MUSIC.vol.m;S.sfx=MUSIC.vol.s} // first run of this build: migrate the old rw_vol (volLoad() has already read it)
@@ -5662,7 +5795,7 @@ function applySettings(gesture){
   MUSIC.vol.m=S.music;MUSIC.vol.s=S.sfx;try{applyVol()}catch(e){}
   soundApply(S.sound,gesture);
   Q.speed=S.speed;{const sp=document.getElementById('speed');if(sp)sp.textContent={1:'»',2:'»»',4:'»»»'}[S.speed]}
-  b.classList.toggle('rm',rmEff());b.classList.toggle('cb',!!S.cb);b.classList.toggle('lefty',!!S.lefty);
+  b.classList.toggle('rm',rmEff());b.classList.toggle('cb',!!S.cb);b.classList.toggle('hc',!!S.hc);b.classList.toggle('lefty',!!S.lefty);
 }
 function setSet(k,v){SETTINGS[k]=v;setSave();applySettings(true);setPaint();telEmit('settings_change',{key:k,value:v})}
 try{_mm(_RMQ).addEventListener('change',()=>applySettings())}catch(e){}
@@ -5783,6 +5916,8 @@ function showSettings(back){
     <div class="sec">Access</div>
     ${sw('cb','Color-blind assist','Stamps a small shape on every find so civilizations never rely on colour alone.')}
     <div class="cbleg" aria-hidden="true">${leg}</div>
+    ${sw('hc','High-contrast dirt','Lighter dirt, a brighter lamp at the edges, a clear line between squares and a bright rim on every find.')}
+    ${sw('confirm','Confirm digs (tap once to aim, again to dig)','For small hands on a small screen. The first tap lights the square, a second tap on it digs. Sliding a finger moves the aim; the Pick or Hammer button digs the lit square too. Off by default.')}
     ${sw('lefty','Left-handed layout','Mirrors the tool bar and the pouch row.')}
     <div class="sec">Profile</div>
     <div class="st-row"><div class="lb"><b>Cloud save</b><small id="syncLine" role="status" aria-live="polite">Sync: this device only</small></div><button type="button" class="st-act" id="syncNow" hidden>Sync now</button></div>
@@ -11194,5 +11329,114 @@ function adChestHook(card,ad2){ // chest card: one more pick among the chests al
     return true});
 }
 function adChestReady(card){const s=card.querySelector('[data-gg-ad="chestpick"]');if(s){s.hidden=false;adRefresh(card)}}
+
+
+// ===== sprint 14 (wall review): the compact strip, the Context Sheet drawer, the pouch drawer =====
+// UI only. It reads the game-owned nodes (#hWorth #hFame #hTotal #target #banked #crackTxt #feverTxt #fever #crack #handSets #clr and the #ore0-3 buttons) and never writes one.
+// Reduce motion (rmEff): no animation, final states at once. Landscape small screens keep the old column: the strip and the Pouch slot are display:none there.
+(function(){
+'use strict';
+if(typeof requestAnimationFrame!=='function'||typeof getComputedStyle!=='function')return; // the balance simulator loads this script in a bare sandbox: UI only, so nothing to do there
+const win=document.querySelector('.win.hx'),strip=document.getElementById('strip'),pbtn=document.getElementById('pouchBtn');if(!win||!strip||!pbtn)return;
+const $=id=>document.getElementById(id);
+const rm=()=>{try{return rmEff()}catch(e){return false}};
+const num=s=>{const m=String(s==null?'':s).replace(/,/g,'').match(/-?\d+(?:\.\d+)?/);return m?parseFloat(m[0]):0};
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const fmt=n=>{try{return Math.round(n).toLocaleString('en-US')}catch(e){return String(Math.round(n))}};
+const play=(el,kf,dur,opt)=>{if(!el||!el.animate||rm())return;try{el.animate(kf,Object.assign({duration:dur,easing:'cubic-bezier(.34,1.56,.64,1)'},opt||{}))}catch(e){}};
+const POP=[{transform:'scale(1)'},{transform:'scale(1.28)'},{transform:'scale(1)'}];
+const S={w:'',f:'',t:'',cr:-1,fev:-1,n:-1,ban:0,tgt:0,ore:-1,open:false,auto:0,timer:0};
+const el={W:$('sW'),F:$('sF'),T:$('sT'),goal:$('sGoal'),bar:$('sBar'),box:$('sBarBox'),chip:$('sChip'),cr:$('sCr'),fev:$('sFev'),lamp:$('sLamp'),crk:$('sCrack')};
+const cracks=[...strip.querySelectorAll('.s14-cr')];
+
+function bestSet(){ // the biggest multiplier among the finds tags, e.g. 'Dynasty ×1.5'
+  let best=null;
+  document.querySelectorAll('#handSets .pill:not(.hint):not(.more)').forEach(p=>{const m=p.textContent.match(/×\s*(\d+(?:\.\d+)?)\s*$/);if(!m)return;const v=parseFloat(m[1]);if(!best||v>best.v)best={v,name:p.textContent.replace(/\s*\d*×\s*[\d.]+\s*$/,'').replace(/\s*\(.*\)\s*$/,'').trim()}});
+  return best;
+}
+function paint(){
+  // register
+  const w=$('hWorth').textContent.trim(),f=$('hFame').textContent.trim(),th=$('hTotal'),t=(th.dataset.to!=null&&th.dataset.to!==''?fmt(num(th.dataset.to)):th.textContent.trim());
+  if(w!==S.w){el.W.textContent=w;if(S.w!=='')play(el.W,POP,380);S.w=w}
+  if(f!==S.f){el.F.textContent=f;if(S.f!=='')play(el.F,POP,380);S.f=f}
+  if(t!==S.t){el.T.textContent=t;if(S.t!==''&&num(t)>num(S.t))play(el.T,[{transform:'scale(1)'},{transform:'scale(1.35)'},{transform:'scale(1)'}],460);S.t=t}
+  // goal
+  const tg=num($('target').textContent),bk=num($('banked').textContent);
+  el.goal.textContent=$('banked').textContent.trim()+' / '+$('target').textContent.trim();
+  el.bar.style.width=(tg>0?clamp(bk/tg)*100:0).toFixed(1)+'%';el.box.classList.toggle('done',tg>0&&bk>=tg);
+  // lamp (Fever)
+  const fv=clamp(num($('fever').style.width)/100);
+  el.fev.textContent=$('feverTxt').textContent.trim();el.lamp.style.setProperty('--fev',fv.toFixed(2));el.lamp.classList.toggle('max',fv>=.999||document.body.classList.contains('fever'));
+  if(S.fev>=0&&fv>S.fev+.005)play(el.lamp,[{transform:'scale(1)'},{transform:'scale(1.3) rotate(-6deg)'},{transform:'scale(1)'}],420);
+  S.fev=fv;
+  // slab (Wall)
+  const cp=clamp(num($('crack').style.width)/100);
+  el.cr.textContent=$('crackTxt').textContent.trim();el.crk.classList.toggle('hot',cp>=.7);
+  cracks.forEach((c,i)=>{const th0=[.08,.3,.5,.7][i];c.style.strokeDashoffset=(100-clamp((cp-th0)/.18)*100).toFixed(1)});
+  if(S.cr>=0&&cp>S.cr+.004)play(el.crk,[{transform:'translate(0,0)'},{transform:'translate(-2px,1px)'},{transform:'translate(2px,-1px)'},{transform:'translate(-1px,0)'},{transform:'translate(0,0)'}],260,{easing:'linear'});
+  S.cr=cp;
+  // finds
+  let n=0;try{n=exposedFinds().length}catch(e){}
+  const b=bestSet();
+  if(n>0){el.chip.hidden=false;el.chip.textContent=n+(n===1?' find':' finds')+(b?' · ×'+b.v+(win.clientWidth>=370&&b.name?' '+b.name.split(' ').slice(-1)[0]:''):'');}else el.chip.hidden=true;
+  if(S.n>=0&&n>S.n)play(el.chip,POP,360);S.n=n;
+  strip.setAttribute('aria-label','Context sheet. Worth '+w+' times Fame '+f+' makes '+t+'. '+$('banked').textContent.trim()+' banked of '+$('target').textContent.trim()+'. Wall '+$('crackTxt').textContent.trim()+', Fever '+$('feverTxt').textContent.trim()+'. '+(n?n+' finds open. ':'')+(S.open?'Tap to close.':'Tap to open.'));
+  // banked rose (a seal landed): show the sheet for a moment
+  if(bk>S.ban&&S.ban>=0&&S.tgt===tg){peek(2600)}
+  S.ban=bk;S.tgt=tg;
+  if($('clr').textContent.trim()&&!S.clr){S.clr=1;peek(3200)}else if(!$('clr').textContent.trim())S.clr=0;
+  syncPouch();
+}
+// ---- the sheet: tap the strip, or let a seal open it for a moment
+function setOpen(v,auto){
+  v=!!v;clearTimeout(S.timer);
+  if(v)setPouch(false);
+  win.classList.toggle('so',v);win.classList.toggle('auto',v&&!!auto);S.open=v;strip.setAttribute('aria-expanded',v?'true':'false');
+  if(v&&auto)S.timer=setTimeout(()=>setOpen(false),auto);
+  S.auto=v&&auto?auto:0;
+  paintLabel();
+}
+function paintLabel(){const a=strip.getAttribute('aria-label')||'';strip.setAttribute('aria-label',a.replace(/Tap to (open|close)\.$/,S.open?'Tap to close.':'Tap to open.'))}
+function peek(ms){if(S.open)return;if(!layoutOn())return;setOpen(true,ms)} // an open sheet (tapped or already peeking) is left alone: a count-up does not keep restarting the timer
+const layoutOn=()=>getComputedStyle(strip).display!=='none';
+{let seen=false;try{seen=Store.get('rw_s14tap')==='1'}catch(e){}if(!seen)strip.classList.add('s14-hint')} // until the strip has been tapped once, ever, its brass tab breathes
+strip.addEventListener('click',()=>{if(strip.classList.contains('s14-hint')){strip.classList.remove('s14-hint');try{Store.set('rw_s14tap','1')}catch(e){}}setOpen(!(S.open&&!S.auto))});
+document.addEventListener('pointerdown',e=>{
+  const t=e.target;if(!t||!t.closest)return;
+  if(S.open&&!S.auto&&!t.closest('#top,#strip'))setOpen(false);
+  if(win.classList.contains('pd')&&!t.closest('#pouch,#pouchBtn'))setPouch(false);
+},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(S.open||win.classList.contains('pd'))){setOpen(false);setPouch(false)}},true);
+// ---- the pouch drawer
+function setPouch(v){v=!!v;if(v&&S.open)setOpen(false);win.classList.toggle('pd',v);pbtn.setAttribute('aria-expanded',v?'true':'false');pbtn.classList.toggle('open',v)}
+pbtn.addEventListener('click',()=>setPouch(!win.classList.contains('pd')));
+$('pouch').addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.ore');if(b&&!b.disabled)setTimeout(()=>setPouch(false),0)});
+function syncPouch(){
+  const slots=[0,1,2,3].map(i=>$('ore'+i)).filter(b=>b&&!b.hidden),full=slots.filter(b=>b.classList.contains('full'));
+  const act=slots.find(b=>b.classList.contains('on')&&b.classList.contains('full'));
+  let name='';if(act){try{name=ORES[act.dataset.ore].n}catch(e){name=''}}
+  $('pouchS').textContent=act?name:(full.length?full.length+' / '+slots.length:'empty');
+  pbtn.classList.toggle('on',!!act);
+  const P=$('pouchP');let h='';slots.forEach(b=>{const o=b.dataset.ore,c=o&&typeof ORE_COL!=='undefined'&&ORE_COL[o]?ORE_COL[o][0]:'';h+=o?'<i style="--pc:'+c+'"></i>':'<i class="e"></i>'});if(P.dataset.h!==h){P.dataset.h=h;P.innerHTML=h}
+  if(S.ore>=0&&full.length>S.ore)play(pbtn,[{transform:'scale(1)'},{transform:'scale(1.14)'},{transform:'scale(1)'}],420);
+  S.ore=full.length;
+}
+// ---- the sheet hangs from the foot of the strip
+function syncTop(){win.style.setProperty('--s14top',(strip.offsetTop+strip.offsetHeight+3)+'px')}
+let q=0;const kick=()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;try{paint()}catch(e){console.error('s14 '+e.message)}})};
+const mo=new MutationObserver(kick);
+['hWorth','hFame','hTotal','target','banked','crackTxt','feverTxt','clr','handSets'].forEach(id=>{const n=$(id);if(n)mo.observe(n,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['data-to','class']})});
+['fever','crack'].forEach(id=>{const n=$(id);if(n)mo.observe(n,{attributes:true,attributeFilter:['style']})});
+mo.observe($('pouch'),{subtree:true,attributes:true,attributeFilter:['class','hidden','data-ore','disabled']});
+mo.observe(document.body,{attributes:true,attributeFilter:['class']});
+try{const ro=new ResizeObserver(()=>{syncTop()});ro.observe(strip);ro.observe(document.querySelector('header'))}catch(e){}
+window.addEventListener('resize',syncTop);
+// a card (summary, market, pause...) closes both drawers; so does a new chamber
+try{new MutationObserver(()=>{const o=document.getElementById('overlay');if(o&&!o.hidden){setOpen(false);setPouch(false)}}).observe(document.getElementById('overlay'),{attributes:true,attributeFilter:['hidden','class','style']})}catch(e){}
+const nc=window.newChamber;
+if(typeof nc==='function'){try{newChamber=function(){const r=nc.apply(this,arguments);try{setOpen(false);setPouch(false);S.ban=0;S.n=-1}catch(e){}return r}}catch(e){}}
+syncTop();paint();
+window.S14={paint,setOpen,setPouch,state:S};
+})();
 
 </script>
