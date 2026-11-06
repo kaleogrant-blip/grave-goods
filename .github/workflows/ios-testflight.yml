@@ -1,0 +1,191 @@
+# Builds the iOS app on a GitHub macOS machine and uploads it straight to TestFlight. No Mac, no Codemagic.
+# Start it: Actions tab > "iOS TestFlight" > Run workflow. Or push a tag named ios-v<anything> (git tag ios-v1 && git push origin ios-v1).
+#
+# Required repository secrets (Settings > Secrets and variables > Actions): APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_KEY_IDENTIFIER,
+# APP_STORE_CONNECT_PRIVATE_KEY (the .p8 text; key role Admin), APPLE_TEAM_ID (developer.apple.com/account > Membership details > Team ID).
+# Optional secrets (blank = feature off): POSTHOG_KEY, POSTHOG_HOST, CONFIG_URL.
+#
+# Signing: Xcode's own automatic signing. -allowProvisioningUpdates plus the API key lets xcodebuild create the distribution
+# certificate and App Store profile in Apple's cloud (this is why the key needs the Admin role). Upload: -exportArchive with
+# ExportOptions "destination: upload" sends the build to App Store Connect itself. Flags are from `man xcodebuild`; nothing here
+# has run against Apple yet (docs/TRACK-B.md, "What is unverified").
+name: iOS TestFlight
+on:
+  workflow_dispatch:
+  push:
+    tags: ['ios-v*']
+permissions:
+  contents: read
+concurrency:
+  group: ios-testflight
+  cancel-in-progress: false
+jobs:
+  testflight:
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+      APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      # Baked into the web bundle by scripts/build-www.mjs. TestFlight builds show Google's TEST ads; the purchase fake stays off.
+      FLAGS_PREMIUM_DEFAULT: 'false'   # legacy name from the old two-product design; build-www ignores it (ads default is FLAGS_ADS_DEFAULT)
+      FLAGS_ADS_DEFAULT: 'true'
+      ADMOB_TESTING: 'true'
+      DEV: 'false'
+      POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+      POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+      CONFIG_URL: ${{ secrets.CONFIG_URL }}
+    steps:
+      - name: Check the secrets (fail fast)
+        run: |
+          missing=""
+          for n in APP_STORE_CONNECT_ISSUER_ID APP_STORE_CONNECT_KEY_IDENTIFIER APP_STORE_CONNECT_PRIVATE_KEY APPLE_TEAM_ID; do
+            eval "v=\${$n:-}"
+            [ -n "$v" ] || missing="$missing $n"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error title=Missing repository secrets::These secrets are empty or not set:$missing. Add them at Settings > Secrets and variables > Actions > New repository secret, then run again. APPLE_TEAM_ID = developer.apple.com/account > Membership details > Team ID (10 characters). Full steps: docs/TRACK-B.md."
+            { echo "## iOS TestFlight: stopped before building"; echo; echo "Missing repository secrets:$missing"; echo; echo "Add them under Settings > Secrets and variables > Actions > New repository secret (docs/TRACK-B.md, step A2), then run this workflow again."; } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          case "$APPLE_TEAM_ID" in [A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9]) ;; *) echo "::error title=APPLE_TEAM_ID looks wrong::The Team ID is exactly 10 letters and digits (for example ABCDE12345). Check developer.apple.com/account > Membership details."; exit 1;; esac
+          case "$APP_STORE_CONNECT_PRIVATE_KEY" in *"PRIVATE KEY"*) ;; *) echo "::error title=APP_STORE_CONNECT_PRIVATE_KEY looks wrong::Paste the whole .p8 file, including the BEGIN PRIVATE KEY and END PRIVATE KEY lines."; exit 1;; esac
+          echo "All four secrets are present."
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Apple only accepts uploads built with Xcode 26 or later (SDK iOS 26; required since 28 April 2026). macos-15's default is 16.4.
+      - name: Select the newest Xcode 26
+        run: |
+          set -euo pipefail
+          best=$( (ls -d /Applications/Xcode_26*.app 2>/dev/null || true) | grep -vi beta | sort -V | tail -1 || true )
+          if [ -z "$best" ]; then echo "::error title=No Xcode 26 on this runner::Apple requires Xcode 26 or later. Installed: $(ls -d /Applications/Xcode_*.app | tr '\n' ' ')"; exit 1; fi
+          sudo xcode-select -s "$best/Contents/Developer"
+          xcodebuild -version
+          echo "XCODE_APP=$best" >> "$GITHUB_ENV"
+
+      - name: Work out version numbers
+        run: |
+          set -euo pipefail
+          v=$(node -p "require('./package.json').version")
+          case "$v" in ''|*[!0-9.]*) echo "::error::package.json version '$v' must be digits and dots only (Apple's rule)"; exit 1;; esac
+          echo "MARKETING_VERSION=$v" >> "$GITHUB_ENV"
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> "$GITHUB_ENV"
+          echo "Version $v, build ${{ github.run_number }}"
+
+      - run: npm ci
+      - name: Build the web bundle
+        run: npm run build:www
+      - name: Capacitor sync
+        run: npx cap sync ios
+      - name: Apply iOS patches (entitlements, Info.plist, icon, iOS 15, bundle id)
+        run: node scripts/patch-ios.mjs
+      - name: Pod install
+        working-directory: ios/App
+        run: pod install
+
+      - name: Write the App Store Connect key to a file
+        run: |
+          set -euo pipefail
+          umask 077
+          KEY_PATH="$RUNNER_TEMP/AuthKey_${APP_STORE_CONNECT_KEY_IDENTIFIER}.p8"
+          printf '%s\n' "$APP_STORE_CONNECT_PRIVATE_KEY" > "$KEY_PATH"
+          # a key pasted on one line with literal \n sequences: expand them
+          if [ "$(wc -l < "$KEY_PATH" | tr -d ' ')" -lt 3 ]; then printf '%b\n' "$APP_STORE_CONNECT_PRIVATE_KEY" > "$KEY_PATH"; fi
+          openssl pkey -in "$KEY_PATH" -noout || { echo "::error title=Unreadable .p8::APP_STORE_CONNECT_PRIVATE_KEY is not a valid private key. Paste the whole .p8 file text."; rm -f "$KEY_PATH"; exit 1; }
+          echo "KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
+
+      - name: Archive (Release, automatic signing via the API key)
+        run: |
+          set -euo pipefail
+          mkdir -p build/logs
+          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release \
+            -destination generic/platform=iOS -archivePath build/App.xcarchive archive \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" \
+            -authenticationKeyID "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            -authenticationKeyIssuerID "$APP_STORE_CONNECT_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" MARKETING_VERSION="$MARKETING_VERSION" \
+            2>&1 | tee build/logs/archive.log
+
+      - name: Export and upload to TestFlight
+        run: |
+          set -euo pipefail
+          cat > build/ExportOptions.plist <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+            <key>uploadSymbols</key><true/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild -exportArchive \
+            -archivePath build/App.xcarchive \
+            -exportOptionsPlist build/ExportOptions.plist \
+            -exportPath build/export \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" \
+            -authenticationKeyID "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            -authenticationKeyIssuerID "$APP_STORE_CONNECT_ISSUER_ID" \
+            2>&1 | tee build/logs/export.log
+          echo "UPLOADED=1" >> "$GITHUB_ENV"
+
+      - name: Collect Xcode's own distribution logs and remove the key
+        if: always()
+        run: |
+          mkdir -p build/logs build/export
+          find "${TMPDIR:-/tmp}" -maxdepth 3 -name '*.xcdistributionlogs' -mtime -1 -exec cp -R {} build/logs/ \; 2>/dev/null || true
+          [ -n "${KEY_PATH:-}" ] && rm -f "$KEY_PATH" || true
+
+      # With "destination: upload" Xcode may not leave an .ipa behind; the step then only warns.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-build-${{ github.run_number }}
+          path: |
+            build/export/*.ipa
+            build/export/*.plist
+            build/logs
+            build/ExportOptions.plist
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## iOS TestFlight"
+            echo
+            echo "Version ${MARKETING_VERSION:-?}, build ${BUILD_NUMBER:-?}, Xcode $(basename "${XCODE_APP:-unknown}" .app | sed 's/Xcode_//')."
+            echo
+            if [ "${{ job.status }}" = success ] && [ "${UPLOADED:-}" = 1 ]; then
+              echo "**Sent to App Store Connect.** Apple now processes the build, usually 10 to 30 minutes. Then open appstoreconnect.apple.com > Apps > Grave Goods > TestFlight: the build appears there, and internal testers get it automatically. Apple also emails the account holder if it finds a problem."
+              echo
+              echo "This build shows Google's test ads only. Logs and (if Xcode kept it) the .ipa are under Artifacts."
+            else
+              echo "**The build did not reach TestFlight** (job status: ${{ job.status }})."
+              echo
+              hint() { if grep -qsE "$1" build/logs/*.log; then echo "- $2"; HINTED=1; fi; }
+              HINTED=0
+              hint 'ubiquity-kvstore-identifier|iCloud.*(capabilit|entitlement)' "iCloud problem: the bundle ID needs the iCloud capability. Run the ASC setup workflow, then run this again."
+              hint 'Cloud signing permission|does not have permission|not authorized|forbidden' "Apple says this key may not manage signing. Make a new App Store Connect key with the Admin role and update the three App Store Connect secrets."
+              hint 'No Accounts|No profiles for|no profile found|Provisioning profile .* doesn.t' "Xcode could not make or find a signing profile. Check APPLE_TEAM_ID, that ASC setup registered the bundle ID, and that the key is Admin."
+              hint 'already been used|must be higher|previously used|bundle version' "The build number was already used for this version. Run the workflow again (the number goes up on every run)."
+              hint '(required|pending|updated).*[Aa]greement|[Aa]greement.*(required|pending|accept)' "An Apple agreement may be waiting for you: sign in at developer.apple.com/account and appstoreconnect.apple.com and accept anything pending."
+              hint 'SDK version|minimum SDK|built with the iOS' "Apple may be rejecting the SDK version. This workflow selects the newest Xcode 26 on the runner; see the log."
+              if [ "$HINTED" = 0 ]; then echo "- No known cause matched. Open the failed step above and read the last 40 lines, or download the logs from Artifacts."; fi
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

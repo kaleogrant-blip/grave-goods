@@ -11,3 +11,4 @@ ios/capacitor-cordova-ios-plugins/
 **/xcuserdata/
 test-results/
 .DS_Store
+/build/

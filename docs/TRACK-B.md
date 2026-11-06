@@ -1,18 +1,97 @@
 # Track B: what the owner does, from a browser and a phone
 
-You do not need a Mac. A hosted Mac (Codemagic) builds the app and sends it to TestFlight. Everything below is clicking in web pages, plus two short PowerShell blocks. Steps 11 to 13 cover the purchase, Android and gifting; you can do the TestFlight steps first.
+You do not need a Mac. GitHub's own Mac machines (free for public repositories) build the app and send it to TestFlight, and a GitHub workflow makes every call to Apple's API for you. Your part is clicking in web pages and typing four secrets into GitHub.
 
-**A note on accuracy.** This was written without access to Apple's, Codemagic's, PostHog's or Google's current screens. Menu names move around. Anything that may have changed since mid-2026 is marked **(verify in the current UI)**. If a button is not where it says, look for the same words nearby; the order of steps will still be right.
+**Two parts.** **Part A** (next) is the whole path to a TestFlight build on GitHub Actions. **Part B** (Steps 0 to 13 below it) is the older, longer reference: the Apple website screens, PostHog, AdMob, the purchase, Android, gifts. Part B steps that only matter for Codemagic are marked **Codemagic only**: Codemagic (`codemagic.yaml`) is kept as a **secondary** alternative and is not needed.
 
-Rough time: 1 to 2 hours of clicking the first time, then waiting on Apple (enrolment, first processing).
+**A note on accuracy.** This was written without access to Apple's, GitHub's, PostHog's or Google's current screens, and the workflows have never run against Apple. Menu names move around. Anything that may have changed since mid-2026 is marked **(verify in the current UI)**. If a button is not where it says, look for the same words nearby; the order of steps will still be right. The list of what is unverified is at the end of Part A.
+
+Rough time: 30 to 60 minutes of clicking, then waiting on Apple (first processing) and on the build (20 to 40 minutes).
+
+# Part A: GitHub Actions to TestFlight
+
+The repository is public at github.com/kaleogrant-blip/grave-goods, so Actions minutes on macOS are free. **Public repo means public logs.** GitHub hides secret values in logs (they show as `***`), but never paste a secret into an issue, a comment or a commit. Workflows started by other people's pull requests never receive your secrets.
+
+## The four secrets (exact names)
+
+| Secret name | What it is | Where it comes from |
+|---|---|---|
+| `APP_STORE_CONNECT_ISSUER_ID` | a UUID, like `57246542-96fe-1a63-e053-0824d011072a` | A1 |
+| `APP_STORE_CONNECT_KEY_IDENTIFIER` | 10 characters, like `ABC123DEFG` | A1 |
+| `APP_STORE_CONNECT_PRIVATE_KEY` | the full text of the `.p8` file, BEGIN and END lines included | A1 |
+| `APPLE_TEAM_ID` | 10 letters and digits, like `ABCDE12345` | A2 (Team ID lookup) |
+
+Optional secrets (leave unset to switch the feature off): `POSTHOG_KEY`, `POSTHOG_HOST`, `CONFIG_URL` (Steps 8 and 9 below). Android only: `ANDROID_KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD` (Step 12), and the three `ADMOB_*_ANDROID` ids.
+
+## A1. Make the App Store Connect API key (Admin role)
+
+1. Go to appstoreconnect.apple.com and sign in as the account holder.
+2. Click **Users and Access** (top bar), then the **Integrations** tab, then **App Store Connect API**, then **Team Keys** **(verify in the current UI)**. If this is your first key, click **Request Access** and accept the terms.
+3. Click the blue **+**. Name: `GitHub`. Access: **Admin**. (App Manager is not enough: Xcode needs Admin to create the distribution certificate and signing profile in Apple's cloud.) Click **Generate**.
+4. On the key's row: copy the **Issuer ID** (above the table) and the **Key ID**. Click **Download API Key** and save `AuthKey_XXXXXXXXXX.p8`. Apple lets you download it **once**; keep it safe.
+5. Open the `.p8` in Notepad, Select all, Copy. That text is `APP_STORE_CONNECT_PRIVATE_KEY`.
+
+## A2. Find your Team ID, then add the four secrets to GitHub
+
+**Team ID lookup:** go to developer.apple.com/account and sign in. Click **Membership details** (in the left sidebar, or under the Account heading) **(verify in the current UI)**. The row **Team ID** is 10 characters of capitals and digits. Copy it.
+
+**Add each secret:**
+1. Go to github.com/kaleogrant-blip/grave-goods and click **Settings** (the tab on the far right of the repository's top row; you must be signed in as the owner).
+2. In the left sidebar click **Secrets and variables**, then **Actions**.
+3. Make sure the **Secrets** tab is selected (not Variables). Click **New repository secret**.
+4. **Name:** type one of the four names exactly as in the table (capitals and underscores, no spaces). **Secret:** paste the value. Click **Add secret**.
+5. Repeat for all four. A secret cannot be viewed again after saving, only replaced (click its pencil icon and paste again).
+
+## A3. Run ASC setup (first time: it registers the bundle ID)
+
+1. Click the **Actions** tab of the repository. In the left list click **ASC setup**.
+2. Click the grey **Run workflow** button on the right, leave both tick-boxes **unticked**, and click the green **Run workflow**. Wait a few seconds, refresh, click the new run, click its job, and read the **summary** at the top of the run page.
+3. What it does: registers the bundle ID `com.gravegoods.app` named "Grave Goods" with the iCloud capability (and In-App Purchase) if missing; tells you whether the app record exists; lists the storefronts to tick. It is safe to run any number of times.
+4. A red failure with "Apple refused the key" means one of the three Apple secrets is wrong or the key is not Admin (A1). "Missing repository secrets" names which ones are empty.
+
+## A4. Create the app record (App Store Connect website; Apple has no API for this)
+
+Do this **after A3**: the Bundle ID drop-down only lists bundle IDs that already exist.
+
+1. appstoreconnect.apple.com > **Apps** > the blue **+** > **New App**.
+2. Platforms: **iOS**. Name: `Grave Goods` (if taken, `Grave Goods: Relic Wall`). Primary language: English (U.S.). Bundle ID: choose `Grave Goods - com.gravegoods.app`. SKU: `gravegoods001`. User Access: **Full Access**. Click **Create**.
+3. Back on GitHub, run **ASC setup** again. The summary should now say "Found: Grave Goods".
+
+## A5. The Ad-free purchase (optional now, needed before the App Store release)
+
+Run **ASC setup** with **products** ticked and **apply** unticked: the summary shows what it would create (a dry run, nothing changes). If the plan looks right, run it again with **both** ticked. Apple's price list must contain the price in `config/products.json` (the summary says if not). The review screenshot and attaching the purchase to the first version are still by hand (Step 11). This needs the Paid Apps agreement signed (Step 11.1) to be useful in review, not to be created.
+
+## A6. Tell Apple where the app is sold (EU decision)
+
+App Store Connect > Grave Goods > **Pricing and Availability** > Availability > **Edit**: tick everything except the 27 EU countries. Exact list and reasoning: [`AVAILABILITY.md`](AVAILABILITY.md).
+
+## A7. Run iOS TestFlight
+
+1. **Actions** tab > **iOS TestFlight** > **Run workflow** > green **Run workflow**. (Later you can instead push a tag: `git tag ios-v1` then `git push origin ios-v1`.)
+2. It stops in the first minute with a plain message if any of the four secrets is empty. Otherwise expect 20 to 40 minutes (limit 60). When it finishes, open the run and read the summary; the **Artifacts** section at the bottom holds the logs.
+3. Success means "sent to App Store Connect". Apple then processes the build for 10 to 30 minutes; it appears under App Store Connect > Grave Goods > **TestFlight**. Continue at **Step 7** to invite testers. Every run uses a higher build number automatically (the run number); the version number comes from `package.json`.
+4. If it fails, the summary lists likely causes in plain words; the table "When a build fails" near the end has more.
+
+## Build versions (what the workflow does, for the record)
+
+Xcode 26 or later is chosen automatically (Apple has required the iOS 26 SDK for uploads since 28 April 2026; the macOS 15 runner's default Xcode is older). Test ads only (`ADMOB_TESTING=true`), the purchase fake is off (`DEV=false`). Android: **Actions** > **Android internal** > **Run workflow**. With the four keystore secrets (Step 12) it makes a signed `.aab`; without them an unsigned debug `.apk`; either is under Artifacts.
+
+## What is unverified (read this if a first run fails)
+
+- **Nothing has run against Apple yet.** The `xcodebuild` flags come from Apple's `man xcodebuild` ("-allowProvisioningUpdates: allow xcodebuild to communicate with the Apple Developer website. For automatically signed targets, xcodebuild will create and update profiles, app IDs, and certificates"; "-authenticationKeyPath/-authenticationKeyID/-authenticationKeyIssuerID" authenticate with an App Store Connect API key). Apple forum reports show the combination works in CI but also that "no profile found" can occur at export; the first run is the real test.
+- **The App Store Connect request bodies** in `scripts/asc-setup.mjs` and `scripts/asc-products.mjs` (bundle ID, iCloud capability settings, in-app purchase, price schedule) are written from the documentation and tested only against an in-memory fake.
+- **`destination: upload`** may leave no `.ipa` behind, in which case the artifact step only warns.
+- **Capacitor plugins** (the Swift iCloud and StoreKit plugins) have never been compiled; the first run is their first compile.
+
+# Part B: reference steps
 
 ## Before you start
 
-You need: your Apple Developer account (paid, active), a GitHub account (free), and the project folder on your Surface. Codemagic, PostHog and GitHub Pages all have free tiers that should cover a test group; check each price page **(verify in the current UI)**.
+You need: your Apple Developer account (paid, active), a GitHub account (free), and the project folder on your Surface (only if you change the Bundle ID or edit files by hand; the build itself needs nothing on your PC). PostHog and GitHub Pages have free tiers that should cover a test group; check each price page **(verify in the current UI)**.
 
 | Name | Pick | Where it is used |
 |---|---|---|
-| Bundle ID | `com.gravegoods.app` is a placeholder. Choose yours once (reverse of a domain you own is customary, e.g. `com.yourname.gravegoods`). It can never change after you create the App Store listing. | Step 1, Step 2, `capacitor.config.ts` (`appId`), `codemagic.yaml` (`BUNDLE_ID`) |
+| Bundle ID | `com.gravegoods.app` is a placeholder. Choose yours once (reverse of a domain you own is customary, e.g. `com.yourname.gravegoods`). It can never change after you create the App Store listing. | Step 1, Step 2, `capacitor.config.ts` (`appId`); `codemagic.yaml` (`BUNDLE_ID`) only if you use Codemagic |
 | App name | Grave Goods (must be unique in the App Store; if taken, App Store Connect says so in Step 2, and you pick e.g. "Grave Goods: Relic Wall") | Step 2 |
 
 If you change the Bundle ID from the placeholder, change it in those two files **before** Step 0's push (or push again afterwards). Use this one block (edit only `$new` on the first line):
@@ -31,7 +110,9 @@ Write-Host "TOTAL replacements: $n (expect 4: appId, and BUNDLE_ID in three work
 
 If TOTAL is 0 the paths are wrong; nothing was changed. The same id is also the Android package name (the Play listing can never change it). The Android project keeps an internal `namespace` of `com.gravegoods.app`; that is fine and needs no edit.
 
-## Step 0: put the project on GitHub (Codemagic builds from a Git repository)
+## Step 0: the project is already on GitHub (done)
+
+The repository is github.com/kaleogrant-blip/grave-goods (public) and is the source of truth. The text below is only for starting a fresh private copy; skip it.
 
 1. In a browser go to github.com, click **+** (top right), **New repository**. Name `grave-goods-app`, choose **Private**, leave every checkbox empty, **Create repository**. Copy the repository URL it shows (ends in `.git`).
 2. In PowerShell (needs Git for Windows installed; if `git --version` fails, install it from git-scm.com first):
@@ -50,6 +131,8 @@ GitHub asks you to sign in in a browser window the first time.
 
 ## Step 1: register the Bundle ID with iCloud turned on (Apple Developer website)
 
+**The ASC setup workflow (A3) does this for you.** Use the hand steps below only if the workflow reports it could not.
+
 The iCloud switch must be on **before** the first build. Without it Apple's signing profile lacks the permission the save-sync needs and the build fails with a message about `ubiquity-kvstore-identifier`.
 
 1. Go to developer.apple.com/account and sign in.
@@ -65,11 +148,13 @@ The iCloud switch must be on **before** the first build. Without it Apple's sign
 2. Platforms: **iOS**. Name: `Grave Goods`. Primary language: English (U.S.). Bundle ID: pick the one from Step 1 in the dropdown (if it is missing, wait a minute and refresh; if still missing, Step 1 did not save). SKU: any private label, e.g. `gravegoods001`. User Access: **Full Access**. **Create**.
 3. Write down the numeric **Apple ID** of the app (App Information page, General Information). You do not need it for the build, but you will for support requests.
 
-## Step 3: create the App Store Connect API key (this is how Codemagic signs in as you)
+## Step 3: create the App Store Connect API key (this is how GitHub Actions signs in as you)
+
+**Part A, step A1 is the current version of this step (role Admin).** The text below is the older version.
 
 1. In App Store Connect click **Users and Access** (top bar), then the **Integrations** tab, then **App Store Connect API** **(verify in the current UI)**. Choose **Team Keys**.
 2. If this is your first key, click **Request Access** and accept the terms; the page refreshes.
-3. Click the blue **+** (Generate API Key). Name: `Codemagic`. Access: **App Manager** (if Codemagic later says it cannot create certificates or profiles, generate a new key with **Admin**) **(verify in the current UI)**. **Generate**.
+3. Click the blue **+** (Generate API Key). Name: `GitHub`. Access: **Admin** (App Manager cannot create the signing certificate and profile) **(verify in the current UI)**. **Generate**.
 4. On the key's row:
    - Copy the **Issuer ID** (a UUID shown above the table) into a note. -> will become `APP_STORE_CONNECT_ISSUER_ID`.
    - Copy the **Key ID** (10 characters). -> `APP_STORE_CONNECT_KEY_IDENTIFIER`.
@@ -82,7 +167,7 @@ $p8 = "C:\FULL\PATH\TO\AuthKey_XXXXXXXXXX.p8"
 if (Test-Path $p8) { Get-Content $p8 -Raw | Set-Clipboard; Write-Host "Copied $((Get-Content $p8).Count) lines to the clipboard" } else { Write-Host "File not found: $p8" }
 ```
 
-## Step 4: make the certificate key (one more secret Codemagic needs)
+## Step 4: make the certificate key (**Codemagic only**; GitHub Actions does not need it)
 
 Codemagic creates your App Store signing certificate for you, using a private key that only you hold. Make it once:
 
@@ -95,7 +180,7 @@ if (Test-Path $k) { Get-Content $k -Raw | Set-Clipboard; Write-Host "OK: key fil
 
 The text on the clipboard (starts `-----BEGIN RSA PRIVATE KEY-----`) -> `CERTIFICATE_PRIVATE_KEY`. Keep the file; if you lose it, make a new one and let Codemagic create a new certificate (Apple allows only a few distribution certificates per account).
 
-## Step 5: Codemagic
+## Step 5: Codemagic (**Codemagic only**, secondary alternative)
 
 1. Go to codemagic.io, **Sign up** with GitHub. Allow access to the `grave-goods-app` repository only.
 2. **Add application**, pick the repository, project type **Other** (the repo has a `codemagic.yaml`; Codemagic will use it) **(verify in the current UI)**.
@@ -105,7 +190,9 @@ The text on the clipboard (starts `-----BEGIN RSA PRIVATE KEY-----`) -> `CERTIFI
 
 ## Step 6: every key, and the exact variable it goes in
 
-All go in the Codemagic group `gg_secrets`.
+**GitHub Actions:** the four required secrets are at the top of Part A. The optional ones in this table (`POSTHOG_*`, `CONFIG_URL`, `ADMOB_*`, the Android keystore rows) go in the same place: Settings > Secrets and variables > Actions > New repository secret, same names. `CERTIFICATE_PRIVATE_KEY` and `GCLOUD_SERVICE_ACCOUNT_CREDENTIALS` are **Codemagic only**. The workflows read `ADMOB_*_ANDROID`, `POSTHOG_*`, `CONFIG_URL` and the keystore rows; the iOS TestFlight workflow always uses Google's test ads and ignores the `_IOS` AdMob rows until a release workflow exists on GitHub.
+
+For Codemagic, all go in the Codemagic group `gg_secrets`.
 
 | Variable name | Value | Secret? | Comes from | Needed for |
 |---|---|---|---|---|
@@ -124,7 +211,7 @@ All go in the Codemagic group `gg_secrets`.
 | `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD` | from the keystore command | **yes** (password rows) | Step 12 | signing the AAB |
 | `GCLOUD_SERVICE_ACCOUNT_CREDENTIALS` | full JSON of the service account key | **yes** | Step 12 | upload to Play |
 
-`ADMOB_TESTING` is not in the group: `codemagic.yaml` sets it `true` for TestFlight and Play internal builds and `false` for `ios-release`. `DEV` (the purchase fake) must stay `false`; the release workflow checks it.
+`ADMOB_TESTING` is not a secret: the workflow files set it (`true` for TestFlight and Android internal); `codemagic.yaml` sets it `true` for TestFlight and Play internal builds and `false` for `ios-release`. `DEV` (the purchase fake) must stay `false`; the release workflow checks it.
 
 The Bundle ID is not a secret and lives in `codemagic.yaml` (`BUNDLE_ID`), not in the group. For the first TestFlight build you can leave out everything from `ADMOB_` down (Google's public test ids are used).
 
@@ -141,7 +228,7 @@ Wait until the build shows under App Store Connect, your app, **TestFlight**, wi
 2. Fill **Test Information**: beta app description (use the first paragraph of `store/listing.md`), feedback email, privacy policy URL (the hosted copy of `store/privacy-policy.md`), contact details. Sign-in is not needed (the app has no accounts).
 3. Add testers by email, or switch on **Public Link** and send the link by message (set a tester limit, e.g. 50).
 4. Add the build, **Submit for Review**. When approved the testers get the build automatically.
-5. To make Codemagic do step 4 for you from now on: in `codemagic.yaml` set `submit_to_testflight: true` and uncomment `beta_groups` with `External Testers`.
+5. To have the build go to the external group automatically you would need to submit it for Beta App Review yourself in App Store Connect each version; the GitHub workflow only uploads (internal testers get it with no review). (Codemagic can automate this with `submit_to_testflight: true` in `codemagic.yaml`.)
 
 **What testers do:** install the free **TestFlight** app from the App Store, open the invitation email or the public link on the iPhone, tap **Accept**, then **Install**.
 
@@ -189,7 +276,7 @@ Ads are ON in v1. TestFlight and Play internal builds use Google's sample ads wh
 ## Step 11: the Ad-free purchase (Apple)
 
 1. App Store Connect > **Business** (older UI: Agreements, Tax, and Banking). Accept the **Paid Apps** agreement and fill in bank account and tax forms. Without this the purchase never works, even in review. Approval can take a day or two **(verify in the current UI)**.
-2. Create the product. Either by script (needs the API key from step 3 with Admin or App Manager role): `node scripts/asc-products.mjs` shows what it would do, add `--apply` to do it. Or by hand: app > **Monetization** > **In-App Purchases** > **+** > Non-Consumable, Reference name `Ad-free`, Product ID `gg_adfree`, price (placeholder $2.99), display name `Ad-free`, description `Removes every ad, for good. The whole game is free either way.` **(verify in the current UI)**.
+2. Create the product. Either with the ASC setup workflow (A5: products ticked, dry run first, then apply) or by script (`node scripts/asc-products.mjs` shows what it would do, add `--apply` to do it). Or by hand: app > **Monetization** > **In-App Purchases** > **+** > Non-Consumable, Reference name `Ad-free`, Product ID `gg_adfree`, price (placeholder $2.99), display name `Ad-free`, description `Removes every ad, for good. The whole game is free either way.` **(verify in the current UI)**.
 3. Add a **review screenshot** by hand (a screenshot of the game's Settings > Purchases section) and the review note from `config/products.json`.
 4. Attach the product to the first app version you submit (version page > **In-App Purchases and Subscriptions** > **+**). The first IAP is only reviewed together with an app version.
 5. Test: App Store Connect > Users and Access > **Sandbox** > create a Sandbox Apple Account. On the phone: Settings > Developer > Sandbox Apple Account. In a TestFlight build, tap Settings > Remove ads. TestFlight purchases are free.
@@ -213,8 +300,8 @@ Write-Host "Done. The base64 text is on your clipboard: paste it into ANDROID_KE
 ```
 
    `keytool` comes with Java (install a JDK first if the command is not found). It asks for a password and your details. `KEY_ALIAS` = `gg-upload`; `KEYSTORE_PASSWORD` and `KEY_PASSWORD` are what you typed. Leave **Play App Signing** on (default): Google holds the real signing key and this is only the upload key.
-4. **Service account** so Codemagic can upload: Google Cloud console > create a project > IAM > Service Accounts > Create > Keys > Add key > JSON (downloads a file). Enable the **Google Play Android Developer API** in that project. In Play Console > **Users and permissions** > Invite new users > the service account's email, permission **Release to testing tracks** (and Release apps to production later) **(verify in the current UI)**. Paste the whole JSON file into `GCLOUD_SERVICE_ACCOUNT_CREDENTIALS`.
-5. **First upload by hand.** Run `Grave Goods Android to Play internal testing` in Codemagic, download the `.aab` from the build artifacts, and upload it in Play Console > Testing > Internal testing > Create release. After that, builds go up automatically.
+4. **Service account** so Codemagic (or a future GitHub upload step) can upload: Google Cloud console > create a project > IAM > Service Accounts > Create > Keys > Add key > JSON (downloads a file). Enable the **Google Play Android Developer API** in that project. In Play Console > **Users and permissions** > Invite new users > the service account's email, permission **Release to testing tracks** (and Release apps to production later) **(verify in the current UI)**. Paste the whole JSON file into `GCLOUD_SERVICE_ACCOUNT_CREDENTIALS`.
+5. **First upload by hand.** Run **Android internal** in the GitHub Actions tab (with the four keystore secrets added as repository secrets, same names as the table in Step 6), download the `.aab` from the run's Artifacts, and upload it in Play Console > Testing > Internal testing > Create release. After that you can keep uploading by hand (automatic upload to Play is a Codemagic feature; on GitHub it is not set up).
 6. In-app product: Monetize > In-app products > Create product, ID `gg_adfree`, name Ad-free, price, **Activate**. Billing only works for an uploaded app, signed by Play.
 7. Test: add yourself as a license tester (Settings > License testing) and install from the internal-testing link; purchases are free test purchases.
 8. Play may ask new personal accounts to run a closed test (12 testers, 14 days) before production **(verify in the current UI)**.
@@ -224,6 +311,20 @@ Write-Host "Done. The base64 text is on your clipboard: paste it into ANDROID_KE
 See `docs/GIFTING.md`. Short version: Apple offer codes (App Store Connect > the product > Offer Codes) and Google Play promo codes (Monetize > Promotions). There is deliberately no code box in the game (App Review 3.1.1).
 
 ## When a build fails
+
+**GitHub Actions** (the summary on the run page names the likely cause first):
+
+| Message contains | Cause | Fix |
+|---|---|---|
+| `Missing repository secrets` | one of the four secrets is empty or misspelt | Part A, A2 |
+| `Apple refused the key` / `Cloud signing permission` | key not Admin, or ID/Key/`.p8` from different keys | A1, make a new Admin key |
+| `No Xcode 26` | runner image changed | tell the developer |
+| `No profiles for` / `no profile found` | bundle ID not registered, wrong `APPLE_TEAM_ID`, or Xcode could not create the profile | run ASC setup; check A2 Team ID |
+| `ubiquity-kvstore-identifier` | iCloud not on the bundle ID | run ASC setup, then re-run |
+| `already been used` / `must be higher` | build number reused | run again (the number rises each run) |
+| `Pod install` failure | plugin version drift | send the log to the developer |
+
+**Codemagic** (secondary):
 
 | Message contains | Cause | Fix |
 |---|---|---|

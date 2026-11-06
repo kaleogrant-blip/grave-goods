@@ -74,9 +74,13 @@ Ads are ON in v1, so add before the last line: "Optional rewarded videos can giv
 **Privacy Policy URL** (required): `[HOSTED URL OF privacy-policy.md]`
 **Copyright**: `[YEAR] [YOUR NAME OR COMPANY]`
 **Category** (primary / secondary): Games > Puzzle / Games > Strategy. (Role Playing is also defensible.) **(verify in the current UI)**
-**Price**: Free, with one in-app purchase: `gg_adfree` "Ad-free" (non-consumable, placeholder $2.99, set the final tier in App Store Connect). It removes all ads and unlocks nothing else. Display name: `Ad-free`; description: `Removes every ad, for good. The whole game is free either way.` Create it with `node scripts/asc-products.mjs --apply`. Review notes: `store/review-notes.md`.
+**Price**: Free, with one in-app purchase: `gg_adfree` "Ad-free" (non-consumable, placeholder $2.99, set the final tier in App Store Connect). It removes all ads and unlocks nothing else. Display name: `Ad-free`; description: `Removes every ad, for good. The whole game is free either way.` Create it with the ASC setup workflow (tick products, then apply) or `node scripts/asc-products.mjs --apply`. Review notes: `store/review-notes.md`.
 **What's New** (first release): `First release.`
 **App Review notes** (put in the review information box): "No sign-in needed. The game has coin-flip, chest-reel and wheel moments; they use only earned in-game Gold, odds are printed on screen, and nothing can be bought with real money. Anonymous play statistics can be switched off in Settings > Play log."
+
+## Availability and the EU (Digital Services Act)
+
+**Decision: the owner is not a "trader" under the EU Digital Services Act, and the EU is excluded from availability at launch.** In App Store Connect > the app > Pricing and Availability, tick every country and region except the 27 EU member states. The full list, click path and what to do if you later change your mind are in [`docs/AVAILABILITY.md`](../docs/AVAILABILITY.md). Because the EU is unticked, no trader name, address or phone number is published for this app. If the EU is ever added, Apple will ask for the trader declaration first **(verify in the current UI)**.
 
 ## Age rating answers
 

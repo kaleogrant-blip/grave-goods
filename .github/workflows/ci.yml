@@ -1,0 +1,27 @@
+# Tests on every push and pull request. No secrets, no network beyond npm and the Playwright browser download.
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install the Playwright browser (the smoke test needs it)
+        run: npx playwright install --with-deps chromium
+      - name: Tests
+        env:
+          GG_REQUIRE_BROWSER: '1'
+        run: npm test

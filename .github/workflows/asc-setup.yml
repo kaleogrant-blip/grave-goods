@@ -1,0 +1,38 @@
+# One-time (and re-runnable) App Store Connect setup, driven from here because the owner has no Mac and the sandbox cannot reach Apple.
+# Needs three repository secrets (Settings > Secrets and variables > Actions): APP_STORE_CONNECT_ISSUER_ID,
+# APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_PRIVATE_KEY. Result: the job summary (top of the run page).
+name: ASC setup
+on:
+  workflow_dispatch:
+    inputs:
+      products:
+        description: 'Also check the Ad-free purchase (gg_adfree). Needs the app record to exist.'
+        type: boolean
+        default: false
+      apply:
+        description: 'With products ticked: really create/update the purchase. Unticked = dry run, nothing changes.'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: asc-setup
+  cancel-in-progress: false
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # No npm install: the scripts use only Node's built-ins (fetch, crypto).
+      - name: Set up App Store Connect
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+          PRODUCTS: ${{ inputs.products }}
+          APPLY: ${{ inputs.apply }}
+        run: node scripts/asc-setup.mjs

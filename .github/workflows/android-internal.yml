@@ -1,0 +1,96 @@
+# Android build on GitHub's machines. With the four keystore secrets it makes a SIGNED release bundle (.aab, what Play wants);
+# without them it makes an unsigned DEBUG .apk you can install on a phone for a quick look. Either way the file is an artifact
+# of the run (bottom of the run page). Uploading to Play is manual for now (docs/TRACK-B.md step 12).
+# Optional secrets: ANDROID_KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD (all four or none);
+# POSTHOG_KEY, POSTHOG_HOST, CONFIG_URL, ADMOB_APP_ID_ANDROID, ADMOB_REWARDED_ID_ANDROID, ADMOB_INTERSTITIAL_ID_ANDROID.
+name: Android internal
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: android-internal
+  cancel-in-progress: false
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      FLAGS_ADS_DEFAULT: 'true'
+      ADMOB_TESTING: 'true'
+      DEV: 'false'
+      POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+      POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+      CONFIG_URL: ${{ secrets.CONFIG_URL }}
+      ADMOB_APP_ID_ANDROID: ${{ secrets.ADMOB_APP_ID_ANDROID }}
+      ADMOB_REWARDED_ID_ANDROID: ${{ secrets.ADMOB_REWARDED_ID_ANDROID }}
+      ADMOB_INTERSTITIAL_ID_ANDROID: ${{ secrets.ADMOB_INTERSTITIAL_ID_ANDROID }}
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # Capacitor 7's Android library compiles for Java 21 (capacitor-android/build.gradle), so 21 and not 17.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+      - name: Decide signed or unsigned
+        run: |
+          set -eu
+          have=0
+          if [ -n "${ANDROID_KEYSTORE_BASE64:-}" ] && [ -n "${KEYSTORE_PASSWORD:-}" ] && [ -n "${KEY_ALIAS:-}" ] && [ -n "${KEY_PASSWORD:-}" ]; then have=1; fi
+          echo "SIGNED=$have" >> "$GITHUB_ENV"
+          if [ "$have" = 1 ]; then echo "All four keystore secrets present: building a signed release bundle (.aab)."
+          else echo "::notice::Keystore secrets not all set: building an unsigned debug .apk instead."; fi
+          echo "VERSION_CODE=${{ github.run_number }}" >> "$GITHUB_ENV"
+          echo "VERSION_NAME=$(node -p "require('./package.json').version")" >> "$GITHUB_ENV"
+      - run: npm ci
+      - run: npm run build:www
+      - run: npx cap sync android
+      - run: node scripts/patch-android.mjs
+      - name: Write the keystore from the secret
+        if: env.SIGNED == '1'
+        run: |
+          set -eu
+          umask 077
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/gg-release.keystore"
+          test -s "$RUNNER_TEMP/gg-release.keystore" || { echo "::error::ANDROID_KEYSTORE_BASE64 is empty or not base64"; exit 1; }
+          echo "KEYSTORE_PATH=$RUNNER_TEMP/gg-release.keystore" >> "$GITHUB_ENV"
+      - name: Build the signed bundle
+        if: env.SIGNED == '1'
+        working-directory: android
+        run: chmod +x gradlew && ./gradlew bundleRelease --no-daemon
+      - name: Build the unsigned debug apk
+        if: env.SIGNED != '1'
+        working-directory: android
+        run: chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+      - name: Remove the keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/gg-release.keystore"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-${{ env.SIGNED == '1' && 'release-aab' || 'debug-apk' }}-${{ github.run_number }}
+          path: |
+            android/app/build/outputs/bundle/release/*.aab
+            android/app/build/outputs/mapping/release/mapping.txt
+            android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 30
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Android build"
+            echo
+            if [ "$SIGNED" = 1 ]; then echo "Signed release bundle (.aab), version ${VERSION_NAME} (code ${VERSION_CODE}). Download it from Artifacts below, then upload it in Play Console > Testing > Internal testing."
+            else echo "Unsigned debug .apk, version ${VERSION_NAME} (code ${VERSION_CODE}). Fine for trying on a phone; Play needs the signed bundle (add the four keystore secrets, docs/TRACK-B.md step 12)."; fi
+            echo
+            echo "Job status: ${{ job.status }}. Ads in this build are Google's test ads."
+          } >> "$GITHUB_STEP_SUMMARY"

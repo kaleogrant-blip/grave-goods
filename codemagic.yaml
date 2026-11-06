@@ -1,3 +1,6 @@
+# SECONDARY: the primary CI is now GitHub Actions (.github/workflows/: asc-setup, ios-testflight, android-internal, ci; docs/TRACK-B.md part A).
+# This file is kept as an alternative (for example if GitHub's macOS minutes ever stop being free). It is not exercised and has not
+# been updated for the Xcode 26 requirement: set `xcode: latest` only if Codemagic's latest is 26 or newer (Apple rejects older SDKs since 28 April 2026).
 # Codemagic CI for Grave Goods: iOS to TestFlight, iOS to App Store review, Android to Play internal testing.
 # Written without access to Codemagic's current UI or docs: every line marked VERIFY is a name or version worth checking against
 # https://docs.codemagic.io before the first run. Secrets and keys live in ONE Codemagic variable group called gg_secrets
