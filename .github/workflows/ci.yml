@@ -19,6 +19,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Generate the native projects' copied files (gitignored; the Android test reads them)
+        run: npm run build:www && npx cap sync android
       - name: Install the Playwright browser (the smoke test needs it)
         run: npx playwright install --with-deps chromium
       - name: Tests
