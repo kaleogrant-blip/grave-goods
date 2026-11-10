@@ -2,3 +2,4 @@
 *.png binary
 *.jpg binary
 *.xcodeproj/project.pbxproj text eol=lf
+*.woff2 binary

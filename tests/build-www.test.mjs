@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { ROOT } from './helpers.mjs';
-import { wrap, splitFragment, loadAppConfig, buildWww, SUPPORT_SCRIPTS, COPY_PATCHES } from '../scripts/build-www.mjs';
+import { wrap, splitFragment, loadAppConfig, buildWww, SUPPORT_SCRIPTS, COPY_PATCHES, fontFileNames } from '../scripts/build-www.mjs';
 
 const GAME = fs.readFileSync(path.join(ROOT, 'game/current.html'), 'utf8');
 const CFG = loadAppConfig({}, ROOT);
@@ -40,12 +40,20 @@ test('GG_NATIVE bridge is the first script; support scripts precede the game; at
   assert.equal(s.length, 4 + SUPPORT_SCRIPTS.length, 'bridge + config + support scripts + game + attach');
 });
 
-test('Google Fonts link is kept and the local fallbacks are declared before it', () => {
-  const link = out.indexOf('fonts.googleapis.com/css2?family=Cinzel');
-  const fb = out.indexOf('id="gg-font-fallback"');
-  assert.ok(link > 0 && fb > 0 && fb < link);
-  assert.match(out, /font-family:"Cinzel"[^}]*local\("Georgia"\)/);
-  assert.match(out, /font-family:"Alegreya"[^}]*local\("Georgia"\)/);
+test('fonts are bundled: the built page has no Google Fonts reference at all, and every @font-face file exists in www/fonts with its licence', () => {
+  assert.ok(GAME.includes('fonts.googleapis.com'), 'the game source still has the link (this test is about the app build removing it)');
+  assert.ok(!/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(out), 'no network font fetch at start');
+  assert.ok(!/<link\b[^>]*https?:/i.test(out), 'no remote stylesheet or preload of any kind');
+  const faces = [...out.matchAll(/@font-face\{font-family:"(Cinzel|Alegreya)";font-style:(normal|italic);font-weight:(\d+);font-display:swap;src:url\("(fonts\/[a-z0-9-]+\.woff2)"\) format\("woff2"\);unicode-range:[^}]+\}/g)];
+  const want = ['Cinzel normal 700', 'Cinzel normal 900', 'Alegreya normal 500', 'Alegreya normal 700', 'Alegreya italic 500']; // exactly what the game asked Google for
+  assert.deepEqual([...new Set(faces.map(f => `${f[1]} ${f[2]} ${f[3]}`))], want);
+  assert.equal(faces.length, 10, 'latin and latin-ext for each');
+  for (const f of faces) { const b = fs.readFileSync(path.join(ROOT, 'www', f[4])); assert.equal(b.subarray(0, 4).toString('latin1'), 'wOF2', f[4] + ' is a real woff2 file'); }
+  assert.deepEqual(fontFileNames().sort(), fs.readdirSync(path.join(ROOT, 'www/fonts')).filter(n => n.endsWith('.woff2')).sort(), 'no unused or missing font file');
+  for (const l of ['LICENSE-Cinzel.txt', 'LICENSE-Alegreya.txt']) assert.match(fs.readFileSync(path.join(ROOT, 'www/fonts', l), 'utf8'), /SIL Open Font License/);
+  const pre = wrap(GAME.replace('<style', '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n<style'), loadAppConfig({}, ROOT), { strict: true }).html;
+  assert.ok(!/fonts\.gstatic\.com/.test(pre), 'a preconnect to Google is stripped too');
+  assert.throws(() => wrap(GAME.replace('<style>', '<style>@import url("https://fonts.googleapis.com/css2?family=Cinzel");'), loadAppConfig({}, ROOT), { strict: true }), /still references Google Fonts/, 'a reference the build cannot strip fails a CI build instead of shipping');
 });
 
 test('the game script passes node --check, both in the source and in the wrapped page', () => {
@@ -107,23 +115,26 @@ test('buildWww writes www/index.html from a file', () => {
 
 test('support scripts: payments.js and adfree.js are loaded before native.js; the page has no content gate and never references legacy-premium', () => {
   assert.deepEqual(SUPPORT_SCRIPTS.slice(-3), ['payments.js', 'adfree.js', 'native.js']);
+  assert.ok(SUPPORT_SCRIPTS.indexOf('telemetry.js') < SUPPORT_SCRIPTS.indexOf('consent.js') && SUPPORT_SCRIPTS.indexOf('consent.js') < SUPPORT_SCRIPTS.indexOf('native.js'), 'the consent question is part of the shell');
   for (const f of SUPPORT_SCRIPTS) assert.ok(fs.existsSync(path.join(ROOT, 'www', f)), f);
   assert.ok(!/legacy-premium|premium\.js|gg_full|PAID_CLS/.test(out), 'nothing from the dormant monetization build is in the page');
 });
 
-test('build flags: ads flag default (shipped true, FLAGS_ADS_DEFAULT overrides), DEV off unless DEV=true, product catalog injected', () => {
+test('build flags: rewarded videos default OFF (TestFlight), FLAGS_ADS_DEFAULT overrides, DEV off unless DEV=true, product catalog injected', () => {
   const d = loadAppConfig({}, ROOT);
-  assert.equal(d.flagsDefault.ads, true); assert.equal(d.flagsDefault.adInterstitial, true); assert.equal(d.dev, false);
+  assert.deepEqual(d.flagsDefault, { ads: false, adMemory: true, adSeal: true }, 'no interstitial flag, no retired slips'); assert.equal(d.dev, false);
   assert.deepEqual(d.products, [{ id: 'gg_adfree', kind: 'nonConsumable', usd: 2.99 }]);
-  assert.equal(loadAppConfig({ FLAGS_ADS_DEFAULT: 'false' }, ROOT).flagsDefault.ads, false);
-  assert.equal(loadAppConfig({ FLAGS_ADS_DEFAULT: '' }, ROOT).flagsDefault.ads, true, 'empty means unset');
+  assert.equal(loadAppConfig({ FLAGS_ADS_DEFAULT: 'true' }, ROOT).flagsDefault.ads, true);
+  assert.equal(loadAppConfig({ FLAGS_ADS_DEFAULT: '' }, ROOT).flagsDefault.ads, false, 'empty means unset');
   assert.equal(loadAppConfig({ DEV: 'true' }, ROOT).dev, true); assert.equal(loadAppConfig({ DEV: 'yes' }, ROOT).dev, false, 'only the exact string true');
   const o = wrap(GAME, loadAppConfig({ DEV: 'true' }, ROOT)).html; assert.match(o, /"dev":true/);
   assert.match(out, /"dev":false/);
 });
 
-test('AdMob ids: per platform env overrides, interstitial included; testing stays the default', () => {
-  const c = loadAppConfig({ ADMOB_APP_ID_ANDROID: 'ca-app-pub-1~1', ADMOB_REWARDED_ID_ANDROID: 'ca-app-pub-1/2', ADMOB_INTERSTITIAL_ID_ANDROID: 'ca-app-pub-1/3', ADMOB_INTERSTITIAL_ID_IOS: 'ca-app-pub-2/3' }, ROOT);
-  assert.deepEqual([c.admob.appIdAndroid, c.admob.rewardedIdAndroid, c.admob.interstitialIdAndroid, c.admob.interstitialIdIos], ['ca-app-pub-1~1', 'ca-app-pub-1/2', 'ca-app-pub-1/3', 'ca-app-pub-2/3']);
+test('AdMob ids: per platform env overrides; rewarded units only (an interstitial id in the environment is ignored); testing stays the default', () => {
+  const c = loadAppConfig({ ADMOB_APP_ID_ANDROID: 'ca-app-pub-1~1', ADMOB_REWARDED_ID_ANDROID: 'ca-app-pub-1/2', ADMOB_INTERSTITIAL_ID_ANDROID: 'ca-app-pub-1/3', ADMOB_INTERSTITIAL_ID_IOS: 'ca-app-pub-2/3', ADMOB_REWARDED_ID_IOS: 'ca-app-pub-2/2' }, ROOT);
+  assert.deepEqual(Object.keys(c.admob).sort(), ['appIdAndroid', 'appIdIos', 'rewardedIdAndroid', 'rewardedIdIos', 'testing']);
+  assert.deepEqual([c.admob.appIdAndroid, c.admob.rewardedIdAndroid, c.admob.rewardedIdIos], ['ca-app-pub-1~1', 'ca-app-pub-1/2', 'ca-app-pub-2/2']);
+  assert.ok(!/nterstitial/.test(wrap(GAME, c).html.split('<script src="native.js"></script>')[0].replace(/[\s\S]*window\.GG_APP_CONFIG=/, '').split('</script>')[0]), 'no interstitial id reaches the page config');
   assert.equal(c.admob.testing, true);
 });

@@ -1,22 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { load, memPrefs, memLS } from './helpers.mjs';
-const { createTelemetry, BATCH, FLUSH_MS, QUEUE_KEY, OFF_KEY } = load('telemetry.js');
+const { createTelemetry, BATCH, FLUSH_MS, QUEUE_KEY, OFF_KEY, ID_KEY, CONSENT_KEY } = load('telemetry.js');
 
 function rig(over = {}) {
   const prefs = over.prefs || memPrefs(), ls = over.ls || memLS();
+  if (over.consent !== null && !prefs.m.has(CONSENT_KEY)) prefs.m.set(CONSENT_KEY, over.consent || 'yes'); // most tests are about a player who said yes; consent: null = never asked
   const calls = [], timers = [];
   let status = 200, online = true, t = 1_700_000_000_000;
   const fetch = async (url, init) => {
     if (status === 'throw') throw new TypeError('network');
     calls.push({ url, body: JSON.parse(init.body), init }); return { ok: status >= 200 && status < 300, status };
   };
+  const fetchAll = [], fetchSpy = async (...a) => { fetchAll.push(a[0]); return fetch(...a);
+  };
   const tel = createTelemetry({
-    fetch, prefs, ls, key: 'phc_test', host: 'https://us.i.posthog.com/', now: () => t, online: () => online,
+    fetch: fetchSpy, prefs, ls, key: 'phc_test', host: 'https://us.i.posthog.com/', now: () => t, online: () => online,
     setInterval: (f, ms) => { timers.push({ f, ms }); return timers.length; }, clearInterval: () => {},
     meta: () => ({ app_build: 'v1.0-rc5a', remote_config_version: 7, platform: 'ios' }), ...over.deps
   });
-  return { tel, prefs, ls, calls, timers, setStatus: s => (status = s), setOnline: v => (online = v), tick: ms => (t += ms), now: () => t };
+  return { tel, prefs, ls, calls, fetchAll, timers, setStatus: s => (status = s), setOnline: v => (online = v), tick: ms => (t += ms), now: () => t };
 }
 const ev = (n, extra = {}) => ({ event: 'seal', event_id: 's-' + n, run_id: 'r1', session_id: 's', ts_client: 1_700_000_000_000 + n, config_version: 10, build: 'v1.0-rc5a', ...extra });
 
@@ -132,4 +135,49 @@ test('no project key configured: nothing is queued or sent', async () => {
 test('garbage input never throws', async () => {
   const r = rig();
   for (const x of [null, undefined, 5, 'x', {}, { event: '' }]) assert.equal(await r.tel.ingest(x), 'dropped');
+});
+
+// ---- consent first (C-7): nothing leaves the device and no ID exists until the player says yes, wherever they are
+test('before the question is answered: no network call, no queue, no persistent ID, however much is played and flushed', async () => {
+  const r = rig({ consent: null }); r.tel.start();
+  for (let i = 1; i <= 120; i++) assert.equal(await r.tel.ingest(ev(i)), 'dropped');
+  await r.tel.flush(true); await r.timers[0].f(); await new Promise(res => setTimeout(res, 10));
+  assert.deepEqual(r.fetchAll, [], 'fetch was never called');
+  assert.equal(r.tel.size(), 0); assert.equal(r.tel.distinctId(), null); assert.equal(r.tel.consent(), '');
+  assert.deepEqual([...r.prefs.m.keys()], [], 'nothing at all was written to Preferences: no ID, no queue');
+});
+
+test('"No thanks": the same silence, and the answer is remembered across a restart', async () => {
+  const r = rig({ consent: null }); assert.equal(await r.tel.setConsent(false), 'no');
+  for (let i = 1; i <= 60; i++) await r.tel.ingest(ev(i));
+  await r.tel.flush(true);
+  assert.deepEqual(r.fetchAll, []); assert.equal(await r.prefs.get(ID_KEY), null); assert.equal(await r.prefs.get(QUEUE_KEY), null);
+  const r2 = rig({ prefs: r.prefs, consent: null }); await r2.tel.init(); assert.equal(r2.tel.consent(), 'no'); assert.equal(r2.tel.distinctId(), null);
+});
+
+test('"Yes": the ID is created at that moment and only events from then on are sent', async () => {
+  const r = rig({ consent: null }); await r.tel.ingest(ev(1)); await r.tel.ingest(ev(2));
+  assert.equal(await r.tel.setConsent(true), 'yes');
+  const id = r.tel.distinctId(); assert.match(id, /^[0-9a-f-]{20,}$/); assert.equal(await r.prefs.get(ID_KEY), id);
+  assert.equal(await r.tel.ingest(ev(3)), 'queued'); await r.tel.flush(true);
+  assert.equal(r.calls.length, 1); assert.deepEqual(r.calls[0].body.batch.map(e => e.properties.event_id), ['s-3'], 'what happened before the yes was never kept');
+});
+
+test('changing the answer to no later: the queue and the random ID are deleted, and a new yes makes a NEW id', async () => {
+  const r = rig(); await r.tel.ingest(ev(1)); const id = r.tel.distinctId(); assert.ok(id); assert.equal(r.tel.size(), 1);
+  await r.tel.setConsent(false);
+  assert.equal(r.tel.size(), 0); assert.equal(await r.prefs.get(ID_KEY), null); assert.equal(await r.prefs.get(QUEUE_KEY), null); assert.equal(r.tel.distinctId(), null);
+  await r.tel.ingest(ev(2)); await r.tel.flush(true); assert.deepEqual(r.fetchAll, []);
+  await r.tel.setConsent(true); assert.notEqual(r.tel.distinctId(), id, 'the old ID is gone for good');
+});
+
+test('an ID or queue left by an older build is wiped at launch when there is no yes on record', async () => {
+  const prefs = memPrefs({ [ID_KEY]: 'old-id', [QUEUE_KEY]: JSON.stringify([{ event: 'seal', properties: {} }]) });
+  const r = rig({ prefs, consent: null }); await r.tel.init(); await r.tel.flush(true);
+  assert.equal(await prefs.get(ID_KEY), null); assert.equal(await prefs.get(QUEUE_KEY), null); assert.deepEqual(r.fetchAll, []);
+});
+
+test('consent yes but the game\'s Play log is off: still nothing is sent (both must be on)', async () => {
+  const r = rig({ ls: memLS({ rw_tel_off: '1' }) }); await r.tel.ingest(ev(1)); await r.tel.flush(true);
+  assert.deepEqual(r.fetchAll, []); assert.equal(r.tel.gameLogOff(), true); assert.equal(r.tel.configured(), true);
 });

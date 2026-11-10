@@ -3,7 +3,11 @@
  * The game emits each event on `document` as CustomEvent('gg:tel', {detail: ev}) (and keeps its own ring buffer in GG_TEL).
  * We never touch the game's buffer. Here: anonymous distinct_id (random, kept in Preferences), an offline queue that survives
  * restarts, a flush at 50 events or every 30 s, and an opt-out that mirrors the game's Settings switch (localStorage rw_tel_off).
- * Nothing is sent unless a PostHog project key is configured and the player has not opted out.
+ *
+ * CONSENT COMES FIRST, everywhere in the world. Until the player has answered "yes" to the one-time question (consent.js; the answer
+ * is kept in Preferences as gg_tel_consent = yes|no) this file queues nothing, sends nothing and creates no ID. Unanswered is the
+ * same as "no". Saying "no" later deletes the queue and the random ID.
+ * Nothing is sent unless: consent is "yes", a PostHog project key is configured, and the game's Play log switch is on.
  */
 (function (root) {
   'use strict';
@@ -11,6 +15,7 @@
   var QUEUE_KEY = 'gg_tel_queue_v1';
   var ID_KEY = 'gg_distinct_id';
   var OFF_KEY = 'gg_tel_off';
+  var CONSENT_KEY = 'gg_tel_consent';
   var BATCH = 50, FLUSH_MS = 30000, QUEUE_MAX = 1000, BACKOFF_MAX = 300000;
 
   function uuid() {
@@ -24,7 +29,7 @@
              key, host, meta:()->object (build, platform, remote_config_version), log } */
   function createTelemetry(deps) {
     var now = deps.now || Date.now;
-    var queue = [], loaded = false, distinctId = null, timer = null, backoff = 0, nextTry = 0, sending = false, off = false;
+    var queue = [], loaded = false, distinctId = null, timer = null, backoff = 0, nextTry = 0, sending = false, off = false, consent = '';
     var stats = { sent: 0, dropped: 0, failed: 0 };
 
     function lsOff() { try { return deps.ls.getItem('rw_tel_off') === '1'; } catch (e) { return false; } }
@@ -39,11 +44,27 @@
       try { off = (await deps.prefs.get(OFF_KEY)) === '1'; } catch (e) {}
       if (lsOff()) { off = true; try { await deps.prefs.set(OFF_KEY, '1'); } catch (e) {} }
       else if (off) lsSetOff(); // the game's flag was lost (storage wiped, or a cloud restore dropped it): the opt-out stays on
-      try { distinctId = await deps.prefs.get(ID_KEY); } catch (e) {}
-      if (!distinctId) { distinctId = uuid(); try { await deps.prefs.set(ID_KEY, distinctId); } catch (e) {} }
+      try { var c = await deps.prefs.get(CONSENT_KEY); consent = c === 'yes' || c === 'no' ? c : ''; } catch (e) { consent = ''; }
+      if (consent !== 'yes') { await forget(); return; } // no consent: no ID is made or kept, and nothing waits in a queue
+      await ensureId();
       try { var q = JSON.parse((await deps.prefs.get(QUEUE_KEY)) || '[]'); if (Array.isArray(q)) queue = q.concat(queue).slice(-QUEUE_MAX); } catch (e) {}
       if (off) await clear();
     }
+    async function ensureId() {
+      try { distinctId = await deps.prefs.get(ID_KEY); } catch (e) {}
+      if (!distinctId) { distinctId = uuid(); try { await deps.prefs.set(ID_KEY, distinctId); } catch (e) {} }
+    }
+    async function forget() { distinctId = null; try { await deps.prefs.remove(ID_KEY); } catch (e) {} await clear(); }
+    /* The answer to "share anonymous play statistics?". true = yes, false = no. */
+    async function setConsent(v) {
+      await init();
+      consent = v ? 'yes' : 'no';
+      try { await deps.prefs.set(CONSENT_KEY, consent); } catch (e) {}
+      if (consent === 'yes') await ensureId(); else await forget();
+      return consent;
+    }
+    function consentState() { return consent; } // 'yes' | 'no' | '' (not asked yet). Call init() first.
+    function configured() { return !!deps.key; }
     async function clear() { queue = []; try { await deps.prefs.remove(QUEUE_KEY); } catch (e) {} }
 
     async function setOptOut(v) {
@@ -71,6 +92,7 @@
       }
       if (lsOff() && !off) await setOptOut(true);
       else if (!lsOff() && off && !(ev.event === 'settings_change' && ev.key === 'play_log' && ev.value === true)) { lsSetOff(); }
+      if (consent !== 'yes') { stats.dropped++; return 'dropped'; } // not asked, or said no: not queued, not sent
       if (isOptedOut()) { stats.dropped++; return 'dropped'; }
       if (!deps.key) { return 'dropped'; }          // no project key configured: do not even queue
       queue.push(toPostHog(ev));
@@ -82,6 +104,7 @@
 
     async function flush(force) {
       await init();
+      if (consent !== 'yes') { if (queue.length) await clear(); return { sent: 0 }; }
       if (sending || !queue.length) return { sent: 0 };
       if (isOptedOut()) { await clear(); return { sent: 0 }; }
       if (!deps.key) return { sent: 0 };
@@ -119,10 +142,10 @@
     }
     function stop() { if (timer) { deps.clearInterval(timer); timer = null; } }
 
-    return { init: init, ingest: ingest, flush: flush, start: start, stop: stop, setOptOut: setOptOut, isOptedOut: isOptedOut,
+    return { init: init, ingest: ingest, flush: flush, start: start, stop: stop, setOptOut: setOptOut, isOptedOut: isOptedOut, setConsent: setConsent, consent: consentState, configured: configured, gameLogOff: lsOff,
              size: function () { return queue.length; }, peek: function () { return queue.slice(); }, stats: stats, distinctId: function () { return distinctId; } };
   }
 
-  var api = { createTelemetry: createTelemetry, BATCH: BATCH, FLUSH_MS: FLUSH_MS, QUEUE_KEY: QUEUE_KEY, OFF_KEY: OFF_KEY, ID_KEY: ID_KEY };
+  var api = { createTelemetry: createTelemetry, BATCH: BATCH, FLUSH_MS: FLUSH_MS, QUEUE_KEY: QUEUE_KEY, OFF_KEY: OFF_KEY, ID_KEY: ID_KEY, CONSENT_KEY: CONSENT_KEY };
   if (typeof module === 'object' && module.exports) module.exports = api; else root.GGTelemetry = api;
 })(typeof self !== 'undefined' ? self : globalThis);
