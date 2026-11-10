@@ -12,7 +12,7 @@
   var G = root.GG_NATIVE = root.GG_NATIVE || { native: false, platform: 'web', flags: { ads: false } };
   var APP = root.GG_APP_CONFIG || {};
   var C = root.Capacitor;
-  var Save = root.GGSave, RC = root.GGRemoteConfig, Tel = root.GGTelemetry, Ads = root.GGAds, Pay = root.GGPayments, AdFree = root.GGAdFree;
+  var Save = root.GGSave, RC = root.GGRemoteConfig, Tel = root.GGTelemetry, Ads = root.GGAds, Pay = root.GGPayments, AdFree = root.GGAdFree, Consent = root.GGConsent;
 
   function plug(name) { try { return C && C.Plugins && C.Plugins[name]; } catch (e) { return null; } }
   function safe(fn) { try { var r = fn(); if (r && r.catch) r.catch(function () {}); return r; } catch (e) { return null; } }
@@ -45,6 +45,12 @@
 
   var prefs = makePrefs();
   G.prefs = prefs;
+
+  // The game's resume record as it is on disk now, before the game script runs (the game rewrites it as it resumes).
+  // ads.js compares its time with the time of a rewarded Memory to know whether the saved run already contains it.
+  G.resumeSnap = (function () {
+    try { var z = JSON.parse(root.localStorage.getItem('rw_resume') || 'null'); return z && z.tid ? { tid: String(z.tid), t: Number(z.t) || 0 } : null; } catch (e) { return null; }
+  })();
 
   // ---- 1. save backend, chosen at boot
   G.backend = Save ? Save.selectBackend({ Capacitor: G.native ? C : null, claude: root.claude }) : 'local';
@@ -139,27 +145,33 @@
       web.Payments = pay; // the contract: window.Payments.go(action, product)
       if (typeof web.ggPaymentResult !== 'function') web.ggPaymentResult = pay.ggPaymentResult; // and window.ggPaymentResult({product, ok, restored})
     }
-    function adFlags() { return adfree ? adfree.effectiveFlags(G.flags) : G.flags; } // the owner of gg_adfree gets ads:false whatever the remote config says
+    function adFlags() { return adfree ? adfree.effectiveFlags(G.flags) : G.flags; } // the owner of gg_adfree gets adFree:true: slips become free claims
     var admobCfg = APP.admob || {};
     var adCfg = G.platform === 'android'
-      ? { rewardedId: admobCfg.rewardedIdAndroid, interstitialId: admobCfg.interstitialIdAndroid, testing: admobCfg.testing }
-      : { rewardedIdIos: admobCfg.rewardedIdIos, interstitialId: admobCfg.interstitialIdIos, testing: admobCfg.testing };
+      ? { rewardedId: admobCfg.rewardedIdAndroid, testing: admobCfg.testing }
+      : { rewardedIdIos: admobCfg.rewardedIdIos, testing: admobCfg.testing };
 
-    // -- ads
+    // -- ads (opt-in rewarded videos only; no interstitial, no tracking prompt)
     var ads = Ads && Ads.createAds({
-      admob: G.native ? plug('AdMob') : null, prefs: prefs, config: adCfg, platform: G.platform,
+      admob: G.native ? plug('AdMob') : null, prefs: prefs, config: adCfg, platform: G.platform, resumeSnap: G.resumeSnap,
       flags: adFlags, adsCfg: function () { return (rc && rc.state.ads) || {}; },
       env: function () { return { run: env.run && env.run(), state: env.state && env.state() }; },
       emit: function (n, d) { var f = web.telEmit; if (typeof f === 'function') safe(function () { return f(n, d); }); },
       dispatch: function (n, d) { web.document.dispatchEvent(new web.CustomEvent(n, { detail: d })); },
-      setActive: function (on) { web.document.body.classList.toggle('gg-ads', !!on); },
+      setActive: function (on, owner) { var cl = web.document.body.classList; cl.toggle('gg-ads', !!on); cl.toggle('gg-adfree', !!owner); if (owner && adfree) safe(function () { return adfree.watchSlips(); }); },
       paintLives: function (n) { var el = web.document.getElementById('lives'); if (el) el.textContent = '♥'.repeat(Math.max(0, n)) + '♡'.repeat(Math.max(0, 3 - n)); }
     });
     G.ads = ads;
     if (ads) {
       web.document.addEventListener('click', ads.onClick, true);
       wrap('newChamber', function () { ads.onNewChamber(env.state && env.state()); });
+      safe(function () { return ads.load(); }); // read the persisted caps now; a run the game has already resumed gets its banked rewards back
     }
+
+    // -- analytics consent: one question on first launch, a switch in Settings. Nothing is sent, and no ID exists, before a "yes".
+    var consent = Consent && tel && Consent.createConsent({ telemetry: tel, doc: web.document, emit: emitTel });
+    G.consent = consent;
+    if (consent) { consent.wrapSettings(web); safe(function () { return consent.maybeAsk(); }); }
 
     if (tel) {
       web.document.addEventListener('gg:tel', function (e) {
@@ -175,7 +187,7 @@
     if (rc) {
       rc.onChange(function (s) { G.flags = Object.assign({ ads: false }, APP.flagsDefault || {}, s.flags); if (ads) ads.refresh(); });
       var url = RC.configUrl(APP.configUrl);
-      safe(function () { return rc.load({ SKILL: env.SKILL, LUCK: env.LUCK, ECON: env.ECON, TARGETS: env.TARGETS, TARGETS_BASE: env.TARGETS_BASE }, url).then(function () { G.rcLoaded = true; }); });
+      safe(function () { return rc.load({ SKILL: env.SKILL, ECON: env.ECON, TARGETS: env.TARGETS, TARGETS_BASE: env.TARGETS_BASE }, url).then(function () { G.rcLoaded = true; }); });
       G.remoteConfig = rc;
     }
     if (ads) ads.refresh();

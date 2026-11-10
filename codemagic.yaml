@@ -12,7 +12,7 @@
 #   ios-release      same steps, build number from the CI build index, submitted for App Review with release_notes.json, REAL ads
 #   android-internal AAB signed with the keystore in gg_secrets, uploaded to the Play internal testing track
 #
-# Flags baked in by the build (scripts/build-www.mjs reads them): FLAGS_ADS_DEFAULT (true = ads on until remote config says otherwise),
+# Flags baked in by the build (scripts/build-www.mjs reads them): FLAGS_ADS_DEFAULT (true = rewarded videos on until remote config says otherwise; v1 has no interstitial),
 # ADMOB_TESTING, DEV (payments dev path; must stay "false" in anything a customer can get).
 
 workflows:
@@ -23,12 +23,12 @@ workflows:
     environment:
       groups:
         - gg_secrets                  # APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_PRIVATE_KEY, CERTIFICATE_PRIVATE_KEY,
-                                      # POSTHOG_KEY, POSTHOG_HOST, CONFIG_URL, ADMOB_APP_ID_IOS, ADMOB_REWARDED_ID_IOS, ADMOB_INTERSTITIAL_ID_IOS
+                                      # POSTHOG_KEY, POSTHOG_HOST, CONFIG_URL, ADMOB_APP_ID_IOS, ADMOB_REWARDED_ID_IOS
       vars:
         BUNDLE_ID: "com.gravegoods.app"   # PLACEHOLDER: must equal appId in capacitor.config.ts and the Bundle ID registered at Apple
         XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
-        FLAGS_ADS_DEFAULT: "true"
+        FLAGS_ADS_DEFAULT: "false"        # TestFlight: rewarded videos off until real AdMob ids exist
         ADMOB_TESTING: "true"         # Google's sample ads: safe to tap
         DEV: "false"
       node: 22.14.0                   # VERIFY: any 20+ that Codemagic offers
@@ -118,7 +118,7 @@ workflows:
         script: |
           test "$ADMOB_TESTING" = "false" || { echo "ADMOB_TESTING must be false for a release"; exit 1; }
           test "$DEV" = "false" || { echo "DEV must be false for a release"; exit 1; }
-          test -n "$ADMOB_APP_ID_IOS" && test -n "$ADMOB_REWARDED_ID_IOS" && test -n "$ADMOB_INTERSTITIAL_ID_IOS" || { echo "set the three AdMob iOS ids in gg_secrets (docs/TRACK-B.md step 10)"; exit 1; }
+          test -n "$ADMOB_APP_ID_IOS" && test -n "$ADMOB_REWARDED_ID_IOS" || { echo "set the two AdMob iOS ids in gg_secrets (docs/TRACK-B.md step 10)"; exit 1; }
           test -f release_notes.json || { echo "release_notes.json is missing"; exit 1; }
       - name: Build the web bundle (www/index.html)
         script: npm run build:www
@@ -169,10 +169,10 @@ workflows:
     environment:
       groups:
         - gg_secrets                  # ANDROID_KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD, GCLOUD_SERVICE_ACCOUNT_CREDENTIALS,
-                                      # POSTHOG_KEY, POSTHOG_HOST, CONFIG_URL, ADMOB_APP_ID_ANDROID, ADMOB_REWARDED_ID_ANDROID, ADMOB_INTERSTITIAL_ID_ANDROID
+                                      # POSTHOG_KEY, POSTHOG_HOST, CONFIG_URL, ADMOB_APP_ID_ANDROID, ADMOB_REWARDED_ID_ANDROID
       vars:
         BUNDLE_ID: "com.gravegoods.app"   # PLACEHOLDER: same id as iOS (capacitor.config.ts appId); it is the Play package name and can never change
-        FLAGS_ADS_DEFAULT: "true"
+        FLAGS_ADS_DEFAULT: "false"
         ADMOB_TESTING: "true"         # internal testing uses Google's sample ads; set to "false" in the Play production build
         DEV: "false"
       node: 22.14.0

@@ -30,9 +30,12 @@ const TEMPLATE_PBX = `
 				PRODUCT_BUNDLE_IDENTIFIER = com.old.id;
 			};`;
 
-test('Info.plist patch adds ATT/AdMob/encryption keys, fixes arm64, and is idempotent', () => {
+test('Info.plist patch adds AdMob/encryption keys, carries NO tracking usage string (and removes an old one), fixes arm64, and is idempotent', () => {
   const a = patchInfoPlist(TEMPLATE_PLIST);
-  for (const k of ['ITSAppUsesNonExemptEncryption', 'NSUserTrackingUsageDescription', 'GADApplicationIdentifier', 'SKAdNetworkItems']) assert.ok(a.plist.includes(`<key>${k}</key>`), k);
+  for (const k of ['ITSAppUsesNonExemptEncryption', 'GADApplicationIdentifier', 'SKAdNetworkItems']) assert.ok(a.plist.includes(`<key>${k}</key>`), k);
+  assert.ok(!a.plist.includes('NSUserTrackingUsageDescription'), 'v1 never asks for tracking, so the plist must not claim it might');
+  { const old = a.plist.replace('</dict>\n</plist>', '\t<key>NSUserTrackingUsageDescription</key>\n\t<string>old text</string>\n</dict>\n</plist>'); const fixed = patchInfoPlist(old); assert.ok(!fixed.plist.includes('NSUserTrackingUsageDescription') && !fixed.plist.includes('old text')); assert.equal(fixed.changed, 1); assert.equal(fixed.plist, a.plist); }
+  assert.ok(!fs.readFileSync(path.join(ROOT, 'ios/App/App/Info.plist'), 'utf8').includes('NSUserTrackingUsageDescription'), 'the committed Info.plist is clean too');
   assert.ok(a.plist.includes('<string>arm64</string>') && !a.plist.includes('armv7'));
   assert.ok(a.plist.includes(GOOGLE_TEST_APP_ID));
   assert.equal(patchInfoPlist(a.plist).changed, 0, 'second run changes nothing');

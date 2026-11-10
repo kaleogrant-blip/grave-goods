@@ -14,6 +14,8 @@ test('ios-testflight: triggers, runner, timeout, build steps', () => {
   const y = wf('ios-testflight');
   for (const s of ['workflow_dispatch:', "tags: ['ios-v*']", 'runs-on: macos-15', 'timeout-minutes: 60', 'node-version: 22', 'npm ci', 'npm run build:www', 'npx cap sync ios', 'pod install']) assert.ok(y.includes(s), s);
   for (const s of ['FLAGS_PREMIUM_DEFAULT: \'false\'', 'ADMOB_TESTING: \'true\'', 'DEV: \'false\'']) assert.ok(y.includes(s), s);
+  assert.match(y, /FLAGS_ADS_DEFAULT: 'false'/, 'TestFlight builds ship with rewarded videos OFF until real AdMob ids exist');
+  assert.ok(!/INTERSTITIAL/.test(y) && !/INTERSTITIAL/.test(wf('android-internal')) && !/INTERSTITIAL/.test(rd('codemagic.yaml')), 'no workflow asks for an interstitial unit');
 });
 
 test('ios-testflight: xcodebuild archive and export use API-key auth', () => {

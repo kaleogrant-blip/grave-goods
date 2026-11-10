@@ -1,5 +1,5 @@
 {
-  "_comment": "Build-time defaults. Env vars override: POSTHOG_KEY, POSTHOG_HOST, CONFIG_URL, ADMOB_APP_ID_IOS/_ANDROID, ADMOB_REWARDED_ID_IOS/_ANDROID, ADMOB_INTERSTITIAL_ID_IOS/_ANDROID, ADMOB_TESTING, FLAGS_ADS_DEFAULT, DEV. Nothing here is secret: the PostHog project key is a public write-only key, and AdMob ids are public.",
+  "_comment": "Build-time defaults. Env vars override: POSTHOG_KEY, POSTHOG_HOST, CONFIG_URL, ADMOB_APP_ID_IOS/_ANDROID, ADMOB_REWARDED_ID_IOS/_ANDROID, ADMOB_TESTING, FLAGS_ADS_DEFAULT, DEV. v1 has rewarded videos only, so there is no interstitial unit. Nothing here is secret: the PostHog project key is a public write-only key, and AdMob ids are public.",
   "posthog": {
     "key": "",
     "host": "https://us.i.posthog.com"
@@ -8,10 +8,8 @@
   "admob": {
     "appIdIos": "",
     "rewardedIdIos": "",
-    "interstitialIdIos": "",
     "appIdAndroid": "",
     "rewardedIdAndroid": "",
-    "interstitialIdAndroid": "",
     "testing": true
   }
 }

@@ -35,15 +35,15 @@ export async function dumpShipped(htmlPath) {
 
 // Build the config object: for every allowed skill/luck/econ leaf, copy the game's value when it exists.
 export function configFromGame(game, version) {
-  const roots = { skill: game.SKILL, luck: game.LUCK, econ: game.ECON };
-  const out = { schema: 1, version, note: 'shipped values of the build this file was extracted from', flags: { ads: true, adMemory: true, adSeal: true, adReroll: true, adChestPick: true, adInterstitial: true }, ads: { memoryPerRun: 1, sealBonus: 1, cooldownSec: 30, interstitialEvery: 2, interstitialMinGapSec: 180 } };
+  const roots = { skill: game.SKILL, econ: game.ECON }; // luck odds are not remotely tunable, so they are not in this file
+  const out = { schema: 1, version, note: 'shipped values of the build this file was extracted from', flags: { ads: false, adMemory: true, adSeal: true }, ads: { memoryPerRun: 1, sealBonus: 1, cooldownSec: 30 } };
   const walk = (spec, src, dst) => {
     for (const [k, s] of Object.entries(spec)) {
       if (typeof s.t === 'string') { if (src && src[k] !== undefined) dst[k] = Array.isArray(src[k]) ? src[k].slice(0, s.len || src[k].length) : src[k]; }
       else { const d = {}; walk(s, src && src[k], d); if (Object.keys(d).length) dst[k] = d; }
     }
   };
-  for (const r of ['skill', 'luck', 'econ']) { out[r] = {}; walk(RC.SCHEMA[r], roots[r], out[r]); }
+  for (const r of ['skill', 'econ']) { out[r] = {}; walk(RC.SCHEMA[r], roots[r], out[r]); }
   return out;
 }
 

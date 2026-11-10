@@ -24,16 +24,29 @@ const mk = (over = {}) => ({ schema: 1, version: 2, ...over });
 test('the shipped config.json validates against the schema', () => {
   const v = RC.validate(shipped()); assert.deepEqual(v.errors, []); assert.ok(v.ok);
   const f = shipped();
-  assert.equal(f.flags.ads, true, 'ads are ON for v1 (owner decision); the ad-free purchase turns them off per device');
-  assert.equal(f.flags.adInterstitial, true);
-  assert.equal(f.ads.interstitialEvery, 2); assert.equal(f.ads.interstitialMinGapSec, 180);
+  assert.equal(f.flags.ads, false, 'rewarded videos are OFF in the shipped config (TestFlight) until real AdMob ids exist; a remote flag turns them on');
+  assert.deepEqual(Object.keys(f.flags).sort(), ['adMemory', 'adSeal', 'ads'], 'two slips, no interstitial, no retired slips');
+  assert.deepEqual(Object.keys(f.ads).sort(), ['cooldownSec', 'memoryPerRun', 'sealBonus']);
+  assert.equal(f.luck, undefined, 'no luck odds in the remote document'); assert.equal(f.skill.press2, undefined);
 });
 
-test('interstitial keys are validated: range and type', () => {
-  assert.ok(RC.validate(mk({ ads: { interstitialEvery: 3, interstitialMinGapSec: 240 }, flags: { adInterstitial: false } })).ok);
-  assert.ok(!RC.validate(mk({ ads: { interstitialEvery: 0 } })).ok, 'every must be >= 1');
-  assert.ok(!RC.validate(mk({ ads: { interstitialMinGapSec: -1 } })).ok);
-  assert.ok(!RC.validate(mk({ flags: { adInterstitial: 'yes' } })).ok);
+test('v1 has no interstitial and no retired slips: a document that carries their keys is rejected whole', () => {
+  for (const bad of [mk({ ads: { interstitialEvery: 3 } }), mk({ ads: { interstitialMinGapSec: 240 } }), mk({ flags: { adInterstitial: false } }), mk({ flags: { adInterstitial: true } }), mk({ flags: { adReroll: true } }), mk({ flags: { adChestPick: true } })]) {
+    const v = RC.validate(bad); assert.equal(v.ok, false, JSON.stringify(bad)); assert.match(v.errors.join(' '), /unknown key/);
+  }
+  assert.ok(RC.validate(mk({ flags: { ads: true, adMemory: false, adSeal: true }, ads: { memoryPerRun: 1, sealBonus: 1, cooldownSec: 60 } })).ok);
+});
+
+test('luck odds are NOT remotely tunable: knucklebone chance, Press Your Luck weights, jackpot, tells and the Stake 2 shift are all rejected, and LUCK is never written', () => {
+  const docs = [mk({ luck: { coin: { p: .5 } } }), mk({ luck: { coin: { mult: 2 } } }), mk({ luck: { press: { w: { normal: 1, lucky: 1, tremor: 98 } } } }), mk({ luck: { press: { at: .5 } } }),
+    mk({ luck: { jackpot: { at: 1, gold: 0 } } }), mk({ luck: { near: { pct: .3 } } }), mk({ luck: { tell: { chance: 1 } } }), mk({ luck: {} }), mk({ skill: { press2: { lucky: -30, tremor: 30 } } })];
+  for (const d of docs) { const v = RC.validate(d); assert.equal(v.ok, false, JSON.stringify(d)); assert.match(v.errors.join(' '), /unknown key/); }
+  assert.equal(RC.SCHEMA.luck, undefined); assert.equal(RC.SCHEMA.skill.press2, undefined);
+  // even handed an unvalidated document and the game's LUCK object, the applier has no path to it
+  const g = game(); g.SKILL.press2 = { lucky: -2, tremor: 2 }; const before = JSON.stringify(g.LUCK), ap = RC.createApplier(g);
+  const done = ap.apply(mk({ luck: { coin: { p: .95, mult: 6 }, press: { w: { normal: 0, lucky: 0, tremor: 100 } } }, skill: { press2: { lucky: 9, tremor: 9 } } }));
+  assert.equal(JSON.stringify(g.LUCK), before, 'LUCK untouched'); assert.deepEqual(g.SKILL.press2, { lucky: -2, tremor: 2 }); assert.deepEqual(done, []);
+  assert.ok(!ap.paths().some(p => /^luck\.|press2/.test(p)));
 });
 
 test('accepts a partial document', () => {
@@ -42,7 +55,7 @@ test('accepts a partial document', () => {
 });
 
 test('rejects unknown keys at any depth', () => {
-  for (const bad of [mk({ hax: 1 }), mk({ skill: { gravity: 9 } }), mk({ luck: { coin: { p: .3, rigged: true } } }), mk({ econ: { gold: { cap: 1 } } }), mk({ flags: { ads: false, trackEverything: true } })]) {
+  for (const bad of [mk({ hax: 1 }), mk({ skill: { gravity: 9 } }), mk({ skill: { seals: { free: 3, rigged: true } } }), mk({ econ: { gold: { cap: 1 } } }), mk({ flags: { ads: false, trackEverything: true } })]) {
     const v = RC.validate(bad); assert.equal(v.ok, false, JSON.stringify(bad)); assert.match(v.errors.join(' '), /unknown key/);
   }
 });
@@ -50,7 +63,7 @@ test('rejects unknown keys at any depth', () => {
 test('rejects bad types, ranges and shapes', () => {
   const bad = [
     mk({ skill: { deepMul: '1.6' } }), mk({ skill: { seals: { free: 2.5 } } }), mk({ skill: { targets: [1, 2] } }), mk({ skill: { targets: [900, 300, 4500] } }),
-    mk({ skill: { targets: [300, 'x', 4500] } }), mk({ luck: { coin: { p: 1.5 } } }), mk({ luck: { coin: { p: NaN } } }), mk({ flags: { ads: 'yes' } }), mk({ flags: [] }),
+    mk({ skill: { targets: [300, 'x', 4500] } }), mk({ skill: { fever: { decay: 1.5 } } }), mk({ skill: { fever: { decay: NaN } } }), mk({ flags: { ads: 'yes' } }), mk({ flags: [] }),
     mk({ econ: { gold: { sealDiv: 0 } } }), mk({ econ: { gold: { chest: -1 } } }), mk({ version: '3' }), mk({ version: 0 }), mk({ schema: 2 }),
     { version: 3 }, { schema: 1 }, null, [], 'x', 5
   ];
@@ -59,9 +72,9 @@ test('rejects bad types, ranges and shapes', () => {
 
 test('applies allowed keys over the shipped values; everything else is left alone', () => {
   const g = game(), ap = RC.createApplier(g);
-  const done = ap.apply(mk({ skill: { targets: [350, 1000, 5000], seals: { free: 4 } }, luck: { coin: { p: .35 } }, econ: { gold: { chest: 25 } } }));
+  const done = ap.apply(mk({ skill: { targets: [350, 1000, 5000], seals: { free: 4 } }, econ: { gold: { chest: 25 } } }));
   assert.deepEqual(g.SKILL.targets, [350, 1000, 5000]); assert.equal(g.SKILL.seals.free, 4); assert.equal(g.SKILL.seals.sack, 2);
-  assert.equal(g.LUCK.coin.p, .35); assert.equal(g.LUCK.coin.mult, 3); assert.equal(g.ECON.gold.chest, 25); assert.equal(g.ECON.gold.cap, 99999999);
+  assert.equal(g.LUCK.coin.p, .32); assert.equal(g.LUCK.coin.mult, 3); assert.equal(g.ECON.gold.chest, 25); assert.equal(g.ECON.gold.cap, 99999999);
   assert.equal(g.SKILL.untouched, 42); assert.deepEqual(g.LUCK.reels.stop, [650, 1050, 1450]);
   assert.ok(done.includes('skill.targets'));
   assert.deepEqual(g.TARGETS, [300, 900, 4500, 9000], 'TARGETS is the game\'s live per-chamber state: never written');
@@ -79,8 +92,8 @@ test('getter-backed values (SKILL.seals.free) keep their game logic and shift by
 test('a later config reverts keys it no longer sets (always applied on top of the shipped values)', () => {
   const g = game(), ap = RC.createApplier(g);
   ap.apply(mk({ econ: { gold: { chest: 99 } }, skill: { targets: [400, 1000, 5000] } }));
-  ap.apply(mk({ luck: { coin: { p: .4 } } }));
-  assert.equal(g.ECON.gold.chest, 15); assert.deepEqual(g.SKILL.targets, [300, 900, 4500]); assert.deepEqual(g.TARGETS_BASE, [300, 900, 4500]); assert.equal(g.LUCK.coin.p, .4);
+  ap.apply(mk({ skill: { deepMul: 1.7 } }));
+  assert.equal(g.ECON.gold.chest, 15); assert.deepEqual(g.SKILL.targets, [300, 900, 4500]); assert.deepEqual(g.TARGETS_BASE, [300, 900, 4500]); assert.equal(g.SKILL.deepMul, 1.7);
 });
 
 test('paths the game does not have are skipped, never invented', () => {

@@ -2,7 +2,12 @@
  *
  * Fetch `https://<CONFIG_URL>/config.json` once at boot with a 2 s timeout, validate it against SCHEMA (strict: an unknown
  * key or a wrong type rejects the WHOLE document, nothing is applied), then write the allowed keys over the game's own
- * objects (SKILL, LUCK, ECON are const objects, so they are mutated in place). The last good document is cached in
+ * objects (SKILL and ECON are const objects, so they are mutated in place).
+ *
+ * LUCK IS NOT HERE, ON PURPOSE. No chance, weight or payout of any luck moment (the knucklebone, Press Your Luck, the Streak
+ * Jackpot, chest reveals, tells) can be changed from a server: the schema has no "luck" section and no skill.press2, the applier
+ * has no handle on the game's LUCK object, and a document that carries either is rejected whole. Odds change only with an app
+ * update, which is what the store text says. There is no interstitial in v1, so its keys are gone too. The last good document is cached in
  * Preferences and applied at the next boot even when offline. Every telemetry event carries the applied version.
  */
 (function (root) {
@@ -22,16 +27,13 @@
     version: I(1, 1e9),
     note: { t: 's', max: 200, optional: true },
     flags: {
-      ads: B,                                   // master switch for rewarded ads (also needs AdMob ids in the build)
-      adMemory: B, adSeal: B, adReroll: B, adChestPick: B,
-      adInterstitial: B                          // the one interstitial, on the run summary screen only
+      ads: B,                                   // master switch for the rewarded slips (also needs AdMob ids in the build)
+      adMemory: B, adSeal: B                    // the two slips, one switch each
     },
     ads: {
       memoryPerRun: I(0, 3),                     // +1 Memory, at most this many per run
       sealBonus: I(0, 3),                        // extra free seals granted for the next chamber
-      cooldownSec: I(0, 3600),                   // minimum seconds between two ad offers
-      interstitialEvery: I(1, 20),               // an interstitial at most once per this many finished runs
-      interstitialMinGapSec: I(0, 86400)         // and never closer together than this
+      cooldownSec: I(0, 3600)                    // minimum seconds between two videos
     },
     skill: {
       targets: IA(3, 50, 1e7),                  // Tomb I per-chamber targets
@@ -39,17 +41,9 @@
       deepMul: N(1, 3), long4: N(.1, 2),
       seals: { free: I(1, 9), sack: I(1, 9), memory: I(0, 3) },
       fever: { grace: I(0, 9), decay: N(0, 1) },
-      press2: { lucky: I(-30, 30), tremor: I(-30, 30) },
       cap: { fame: I(1, 1e6), reward: N(1, 10) },
       mercy: { free: I(0, 9) },
       rel2: N(1, 5)
-    },
-    luck: {
-      press: { at: N(.3, 1), w: { normal: N(0, 1000), lucky: N(0, 1000), tremor: N(0, 1000) }, luckyMult: N(1, 10), tremorCrack: N(0, .5) },
-      near: { pct: N(0, .5) },
-      coin: { min: I(0, 1e7), p: N(.05, .95), mult: I(2, 6) },
-      jackpot: { at: I(1, 20), gold: I(0, 1e5) },
-      tell: { chance: N(0, 1) }
     },
     econ: {
       gold: { sealDiv: I(1, 1e6), chest: I(0, 1e5), tomb: I(0, 1e5), daily: I(0, 1e5), fenceSalvage: I(0, 1e5), sieve: I(0, 1e5) }
@@ -104,11 +98,11 @@
     });
     return out;
   }
-  var TARGET_ROOTS = { skill: 'SKILL', luck: 'LUCK', econ: 'ECON' };
+  var TARGET_ROOTS = { skill: 'SKILL', econ: 'ECON' };
 
-  /* env: { SKILL, LUCK, ECON, TARGETS_BASE }. Returns the applier. */
+  /* env: { SKILL, ECON, TARGETS_BASE }. Returns the applier. The game's LUCK object is deliberately not reachable from here. */
   function createApplier(env) {
-    var roots = { skill: env.SKILL, luck: env.LUCK, econ: env.ECON };
+    var roots = { skill: env.SKILL, econ: env.ECON };
     function resolve(path, create) {
       var parts = path.split('.'), o = roots[parts[0]];
       if (!o) return null;
@@ -116,7 +110,7 @@
       return { obj: o, key: parts[parts.length - 1] };
     }
     var baseline = null;                       // the shipped values for every path the schema allows, captured once
-    function paths() { return flatten(buildShape()).filter(function (p) { return /^(skill|luck|econ)\./.test(p[0]); }).map(function (p) { return p[0]; }); }
+    function paths() { return flatten(buildShape()).filter(function (p) { return /^(skill|econ)\./.test(p[0]); }).map(function (p) { return p[0]; }); }
     function buildShape() { // a config-shaped object holding every allowed leaf as 0 (used only for its path list)
       function shape(spec) { if (isLeaf(spec)) return spec.t === 'ia' ? [] : 0; var o = {}; Object.keys(spec).forEach(function (k) { o[k] = shape(spec[k]); }); return o; }
       return shape(SCHEMA);
@@ -157,7 +151,8 @@
       if (!baseline) capture();
       reset();
       var done = [];
-      flatten(cfg).forEach(function (kv) { if (/^(skill|luck|econ)\./.test(kv[0]) && setVal(kv[0], kv[1])) done.push(kv[0]); });
+      var allowed = {}; paths().forEach(function (p) { allowed[p] = 1; }); // only paths the schema names: nothing else in the game is writable from here
+      flatten(cfg).forEach(function (kv) { if (allowed[kv[0]] === 1 && setVal(kv[0], kv[1])) done.push(kv[0]); });
       syncTargets();
       return done;
     }

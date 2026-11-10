@@ -30,7 +30,7 @@ jobs:
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       # Baked into the web bundle by scripts/build-www.mjs. TestFlight builds show Google's TEST ads; the purchase fake stays off.
       FLAGS_PREMIUM_DEFAULT: 'false'   # legacy name from the old two-product design; build-www ignores it (ads default is FLAGS_ADS_DEFAULT)
-      FLAGS_ADS_DEFAULT: 'true'
+      FLAGS_ADS_DEFAULT: 'false'       # rewarded videos stay OFF in TestFlight builds until real AdMob ids exist (docs/OWNER-TODO.md); remote config can still switch them on
       ADMOB_TESTING: 'true'
       DEV: 'false'
       POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}

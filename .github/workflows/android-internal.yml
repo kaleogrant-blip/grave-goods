@@ -2,7 +2,7 @@
 # without them it makes an unsigned DEBUG .apk you can install on a phone for a quick look. Either way the file is an artifact
 # of the run (bottom of the run page). Uploading to Play is manual for now (docs/TRACK-B.md step 12).
 # Optional secrets: ANDROID_KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD (all four or none);
-# POSTHOG_KEY, POSTHOG_HOST, CONFIG_URL, ADMOB_APP_ID_ANDROID, ADMOB_REWARDED_ID_ANDROID, ADMOB_INTERSTITIAL_ID_ANDROID.
+# POSTHOG_KEY, POSTHOG_HOST, CONFIG_URL, ADMOB_APP_ID_ANDROID, ADMOB_REWARDED_ID_ANDROID.
 name: Android internal
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
-      FLAGS_ADS_DEFAULT: 'true'
+      FLAGS_ADS_DEFAULT: 'false'
       ADMOB_TESTING: 'true'
       DEV: 'false'
       POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
@@ -24,7 +24,6 @@ jobs:
       CONFIG_URL: ${{ secrets.CONFIG_URL }}
       ADMOB_APP_ID_ANDROID: ${{ secrets.ADMOB_APP_ID_ANDROID }}
       ADMOB_REWARDED_ID_ANDROID: ${{ secrets.ADMOB_REWARDED_ID_ANDROID }}
-      ADMOB_INTERSTITIAL_ID_ANDROID: ${{ secrets.ADMOB_INTERSTITIAL_ID_ANDROID }}
       ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
       KEY_ALIAS: ${{ secrets.KEY_ALIAS }}

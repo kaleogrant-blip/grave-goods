@@ -1,21 +1,16 @@
 {
   "schema": 1,
-  "version": 1,
+  "version": 2,
   "note": "shipped values of the build this file was extracted from",
   "flags": {
-    "ads": true,
+    "ads": false,
     "adMemory": true,
-    "adSeal": true,
-    "adReroll": true,
-    "adChestPick": true,
-    "adInterstitial": true
+    "adSeal": true
   },
   "ads": {
     "memoryPerRun": 1,
     "sealBonus": 1,
-    "cooldownSec": 30,
-    "interstitialEvery": 2,
-    "interstitialMinGapSec": 180
+    "cooldownSec": 30
   },
   "skill": {
     "targets": [
@@ -36,10 +31,6 @@
       "grace": 1,
       "decay": 0.15
     },
-    "press2": {
-      "lucky": -2,
-      "tremor": 2
-    },
     "cap": {
       "fame": 120,
       "reward": 1.5
@@ -48,33 +39,6 @@
       "free": 2
     },
     "rel2": 1.5
-  },
-  "luck": {
-    "press": {
-      "at": 0.8,
-      "w": {
-        "normal": 60,
-        "lucky": 30,
-        "tremor": 10
-      },
-      "luckyMult": 2,
-      "tremorCrack": 0.06
-    },
-    "near": {
-      "pct": 0.05
-    },
-    "coin": {
-      "min": 2500,
-      "p": 0.32,
-      "mult": 3
-    },
-    "jackpot": {
-      "at": 4,
-      "gold": 500
-    },
-    "tell": {
-      "chance": 0.15
-    }
   },
   "econ": {
     "gold": {

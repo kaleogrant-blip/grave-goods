@@ -3,7 +3,7 @@
 //   node scripts/patch-ios.mjs            patches ios/App in the current project
 // Env: BUNDLE_ID (default: appId in capacitor.config.ts)  ADMOB_APP_ID_IOS (default: Google's public test app id)
 // What it does, and why:
-//   Info.plist       export-compliance flag, ATT + AdMob keys, arm64 requirement
+//   Info.plist       export-compliance flag, AdMob keys (no tracking usage string: v1 never asks), arm64 requirement
 //   App.entitlements iCloud key-value store (the save follows the Apple ID)
 //   project.pbxproj  points both App configurations at the entitlements file, sets the bundle id
 //   AppIcon          the 1024 icon, flattened (no alpha: App Store Connect rejects it otherwise)
@@ -17,7 +17,9 @@ import { flattenToRGB, solidPng } from './png-flatten.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const GOOGLE_TEST_APP_ID = 'ca-app-pub-3940256099942544~1458002511';
-export const ATT_TEXT = 'Grave Goods can ask once to use your device identifier so the optional rewarded videos are relevant. You can say no and the game plays exactly the same.';
+// v1 never asks for App Tracking Transparency (rewarded videos are requested non-personalised), so the Info.plist must NOT carry a
+// tracking usage string: a string with no prompt behind it is a known review question. The patch removes one left by an older run.
+export const ATT_KEY = 'NSUserTrackingUsageDescription';
 export const ENTITLEMENTS = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -46,7 +48,7 @@ export function patchInfoPlist(plist, { admobAppId = GOOGLE_TEST_APP_ID } = {}) 
   let changed = 0, c;
   const set = (k, v) => { [plist, c] = plistEnsure(plist, k, v); if (c) changed++; };
   set('ITSAppUsesNonExemptEncryption', '<false/>');
-  set('NSUserTrackingUsageDescription', `<string>${ATT_TEXT}</string>`);
+  { const reAtt = new RegExp(`[ \\t]*<key>${ATT_KEY}</key>\\s*<string>[^<]*</string>\\n?`); if (reAtt.test(plist)) { plist = plist.replace(reAtt, ''); changed++; } }
   set('GADApplicationIdentifier', `<string>${admobAppId}</string>`);
   set('SKAdNetworkItems', '<array>\n\t\t<dict><key>SKAdNetworkIdentifier</key><string>cstr6suwn9.skadnetwork</string></dict>\n\t</array>');
   // the shipped Capacitor template requires armv7; the App Store wants arm64
