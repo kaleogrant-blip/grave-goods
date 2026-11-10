@@ -24,10 +24,10 @@ Any element with the attribute `data-gg-ad` is a slip. Use a real `<button type=
 
 ## 2. The two slips
 
-| `data-gg-ad` | Reward | Where the game draws it (rc8) | Cap | Survives a relaunch |
+| `data-gg-ad` | Reward | Where the game draws it (rc9a) | Cap | Survives a relaunch |
 |---|---|---|---|---|
 | `memory` | **+1 Memory** (`run.lives`, never above 3) | The card after a wall collapses | `ads.memoryPerRun` per run (shipped 1), keyed by `run.tid` | Yes: the count is in Preferences, so a relaunch does not give a second one. If the app closes after the Memory is granted but before the game's next autosave, the Memory is given back on resume. |
-| `seal` | **+1 free seal in the next chamber** (`state.xs`) | The chamber-cleared card | `ads.sealBonus` banked at a time (shipped 1) | Yes: a banked seal is in Preferences and lands in the next chamber the game builds for that run, including after a relaunch. Once it has landed, the same chamber rebuilt (a collapse, a resume) keeps it, the same way the game's own Market seal works. |
+| `seal` | **+1 free seal in the next chamber** (`state.xs`) | The chamber-cleared card | `ads.sealBonus` banked at a time (shipped 1) | Yes. A banked seal is in Preferences and lands exactly once, in the chamber **after** the one it was earned in (so resuming the cleared chamber does not spend it). Every wall of that chamber carries it. The wrapper marks the chamber with `state.adxs` and `state.adxsT`, which the game saves with the wall; do not strip unknown fields from the saved wall. |
 
 `GG_NATIVE.ads.canOffer(kind)` returns `''` when a tap would be served, otherwise why not: `off`, `not_ready` (caps still loading, first moments after launch), `training`, `cooldown`, `run_cap`, `full`, `unknown_kind`. Hide the slip for anything except `cooldown`. `GG_NATIVE.ads.pending()` gives `{ seal, memory, run, adFree }`.
 
@@ -35,13 +35,13 @@ After a reward the wrapper fires `gg:ad-reward` with `{ kind: 'memory', applied:
 
 ## 3. Retired slips: `reroll` and `chestpick`
 
-The Market reroll and chest re-pick videos are cut from v1. The game sprint after rc8 removes their markup. The wrapper is written to work with a game build that still has them and with one that does not:
+The Market reroll and chest re-pick videos are cut from v1, and rc9a no longer draws them. The wrapper still guards against a game build that does:
 
 * wrapper CSS hides `[data-gg-ad="reroll"]` and `[data-gg-ad="chestpick"]` always;
 * `canOffer('reroll')` / `offer('chestpick')` return `unknown_kind`, never touch AdMob and never fire `gg:ad-reward`, so the game's old listeners simply never run;
 * there are no `adReroll` / `adChestPick` flags any more; a remote config that carries them is rejected.
 
-The game team can delete `adSlip('reroll')`, `adSlip('chestpick')`, `adChestHook`, `adChestReady` and the two `AD_LBL` entries whenever convenient.
+One thing for the game team: rc9a's own tap handler throws if it is ever handed a slip kind it has no label for (`AD_LBL[kind]` is undefined). It cannot happen with the two slips the game draws; a guard there would make it impossible.
 
 ## 4. Ad-free owners
 
@@ -82,7 +82,7 @@ There is nothing else to configure: no interstitial keys, no frequency caps, no 
 
 ## 7. Checklist for the game team
 
-1. Two slips with the markup above (`memory` on the collapse card, `seal` on the chamber-cleared card). Remove the two retired ones when convenient.
+1. Two slips with the markup above (`memory` on the collapse card, `seal` on the chamber-cleared card).
 2. Keep the label and aria-label patterns from section 1.
 3. Screenshots with the slips **present**, **absent**, and as an **owner** ("Claim").
 4. Tell the Platform seat if a slip moves to another card: `store/review-notes.md` names the cards.
