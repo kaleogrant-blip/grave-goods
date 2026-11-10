@@ -21,7 +21,7 @@ The repository is public at github.com/kaleogrant-blip/grave-goods, so Actions m
 | `APP_STORE_CONNECT_PRIVATE_KEY` | the full text of the `.p8` file, BEGIN and END lines included | A1 |
 | `APPLE_TEAM_ID` | 10 letters and digits, like `ABCDE12345` | A2 (Team ID lookup) |
 
-Optional secrets (leave unset to switch the feature off): `POSTHOG_KEY`, `POSTHOG_HOST`, `CONFIG_URL` (Steps 8 and 9 below). Android only: `ANDROID_KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD` (Step 12), and the three `ADMOB_*_ANDROID` ids.
+Optional secrets (leave unset to switch the feature off): `POSTHOG_KEY`, `POSTHOG_HOST`, `CONFIG_URL` (Steps 8 and 9 below). Android (planned, not in v1): `ANDROID_KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD` (Step 12), and the two `ADMOB_*_ANDROID` ids.
 
 ## A1. Make the App Store Connect API key (Admin role)
 
@@ -204,9 +204,8 @@ For Codemagic, all go in the Codemagic group `gg_secrets`.
 | `POSTHOG_HOST` | `https://us.i.posthog.com` or `https://eu.i.posthog.com` | no | Step 8 | analytics |
 | `CONFIG_URL` | host and folder of your remote config, no `https://`, e.g. `yourname.github.io/gg-config` | no | Step 9 | remote balance config (blank = shipped values only) |
 | `ADMOB_APP_ID_IOS` | `ca-app-pub-XXXX~YYYY` | no | Step 10 | ads (blank = Google's public test id) |
-| `ADMOB_REWARDED_ID_IOS` | `ca-app-pub-XXXX/ZZZZ` | no | Step 10 | rewarded ads; required by `ios-release` |
-| `ADMOB_INTERSTITIAL_ID_IOS` | `ca-app-pub-XXXX/WWWW` | no | Step 10 | between-run ad; required by `ios-release` |
-| `ADMOB_APP_ID_ANDROID`, `ADMOB_REWARDED_ID_ANDROID`, `ADMOB_INTERSTITIAL_ID_ANDROID` | same shapes, from the Android app in AdMob | no | Step 10 | Android ads |
+| `ADMOB_REWARDED_ID_IOS` | `ca-app-pub-XXXX/ZZZZ` | no | Step 10 | rewarded videos (the only ad type in v1); required by `ios-release` |
+| `ADMOB_APP_ID_ANDROID`, `ADMOB_REWARDED_ID_ANDROID` | same shapes, from the Android app in AdMob | no | Step 10 | Android (planned, not in v1) |
 | `ANDROID_KEYSTORE_BASE64` | the upload keystore, base64 | **yes** | Step 12 | signing the AAB |
 | `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD` | from the keystore command | **yes** (password rows) | Step 12 | signing the AAB |
 | `GCLOUD_SERVICE_ACCOUNT_CREDENTIALS` | full JSON of the service account key | **yes** | Step 12 | upload to Play |
@@ -259,30 +258,29 @@ Write-Host "status $($r.StatusCode); CORS header: $($r.Headers['Access-Control-A
 
 To change balance later: edit `config.json` on GitHub (pencil icon), raise `"version"` by 1, commit. The app picks it up the next time it starts. A mistake in the file (a misspelt key, a wrong type) makes the app ignore the whole file and keep its last good copy, so it cannot break the game; the cost is that your change does not apply. `README.md` lists what can be changed.
 
-## Step 10: AdMob (iOS and Android)
+## Step 10: AdMob (iOS; Android later)
 
-Ads are ON in v1. TestFlight and Play internal builds use Google's sample ads whatever ids you set, so you can do this after the first test build. Required before `ios-release`.
+v1 uses **rewarded video only**: no interstitial, no banner. Video offers are **off** in TestFlight builds until this step is done, so you can do it after the first test build. Required before `ios-release` and before App Review (the Ad-free row only shows while offers are on).
 1. admob.google.com, sign in, accept terms, set country and payment details **(verify in the current UI)**.
 2. **Apps**, **Add app**, platform **iOS**. If the app is not live yet choose "No" for "listed on a supported app store" and link it later. Copy the **App ID** (`ca-app-pub-XXXX~YYYY`) -> `ADMOB_APP_ID_IOS`.
-3. In that app, **Ad units**, **Add ad unit**:
-   - **Rewarded**, name `Rewarded - bonus`, reward item `bonus`, amount 1. Copy the unit ID -> `ADMOB_REWARDED_ID_IOS`.
-   - **Interstitial**, name `Interstitial - run summary`. Copy the unit ID -> `ADMOB_INTERSTITIAL_ID_IOS`.
-4. Repeat steps 2 and 3 for platform **Android** (a separate AdMob app) -> the three `_ANDROID` variables.
-5. Never tap real ads on your own device (Google can ban the account). TestFlight and Play internal builds use test ads automatically (`ADMOB_TESTING` is `true` there).
-6. **app-ads.txt.** AdMob needs a file at `https://<your developer website>/app-ads.txt`. In AdMob: **Apps** > **app-ads.txt** > **Set up** gives the exact line (it looks like `google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0`) **(verify in the current UI)**. Put that one line in a file called `app-ads.txt` at the root of a domain you control (GitHub Pages on a custom domain works; a `github.io/project` path does not, it must be the root). Then set that same domain as the developer website: App Store Connect > the app > App Information > Marketing URL / support domain, and Play Console > Store settings > Website **(verify in the current UI)**. It can take days for AdMob to show "verified"; ads still serve meanwhile at lower fill.
-7. In App Store Connect update **App Privacy** with the ads table in `store/listing.md` before submitting. In Play Console fill the Data safety form from `store/play-listing.md`.
-8. Ads are already on in the shipped config. To switch the interstitial off remotely: `"flags": { "adInterstitial": false }`; to tune it: `"ads": { "interstitialEvery": 3, "interstitialMinGapSec": 240 }`; raise `"version"`. The tracking prompt appears once, after the player's first tomb clear. The game needs its ad buttons first: `docs/ADS-UI.md` (Design seat).
+3. In that app, **Ad units**, **Add ad unit**, **Rewarded**, name `Rewarded - bonus`, reward item `bonus`, amount 1. Copy the unit ID -> `ADMOB_REWARDED_ID_IOS`. Do **not** create an interstitial or banner unit; the app has no code that could show one.
+4. (Android, when its release is planned: repeat steps 2 and 3 for platform **Android** -> the two `_ANDROID` variables.)
+5. Never tap real ads on your own device (Google can ban the account). TestFlight builds use Google's sample ads whenever offers are switched on (`ADMOB_TESTING` is `true` there).
+6. **app-ads.txt.** AdMob looks for `https://<developer website>/app-ads.txt`, where "developer website" is the website named in the app's store listing (App Store Connect > App Information > the marketing/developer URL) **(verify in the current UI)**. The file must be at the **root** of that host. A GitHub Pages *project* site (`https://name.github.io/some-project/`) will not do: the file would be at `/some-project/app-ads.txt` and the root belongs to a different site. A GitHub Pages *user or organisation* site (`https://name.github.io/`, from a repository named `name.github.io`) works, and so does any custom domain you control. In AdMob: **Apps** > **app-ads.txt** > **Set up** gives the exact line (it looks like `google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0`). It can take days for AdMob to show "verified"; ads may be limited until then.
+7. **Do not create an IDFA / tracking message.** In AdMob > **Privacy & messaging**, set up the consent messages Google asks for (UK, US states) but do **not** create an "IDFA explainer" message. It would make Google's SDK show Apple's tracking prompt, and the app, its privacy labels and its review notes all say there is none.
+8. In App Store Connect fill **App Privacy** from `store/listing.md` (Tracking: No; Tables 1 and 2) before submitting.
+9. Switching offers on: remote config `"flags": { "ads": true }` with a higher `"version"`, or build with `FLAGS_ADS_DEFAULT=true`. Per slip: `"adMemory"`, `"adSeal"`. Caps: `"ads": { "memoryPerRun": 1, "sealBonus": 1, "cooldownSec": 30 }`. Nothing else is configurable; the UI contract is `docs/ADS-UI.md`.
 
 ## Step 11: the Ad-free purchase (Apple)
 
 1. App Store Connect > **Business** (older UI: Agreements, Tax, and Banking). Accept the **Paid Apps** agreement and fill in bank account and tax forms. Without this the purchase never works, even in review. Approval can take a day or two **(verify in the current UI)**.
-2. Create the product. Either with the ASC setup workflow (A5: products ticked, dry run first, then apply) or by script (`node scripts/asc-products.mjs` shows what it would do, add `--apply` to do it). Or by hand: app > **Monetization** > **In-App Purchases** > **+** > Non-Consumable, Reference name `Ad-free`, Product ID `gg_adfree`, price (placeholder $2.99), display name `Ad-free`, description `Removes every ad, for good. The whole game is free either way.` **(verify in the current UI)**.
+2. Create the product. Either with the ASC setup workflow (A5: products ticked, dry run first, then apply) or by script (`node scripts/asc-products.mjs` shows what it would do, add `--apply` to do it). Or by hand: app > **Monetization** > **In-App Purchases** > **+** > Non-Consumable, Reference name `Ad-free`, Product ID `gg_adfree`, price (placeholder $2.99), display name `Ad-free`, description `No videos: claim the video bonuses free.` **(verify in the current UI)**.
 3. Add a **review screenshot** by hand (a screenshot of the game's Settings > Purchases section) and the review note from `config/products.json`.
 4. Attach the product to the first app version you submit (version page > **In-App Purchases and Subscriptions** > **+**). The first IAP is only reviewed together with an app version.
-5. Test: App Store Connect > Users and Access > **Sandbox** > create a Sandbox Apple Account. On the phone: Settings > Developer > Sandbox Apple Account. In a TestFlight build, tap Settings > Remove ads. TestFlight purchases are free.
+5. Test: App Store Connect > Users and Access > **Sandbox** > create a Sandbox Apple Account. On the phone: Settings > Developer > Sandbox Apple Account. In a TestFlight build with video offers switched on (they are off by default; step 10.9), tap Settings > Purchases > Ad-free. TestFlight purchases are free.
 6. Release: `ios-release` workflow submits with `release_notes.json`. Fill the review notes from `store/review-notes.md`.
 
-## Step 12: Android (Play Console, keystore, service account)
+## Step 12: Android (Play Console, keystore, service account). NOT IN v1: skip until the owner starts the Android release
 
 1. play.google.com/console, sign up as a developer, one-off **$25** fee, identity verification (can take days) **(verify in the current UI)**.
 2. **Create app**: name Grave Goods, Game, Free. Complete the checklist using `store/play-listing.md` (graphics are in `store/play/`).
