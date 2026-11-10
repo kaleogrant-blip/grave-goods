@@ -20,6 +20,8 @@ test('App Store description: within Apple\'s limit, does not lead with "Finders 
     [/iCloud|Apple ID/i, 'cloud sync is untested'], [/fact-checked/i, 'withdrawn'], [/between runs|interstitial/i, 'there is no ad between runs'], [/removes? (every|all) ads?/i, 'Ad-free does not "remove ads"'], [/android|google play/i, 'Android is not in v1'], [/honest odds/i, 'blanket odds claim']])
     assert.ok(!re.test(description), `description must not say ${re} (${why})`);
   assert.match(description, /stakes that seal's points/, 'the knucklebone is described by what it really stakes');
+  assert.ok(!/reel|wheel|oracle/i.test(description), 'neither the outgoing reels and wheel nor the unbuilt oracle-bone reading is advertised');
+  assert.match(listing, /13\+ on Apple's current scale, and R18\+ in Australia/); assert.match(listing, /\*\*Yes: Infrequent\/Mild\*\*/);
   assert.match(description, /same tomb, raider, kit and seed for everyone/); assert.match(description, /Nothing plays unless you tap it/);
   assert.match(description, /asks once whether you want to share anonymous play statistics/);
 });
@@ -32,6 +34,7 @@ test('review notes: rewarded only, no interstitial, no tracking prompt, the thre
   assert.ok(!/reroll|re-pick|second chest/i.test(reviewBlock), 'the retired video offers are not described');
   assert.ok(!/after the player's first completed tomb/i.test(reviewBlock), 'no prompt is tied to a tomb clear any more');
   assert.match(reviewBlock, /It stakes that seal's\s+points/); assert.ok(!/use only Gold/i.test(reviewBlock));
+  assert.ok(!/oracle/i.test(reviewBlock), 'the review notes do not describe a reveal that is not built'); assert.match(reviewBlock, /triple-or-nothing bet/); assert.match(reviewBlock, /\[CHEST REVEAL: /);
   // the words in the notes are the words the app draws
   assert.ok(rd('www/consent.js').includes("'Help improve the game: share anonymous play statistics?'"));
   assert.ok(rd('www/adfree.js').includes("'Ad-free · '") && reviewBlock.includes('"Ad-free · [price]"'));

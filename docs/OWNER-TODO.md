@@ -86,7 +86,8 @@ All in `store/privacy-policy.md`. Host the finished page on the developer websit
 
 | # | Decision | Where it shows |
 |---|---|---|
-| 6.1 | The gambling re-dress (ruling 3): the team proposes, you choose | Then update the "SIMULATED GAMBLING" text in `store/review-notes.md` and `store/listing.md` |
+| 6.1 | Decided 10 Nov: the knucklebone wager stays; the chest reveal becomes an oracle-bone reading (no reels, no wheel). Not built yet | When it is in the build you submit, fill `[CHEST REVEAL: describe what the submitted build shows. Nothing is staked on it and the outcome is decided before it is shown.]` in `store/review-notes.md` from that build, and only then mention the new reveal in public text |
+| 6.1a | Age rating: answer simulated gambling "yes, infrequent". Expect Apple 13+ and R18+ in Australia | Run the questionnaire, screenshot the result, and decide whether Australia stays in the availability list at R18+ |
 | 6.2 | Confirm the game build you submit has the Daily fix (same tomb, raider and kit for everyone) | The listing says so; do not submit that line with an older game build |
 | 6.3 | iPhone only, or iPad too | Screenshots, Xcode device families |
 | 6.4 | Whether to mention cloud saves at all | Only after a tester has seen a save cross two devices |

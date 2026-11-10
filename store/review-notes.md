@@ -38,13 +38,13 @@ IN-APP PURCHASE: one non-consumable, "Ad-free" (product ID gg_adfree).
   purchase.
 - After purchase the row reads "Ad-free · purchased". Reinstalling and tapping Restore purchases brings it back.
 
-SIMULATED GAMBLING (age rating answer: Infrequent/Mild).
-The game has three luck moments inside a dig-and-bank puzzle game:
+SIMULATED GAMBLING (age rating answer: yes, Infrequent/Mild. We accept the rating that produces, including R18+ in Australia).
+The game contains one simulated wager inside a dig-and-bank puzzle game:
 - The knucklebone: after a large seal the player may choose to throw it, at most once per chamber. It stakes that seal's
   points (in-game score, not currency): a 32% face pays the seal three times over, the other faces take the seal back.
   The chance of each face is printed on the card. It can be switched off in Settings.
-- Chest reels: a three-reel reveal when a chest is opened. Nothing is staked; the outcome is decided before the reels spin.
-- The wheel: a free spin after the fourth full Fever of a run. Nothing is staked.
+  It is a triple-or-nothing bet of points the player has just earned, and we describe it as that.
+[CHEST REVEAL: describe what the submitted build shows. Nothing is staked on it and the outcome is decided before it is shown.]
 No real money can be wagered. Gold (the in-game currency) is earned by playing and cannot be bought, anywhere. Nothing
 won has real-world value. The chances are fixed in the app and can only change with an app update.
 
@@ -58,7 +58,7 @@ CONTACT: [NAME], [PHONE], [CONTACT EMAIL]
 
 Checklist before pressing Submit for Review:
 - **People have played it.** A TestFlight round with real testers has happened and its fixes are in this build (LAUNCH.md). Do not submit a build only bots have played.
-- The "SIMULATED GAMBLING" paragraph still matches the game. The owner asked for a re-dress of the luck moments (ruling 3) and the removal of the staged near-miss; re-read the paragraph against the build you submit.
+- Fill the CHEST REVEAL line in the block above from the build you submit, and from nothing else. rc8 shows a three-reel reveal on chests and a free wheel spin after the fourth full Fever; the owner has ruled (10 Nov) that the chest reveal becomes an oracle-bone reading with no reels and no wheel, and that the staged near-miss goes. That is not built yet. If the build still has reels and a wheel, say so in that line; if it has the oracle-bone reading, describe that. Never describe the one the build does not have. The knucklebone stays as written (owner ruling).
 - Rewarded videos are ON for the submitted build and the AdMob ids are the real ones (`docs/OWNER-TODO.md`), or the reviewer will not find the Ad-free row.
 - The IAP `gg_adfree` shows "Ready to Submit" and is attached to this version (App Store Connect > the version > In-App Purchases and Subscriptions > add it). Apple reviews the first IAP together with the app; it must have a review screenshot (a picture of Settings with the Ad-free row) and a review note, both filled in by `scripts/asc-products.mjs` only as far as the API allows. The screenshot is done by hand.
 - The Paid Apps agreement, banking and tax forms are Active (TRACK-B step 11).

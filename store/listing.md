@@ -49,7 +49,7 @@ HOW A RUN GOES
 - Finds combine. Match a civilization, build a timeline, complete a set, and the seal multiplies.
 - Seal early and be safe, or hold on for a bigger tally and risk the collapse.
 - Each chamber asks for a target. Clear it and the tomb goes deeper.
-- Fever builds as you dig well. The fourth full Fever of a run spins the Streak Jackpot wheel.
+- Fever builds as you dig well, and a Fever streak pays.
 
 REAL RELICS, REAL HISTORY
 - 48 relics from Egypt, Greece, the Norse world, the Maya, Mesopotamia and China.
@@ -64,7 +64,7 @@ CHOOSE WHO GOES IN
 
 LUCK, WITH THE NUMBERS SHOWN
 - After a big seal you may throw the knucklebone. It stakes that seal's points: one face in four pays triple, the other three take the seal back. The chance of each face is printed on the card, and the throw can be switched off in Settings.
-- Chest reels are a reveal: the chest is decided before they spin. The wheel is a free spin after a Fever streak.
+- This is a wager of in-game points, and the age rating says so. What a chest holds is decided before it is shown to you.
 - Gold is earned by playing. It cannot be bought with real money.
 
 MADE TO PICK UP AND PUT DOWN
@@ -81,9 +81,9 @@ On first launch the game asks once whether you want to share anonymous play stat
 | Old line | Now | Why |
 |---|---|---|
 | "A Daily Tomb with the same seed for everyone. Beat your own number, or a friend's." | "the same tomb, raider, kit and seed for everyone that day. Beat your own number." | The fixed tomb, class and kit arrive with the game sprint that follows rc8 (owner ruling 7). **Do not submit this line with a game build where the Daily still uses each player's own tomb and kit**: check the game's release notes for the Daily fix first. "A friend's" is gone because the app has no way to compare two players (no leaderboard, no friends list). |
-| "Nothing is hidden and nothing is rigged against you." | removed | An absolute we cannot stand behind in a game with a staged reveal. What is true and checkable is said instead: the chances are printed, and the chest is decided before the reels spin. |
+| "Nothing is hidden and nothing is rigged against you." | removed | An absolute we cannot stand behind in a game with a staged reveal. What is true and checkable is said instead: the knucklebone's chances are printed, and a chest is decided before it is shown. |
 | "HONEST ODDS" / "Chances are printed wherever luck is involved" | "LUCK, WITH THE NUMBERS SHOWN" and the three moments described | The knucklebone stakes the seal's points, not Gold; the old text implied all luck used Gold. The chest card still says "now and then" for some outcomes in rc8 (C-5), so "wherever" was too strong; the listing now names the knucklebone, whose faces are printed. |
-| "Four full Fevers spin the Streak Jackpot." | "The fourth full Fever of a run spins the Streak Jackpot wheel." | Matches the rule in the game. |
+| "Four full Fevers spin the Streak Jackpot." and any mention of reels or a wheel | "a Fever streak pays"; chests: "decided before it is shown" | The reels and the wheel are being replaced (owner ruling, 10 Nov); the replacement is not built. The text names neither. |
 | "Your progress follows your Apple ID through iCloud." | removed | The iCloud plugin has never been compiled or run on a device. Put a line back only after a tester has seen a save cross two devices; until then say nothing. |
 | "VoiceOver labels" (never in this description, but in LAUNCH.md and the press kit) | not claimed anywhere | Nobody has used the app with VoiceOver. The buttons have `aria-label`s; that is not the same as a tested VoiceOver experience. |
 | "every line fact-checked" (LAUNCH.md, posts) | not claimed anywhere | Four history lines were found wrong in review. Say "a line of real history" and fix errors as they are reported. |
@@ -115,7 +115,7 @@ Apple replaced the questionnaire in 2025 and may have reworded it again; answer 
 | Horror / fear themes | Infrequent/Mild (or None) | Tombs, death and curses as setting, played deadpan. No scares |
 | Sexual content or nudity, profanity | None | |
 | Alcohol, tobacco, drug use | None | |
-| **Simulated gambling** | **Infrequent/Mild** | See rationale below |
+| **Simulated gambling** | **Yes: Infrequent/Mild** | The knucklebone is a triple-or-nothing wager of in-game points. See rationale below |
 | Real-money gambling | None | No real-money bets, prizes or purchasable currency exist |
 | Contests | None | The Daily Tomb is a shared seed with a personal best, no prizes |
 | Unrestricted web access | No | No browser inside the app |
@@ -124,9 +124,11 @@ Apple replaced the questionnaire in 2025 and may have reworded it again; answer 
 | Loot boxes | None | Nothing is sold in random bundles. LAUNCH.md rules out loot boxes for money |
 
 **Simulated gambling rationale** (keep this; Review may ask):
-The game has three luck moments. (1) The knucklebone: after a big seal the player may throw it, at most once a chamber. It stakes that seal's points (not Gold): one face, 32%, pays the seal three times over; the other three faces take the seal back. Slightly worse than a fair bet, and the card prints the chance of each face. It can be switched off in Settings. (2) Chest reels: a three-reel reveal when a chest is opened. Nothing is staked and the result is decided before the reels spin. (3) The wheel: a free spin after the fourth full Fever of a run. Nothing is staked. They are occasional events inside a dig-and-bank puzzle game, not a casino game. The player can never wager real money, cannot buy Gold or any currency with real money (Gold is earned, never sold), and wins nothing of real-world value. The chances cannot be changed from a server; they change only with an app update. This paragraph describes rc8: the owner has asked for a re-dress of these moments (ruling 3), so re-read it against the build you submit. Because it is a simulated casino-style mechanic, we answer "Infrequent/Mild" rather than "None". If the form's rating comes out higher than 12+ because of this answer, take the higher rating; do not change the answer to get a lower number. The honest alternative, if you want a lower rating, is a design change (remove the slot-reel presentation), which is the Design Lead's call.
+**Owner ruling (10 Nov 2026): the knucklebone stays as it is, a triple-or-nothing wager, and the listing says so honestly.** After a big seal the player may throw it, at most once a chamber. It stakes that seal's points (in-game score, not Gold and not money): one face, 32%, pays the seal three times over; the other three faces take the seal back. Slightly worse than a fair bet, the card prints the chance of each face, and it can be switched off in Settings. That is a simulated wager, so the answer to the simulated-gambling question is **yes, infrequent**, never "None". The player can never wager real money, cannot buy Gold or any currency with real money, and wins nothing of real-world value. The chances cannot be changed from a server; they change only with an app update.
 
-Expected result: 12+ on the older scale; on Apple's newer scale it may show as 13+ or higher **(verify in the current UI)**.
+The other luck presentation is changing. rc8 (the game build in this repo) shows a three-reel reveal on chests and a wheel after a Fever streak; neither stakes anything, and the chest is decided before the reveal. By the same ruling the chest reveal is being re-dressed as an oracle-bone reading, with no reels and no wheel. That is **not built yet**. So: the public description below names neither the reels and wheel (on their way out) nor the oracle-bone reading (not in any build); it only says that a chest is decided before it is shown, which is true of both. Describe the new reveal in public text only once it is in the build being submitted.
+
+Expected result, and it is accepted: **13+ on Apple's current scale, and R18+ in Australia**, where any simulated gambling is rated R18+ whatever the frequency **(verify both in the current UI when the questionnaire is run; save the result as a screenshot)**. Do not soften the answer to get a lower number, and decide knowingly whether to keep Australia in the availability list at R18+.
 
 ## Privacy labels (App Store Connect > App Privacy)
 
