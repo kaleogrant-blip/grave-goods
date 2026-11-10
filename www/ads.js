@@ -205,7 +205,10 @@
 
     /* wrap target for the game's newChamber(i): call after the original has built `state` */
     function onNewChamber(state) {
-      if (!loaded) { load(); return false; }     // reconcile() stamps the live chamber once the record is read
+      if (!loaded) { // the record is still being read (first moments after launch): stamp this chamber as soon as it is
+        load().then(function () { if (state && !state.train && caps.run === runKey()) stamp(state); });
+        return false;
+      }
       reconcile();
       if (!state || state.train) return false;
       forRun();

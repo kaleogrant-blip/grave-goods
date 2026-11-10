@@ -165,7 +165,10 @@ test('relaunch: the game resumes its chamber BEFORE the shell attaches; the bank
   const live = { i: 1, xs: 0 };
   const b = rig({ prefs, run: { tid: 'runA', lives: 2 }, state: live });
   assert.equal(b.ads.onNewChamber(live), false, 'caps not read yet'); await b.ads.load();
-  assert.equal(live.xs, 1); b.ads.onNewChamber(live); assert.equal(live.xs, 1, 'once');
+  assert.equal(live.xs, 1); b.ads.onNewChamber(live); assert.equal(live.xs, 1, 'once');  // and the same when the chamber handed to onNewChamber is not (yet) the one env() reports
+  const c = rig({ prefs: memPrefs({ [K_CAPS]: JSON.stringify({ v: 1, run: 'runA', memory: 0, owed: 0, owedAt: 0, seal: 1, sealAt: null, sealN: 0 }) }), run: { tid: 'runA', lives: 2 }, state: null });
+  const early = { i: 1, xs: 0 }; assert.equal(c.ads.onNewChamber(early), false); await c.ads.load(); await new Promise(res => setTimeout(res, 5));
+  assert.equal(early.xs, 1, 'a chamber built while the caps were still loading gets its seal as soon as they are read'); assert.equal(c.ads.pending().seal, 0);
 });
 
 test('relaunch: a Memory granted after the game\'s last autosave is given back on resume, and only until an autosave contains it', async () => {
