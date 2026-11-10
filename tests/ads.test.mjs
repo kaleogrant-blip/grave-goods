@@ -104,6 +104,37 @@ test('seal slip: +1 free seal arrives in the NEXT chamber (state.xs), one banked
   assert.equal(r.ads.onNewChamber({ i: 0, xs: 0, train: true }), false, 'training chambers get nothing');
 });
 
+test('seal slip vs the game\'s same-wall resume (rc9a): never spent on the chamber it was earned in, exactly once in the next, never twice when a saved wall is laid back over it', async () => {
+  const prefs = memPrefs();
+  const r = rig({ prefs, state: { i: 0, xs: 0 } }); assert.equal((await r.ads.offer('seal')).ok, true);
+  // relaunch on the chamber-cleared card: the game resumes the SAME chamber 0 (its record from before the clear) and rebuilds it
+  const b = rig({ prefs, state: null }); await b.ads.load();
+  const again0 = { i: 0, xs: 0 }; assert.equal(b.ads.onNewChamber(again0), false); b.ads.sync(again0);
+  assert.equal(again0.xs, 0, 'the chamber the seal was earned in does not get it'); assert.equal(b.ads.pending().seal, 1, 'still banked');
+  assert.deepEqual(await b.ads.offer('seal'), { ok: false, reason: 'run_cap' }, 'and the re-shown cleared card cannot bank a second one');
+  const ch1 = { i: 1, xs: 0 }; assert.equal(b.ads.onNewChamber(ch1), true); assert.equal(ch1.xs, 1); assert.equal(b.ads.pending().seal, 0);
+  for (let k = 0; k < 5; k++) b.ads.sync(ch1); assert.equal(ch1.xs, 1, 'repaints and events never add it again');
+  b.ads.sync({ i: 0, xs: 0 }); b.ads.sync({ xs: 0 }); b.ads.sync({ i: 7, xs: 0 }); // a repaint or an event that sees a stale or foreign chamber changes nothing
+  assert.equal(b.ads.pending().seal, 0); assert.equal((await b.caps()).sealAt, 1); assert.equal((await b.caps()).sealN, 1, 'the landed seal is not forgotten because something repainted an old chamber');
+  { const pre = rig({ prefs: memPrefs(), state: { i: 0, xs: 0 } }); await pre.ads.offer('seal'); const st = { i: 1, xs: 0 }; pre.ads.sync(st); assert.equal(st.xs, 0, 'only a chamber the game has just built can receive a banked seal'); assert.equal(pre.ads.pending().seal, 1); }
+  assert.deepEqual([ch1.adxs, ch1.adxsT], [1, 1], 'the marks are plain fields, so the game saves them with the wall');
+  // relaunch A: the saved wall already contains the bonus. The game builds chamber 1 (we stamp it), then lays the saved wall over it.
+  const c = rig({ prefs, state: null }); await c.ads.load();
+  const resA = { i: 1, xs: 0 }; c.ads.onNewChamber(resA); Object.assign(resA, { xs: 1, adxs: 1, adxsT: 1 }); c.ads.sync(resA);
+  assert.equal(resA.xs, 1, 'not applied again when the same wall resumes');
+  // relaunch B: the app died before the game saved the stamped wall. The saved wall has xs 0 and no marks; laying it over wipes our seal.
+  const d = rig({ prefs, state: null }); await d.ads.load();
+  const resB = { i: 1, xs: 0 }; d.ads.onNewChamber(resB); assert.equal(resB.xs, 1); resB.xs = 0; d.ads.sync(resB);
+  assert.equal(resB.xs, 1, 'put back, once'); d.ads.sync(resB); assert.equal(resB.xs, 1);
+  // the game's own Market seal (state.xs 1 from run.xs) and ours stack, and survive the same two resumes
+  const prefs2 = memPrefs(); const m = rig({ prefs: prefs2, state: { i: 0, xs: 0 } }); await m.ads.offer('seal');
+  const mk = { i: 1, xs: 1 }; m.ads.onNewChamber(mk); assert.equal(mk.xs, 2);
+  mk.xs = 1; m.ads.sync(mk); assert.equal(mk.xs, 2); Object.assign(mk, { xs: 2, adxs: 1, adxsT: 2 }); m.ads.sync(mk); assert.equal(mk.xs, 2);
+  // a collapse builds a NEW wall in chamber 1: it carries the seal too, once
+  const wall2 = { i: 1, xs: 0 }; assert.equal(d.ads.onNewChamber(wall2), true); assert.equal(wall2.xs, 1);
+  const ch2 = { i: 2, xs: 0 }; d.ads.onNewChamber(ch2); d.ads.sync(ch2); assert.equal(ch2.xs, 0, 'and it does not follow the run into chamber 2');
+});
+
 test('nothing is offered on the practice wall', async () => {
   const r = rig({ run: { tid: 't', lives: 1, train: true }, state: { i: 0, xs: 0, train: true } });
   await r.ads.load();

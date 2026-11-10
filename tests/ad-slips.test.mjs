@@ -1,6 +1,6 @@
 // The rewarded slips, driven through the REAL game cards and the REAL wrapper (ads.js + native.js) with the Capacitor/AdMob bridge stubbed.
-// v1 keeps two slips (memory, seal). The game build in this repo (rc8) still draws the two retired ones (reroll, chestpick); a later
-// game build removes them. Either way the wrapper must never show or serve them, and nothing may throw.
+// v1 keeps two slips (memory, seal). The game build in this repo (rc9a) draws only those two; rc8 also drew the retired ones (reroll,
+// chestpick). The wrapper must never show or serve a retired slip if an older game build draws one, and nothing may throw.
 // Each live slip must: be hidden without body.gg-ads, appear (>= 44 px) with it, grant its reward only through the wrapper, and report a failure.
 // An Ad-free owner sees the same slips as free claims.
 import test from 'node:test';
@@ -72,7 +72,7 @@ T('ads off (flag false): the game writes the slips but body lacks .gg-ads, so ev
   assert.deepEqual(i, ['none'], 'the memory slip exists in the card and is hidden');
   assert.deepEqual(await page.evaluate(() => (window.__plug || []).map(p => p[0])), []);
   await clear(page); await page.evaluate(() => { newChamber(0); endChamber(true); }); await page.waitForSelector('#card .chest');
-  assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('[data-gg-ad]')].map(b => b.dataset.ggAd + ':' + getComputedStyle(b).display).sort()), ['chestpick:none', 'seal:none']);
+  assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('[data-gg-ad]')].map(b => b.dataset.ggAd + ':' + getComputedStyle(b).display).sort()), ['seal:none'], 'rc9a draws one slip on the chamber-cleared card, and it is hidden');
   assert.deepEqual(r.errors, []); await r.ctx.close();
 });
 
@@ -99,19 +99,23 @@ T('ads on: +1 free seal next chamber on the chamber-cleared card', async () => {
   assert.deepEqual(r.errors, []); await r.ctx.close();
 });
 
-T('retired slips (this game build still draws them): chestpick and reroll stay hidden with ads on, their cards work normally, a forced tap is refused, nothing throws', async () => {
+T('retired slips: this game build (rc9a) draws neither; if an older build\'s chestpick or reroll slip is on a card it stays hidden, a forced tap is refused, nothing throws', async () => {
   const r = await open(); const page = r.page; await startRun(page);
   await page.evaluate(() => { run.lives = 2; endChamber(true); }); await page.waitForSelector('#card .chest');
   await page.waitForTimeout(900); // the game ignores taps for a moment after a card opens
   await page.locator('#card .chest').nth(1).click();
   await page.waitForFunction(() => [...document.querySelectorAll('.chest')].every(c => c.disabled), null, { timeout: 8000 });
-  await page.waitForTimeout(1500); // the game un-hides its re-pick slip after the first chest; the wrapper CSS still keeps it off screen
-  const here = await page.evaluate(() => [...document.querySelectorAll('#card [data-gg-ad]')].map(b => b.dataset.ggAd + ':' + getComputedStyle(b).display));
-  for (const k of here.filter(x => /^chestpick/.test(x))) assert.equal(k, 'chestpick:none');
+  await page.waitForTimeout(800);
+  const kinds = () => page.evaluate(() => [...document.querySelectorAll('#card [data-gg-ad]')].map(b => b.dataset.ggAd).sort());
+  assert.deepEqual(await kinds(), ['seal'], 'the chamber-cleared card has the seal slip and no chest re-pick slip');
+  assert.equal(await slip(page, 'seal').isVisible(), true);
+  // an older game build (rc8) wrote these two into its cards; put the same markup on this card
+  await page.evaluate(() => { for (const k of ['chestpick', 'reroll']) document.querySelector('#card .body').insertAdjacentHTML('beforeend', '<button type="button" class="adslip" data-gg-ad="' + k + '"><span class="as-t"><i>Sponsor slip</i><b>Watch a short video · old</b></span></button>'); });
+  assert.deepEqual(await page.evaluate(() => ['chestpick', 'reroll'].map(k => getComputedStyle(document.querySelector('#card [data-gg-ad="' + k + '"]')).display)), ['none', 'none']);
   assert.deepEqual(await page.evaluate(() => [GG_NATIVE.ads.canOffer('chestpick'), GG_NATIVE.ads.canOffer('reroll')]), ['unknown_kind', 'unknown_kind']);
   assert.deepEqual(await page.evaluate(() => Promise.all([GG_NATIVE.ads.offer('chestpick'), GG_NATIVE.ads.offer('reroll')])), [{ ok: false, reason: 'unknown_kind' }, { ok: false, reason: 'unknown_kind' }]);
   await page.evaluate(() => { run.gold = 200; ecoMarket(0, () => { document.getElementById('overlay').hidden = true; }); }); await page.waitForSelector('#bmRe');
-  for (const k of await page.evaluate(() => [...document.querySelectorAll('#card [data-gg-ad]')].map(b => b.dataset.ggAd + ':' + getComputedStyle(b).display))) assert.match(k, /^(reroll:none|seal:(?!none).+)$/, k);
+  assert.deepEqual(await kinds(), [], 'the Black Market card has no video slip');
   assert.equal(await page.locator('#bmRe').isVisible(), true, 'the Market and its own paid reroll are untouched');
   assert.deepEqual(await page.evaluate(() => window.__plug.map(p => p[0])), [], 'no AdMob call came out of any of it');
   assert.deepEqual(r.errors, []); await r.ctx.close();

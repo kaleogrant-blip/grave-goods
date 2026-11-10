@@ -165,6 +165,7 @@
     if (ads) {
       web.document.addEventListener('click', ads.onClick, true);
       wrap('newChamber', function () { ads.onNewChamber(env.state && env.state()); });
+      wrap('ui', function () { ads.sync(env.state && env.state()); }); // a resumed wall is laid over the chamber after newChamber returns: re-check on every repaint
       safe(function () { return ads.load(); }); // read the persisted caps now; a run the game has already resumed gets its banked rewards back
     }
 
@@ -177,7 +178,7 @@
       web.document.addEventListener('gg:tel', function (e) {
         var ev = e && e.detail; if (!ev) return;
         safe(function () { return tel.ingest(ev); });
-        if (ads) safe(function () { return ads.onEvent(ev); });
+        if (ads) { safe(function () { return ads.onEvent(ev); }); safe(function () { return ads.sync(env.state && env.state()); }); }
       });
       web.addEventListener('pagehide', function () { safe(function () { return tel.flush(true); }); });
       tel.start();

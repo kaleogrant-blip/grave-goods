@@ -184,44 +184,78 @@ T('RELAUNCH with rewards in hand: the once-per-run Memory cap is not reset, the 
   const capsBefore = JSON.parse(dev.prefs.get(K_CAPS));
   assert.equal(capsBefore.run, tid); assert.equal(capsBefore.memory, 1); assert.equal(capsBefore.seal, 1, 'both are in Preferences, keyed by the run id');
 
-  dev.phase('relaunch-1'); page = await dev.launch(); // killed on the chamber-cleared card, before the next chamber
-  await resumeFromTitle(page);
-  const after = await page.evaluate(() => ({ tid: run.tid, lives: run.lives, xs: state.xs | 0, i: state.i, budget: skillBudget(), free: SKILL.seals.free, mem: GG_NATIVE.ads.canOffer('memory'), seal: GG_NATIVE.ads.pending().seal }));
-  assert.equal(after.tid, tid, 'same run');
-  assert.ok(['run_cap', 'full'].includes(after.mem), 'the Memory slip cannot be had a second time in this run after a relaunch: ' + after.mem);
+  const snap = () => page.evaluate(() => ({ tid: run.tid, lives: run.lives, xs: state.xs | 0, i: state.i, budget: skillBudget(), free: SKILL.seals.free, mem: GG_NATIVE.ads.canOffer('memory'), sealCan: GG_NATIVE.ads.canOffer('seal'), seal: GG_NATIVE.ads.pending().seal }));
+  const disk = () => page.evaluate(() => { const z = JSON.parse(localStorage.getItem('rw_resume')); return { i: z.i, xs: z.w ? z.w.xs | 0 : null, adxs: z.w ? z.w.adxs | 0 : null, lives: z.run.lives }; });
+  const earnedIn = await page.evaluate(() => state.i), livesNow = l0 + 1;
+
+  // 1. killed on the chamber-cleared card. The game (rc9a) resumes the SAME chamber from its record made before the clear.
+  dev.phase('relaunch-1'); page = await dev.launch(); await resumeFromTitle(page);
+  const r1 = await snap();
+  assert.equal(r1.tid, tid, 'same run'); assert.equal(r1.i, earnedIn, 'the game resumed the chamber the seal was earned in');
+  assert.equal(r1.xs, 0, 'the banked seal is NOT spent on the chamber it was earned in'); assert.equal(r1.budget, r1.free);
+  assert.equal(r1.seal, 1, 'it is still banked'); assert.equal(r1.sealCan, 'run_cap', 'and a second one cannot be banked from the same card after a relaunch');
+  assert.ok(['run_cap', 'full'].includes(r1.mem), 'the Memory slip cannot be had a second time in this run after a relaunch: ' + r1.mem);
+  assert.equal(r1.lives, livesNow, 'the rewarded Memory is there once: no more, no less');
   assert.equal(JSON.parse(dev.prefs.get(K_CAPS)).memory, 1, 'the persisted count still says one');
-  assert.equal(after.xs, 1, 'the banked seal arrived in the chamber the game resumed into'); assert.equal(after.budget, after.free + 1); assert.equal(after.seal, 0, 'and it is no longer banked');
   assert.equal((await page.evaluate(() => GG_NATIVE.ads.offer('memory'))).ok, false);
 
-  dev.phase('relaunch-2'); page = await dev.launch(); // and again, in the same chamber
-  await resumeFromTitle(page);
-  const again = await page.evaluate(() => ({ tid: run.tid, xs: state.xs | 0, i: state.i, mem: GG_NATIVE.ads.canOffer('memory') }));
-  assert.equal(again.tid, tid); assert.equal(again.i, after.i);
-  assert.equal(again.xs, 1, 'the same chamber rebuilt after a second relaunch still has exactly one extra seal: not lost, not doubled');
-  assert.ok(['run_cap', 'full'].includes(again.mem));
+  // 2. on to the NEXT chamber: the seal lands there, once. Then the app dies before the game's next save (it saves within 600 ms).
+  await page.evaluate(() => { newChamber(state.i + 1); S15.hold = true; }); // S15.hold stops the game saving again: a hard kill
+  const n2 = await snap(), d2 = await disk();
+  assert.equal(n2.i, earnedIn + 1); assert.equal(n2.xs, 1, 'exactly one extra seal in the next chamber'); assert.equal(n2.budget, n2.free + 1); assert.equal(n2.seal, 0, 'no longer banked');
+  assert.deepEqual([d2.i, d2.xs, d2.adxs], [earnedIn + 1, 0, 0], 'the record on disk is the game\'s chamber-start save, written before the seal was added');
+  dev.phase('relaunch-2'); page = await dev.launch(); await resumeFromTitle(page);
+  const r2 = await snap();
+  assert.equal(r2.i, earnedIn + 1); assert.equal(r2.xs, 1, 'the saved wall did not have the seal; it is put back, once'); assert.equal(r2.budget, r2.free + 1); assert.equal(r2.seal, 0);
+  assert.equal(r2.lives, livesNow);
+
+  // 3. this time the game saves the wall with the seal in it (its own 600 ms save, then the app is closed normally), twice over.
+  await page.evaluate(() => ui()); await page.waitForTimeout(900);
+  assert.deepEqual((({ i, xs, adxs }) => [i, xs, adxs])(await disk()), [earnedIn + 1, 1, 1], 'the game saved the seal and its mark with the wall');
+  for (const ph of ['relaunch-3', 'relaunch-4']) {
+    dev.phase(ph); page = await dev.launch(); await resumeFromTitle(page);
+    const r = await snap();
+    assert.equal(r.i, earnedIn + 1); assert.equal(r.xs, 1, ph + ': the same wall resumed with exactly one extra seal: not lost, not applied again'); assert.equal(r.budget, r.free + 1);
+    assert.equal(r.seal, 0); assert.equal(r.lives, livesNow, ph + ': still exactly one rewarded Memory'); assert.ok(['run_cap', 'full'].includes(r.mem));
+    await page.evaluate(() => ui()); await page.waitForTimeout(800);
+  }
+  // 4. a collapse builds a new wall in this chamber: it keeps the seal; the chamber after it does not
+  assert.equal(await page.evaluate(() => { newChamber(state.i); return state.xs | 0; }), 1);
+  assert.equal(await page.evaluate(() => { newChamber(state.i + 1); ui(); return state.xs | 0; }), 0);
   assert.equal(dev.admob.filter(a => /relaunch/.test(a.phase)).length, 0, 'relaunching never touches AdMob');
   assert.ok(!dev.admob.some(a => /nterstitial|Banner|Tracking/i.test(a.call)), 'across the whole session: ' + dev.admob.map(a => a.call));
   assert.deepEqual(dev.errors, []);
   await dev.ctx.close();
 });
 
-T('RELAUNCH right after a rewarded Memory, before the game saves again: the Memory the player earned is still there', async () => {
-  const dev = await device(); let page = await dev.launch();
-  await digPracticeWall(page); await page.locator('#overlay:not([hidden]) #go').click();
-  await page.waitForFunction(() => state && !state.train && document.getElementById('overlay').hidden, null, { timeout: 8000 });
-  // make the autosave hold 1 Memory, so the slip takes the run from 1 to 2 and the cap of 3 cannot hide a lost reward
-  await page.evaluate(() => { Q.speed = 12; run.lives = 1; newChamber(0); });
-  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('rw_resume')).run.lives); assert.equal(saved, 1);
-  await page.waitForTimeout(30);
-  assert.deepEqual(await page.evaluate(async () => { const r = await GG_NATIVE.ads.offer('memory'); return [r.ok, run.lives]; }), [true, 2]);
-  page = await dev.launch();
-  await resumeFromTitle(page);
-  assert.deepEqual(await page.evaluate(() => [run.lives, GG_NATIVE.ads.canOffer('memory')]), [2, 'run_cap'], 'the saved run had 1; the earned Memory is back, and the slip is still used up');
-  page = await dev.launch();
-  await resumeFromTitle(page);
-  assert.equal(await page.evaluate(() => run.lives), 2, 'a second relaunch does not stack another one');
-  assert.deepEqual(dev.errors, []); await dev.ctx.close();
-});
+// The rewarded Memory against rc9a's save-on-every-change. Whatever the timing of the kill, the run ends up with exactly one more Memory.
+for (const [name, kill] of [
+  ['the app dies the instant the Memory is granted (no save contains it)', () => { S15.hold = true; }],
+  ['the app is closed normally (the game saves on pagehide, with the Memory in the run)', () => { window.dispatchEvent(new Event('pagehide')); S15.hold = true; }]
+]) {
+  T(`RELAUNCH after a rewarded Memory, ${name}: relaunch, relaunch again, and again: exactly +1 in total`, async () => {
+    const dev = await device(); let page = await dev.launch();
+    await digPracticeWall(page); await page.locator('#overlay:not([hidden]) #go').click();
+    await page.waitForFunction(() => state && !state.train && document.getElementById('overlay').hidden, null, { timeout: 8000 });
+    // make the save hold 1 Memory, so the slip takes the run from 1 to 2 and the cap of 3 cannot hide a lost or doubled reward
+    await page.evaluate(() => { Q.speed = 12; run.lives = 1; newChamber(0); ui(); }); await page.waitForTimeout(900);
+    const lives = () => page.evaluate(() => run.lives), onDisk = () => page.evaluate(() => JSON.parse(localStorage.getItem('rw_resume')).run.lives);
+    assert.equal(await onDisk(), 1);
+    const got = await page.evaluate(async k => { const r = await GG_NATIVE.ads.offer('memory'); (0, eval)('(' + k + ')')(); return [r.ok, run.lives]; }, kill.toString());
+    assert.deepEqual(got, [true, 2]);
+    const saved = await onDisk(); assert.equal(saved, name.startsWith('the app dies') ? 1 : 2, 'what the game had saved when the app went away');
+    for (const n of [1, 2, 3]) {
+      page = await dev.launch(); await resumeFromTitle(page);
+      assert.equal(await lives(), 2, `relaunch ${n}: saved Memories + exactly one rewarded Memory`);
+      assert.equal(await page.evaluate(() => GG_NATIVE.ads.canOffer('memory')), 'run_cap', `relaunch ${n}: the slip is still used up`);
+      if (n === 2) await page.evaluate(() => { S15.hold = true; }); // the second relaunch is also killed hard, before any later save
+      else { await page.evaluate(() => ui()); await page.waitForTimeout(800); }
+    }
+    assert.equal(await onDisk(), 2, 'and the game\'s own save agrees');
+    assert.equal(JSON.parse(dev.prefs.get(K_CAPS)).memory, 1);
+    assert.deepEqual(dev.errors, []); await dev.ctx.close();
+  });
+}
 
 T('AD-FREE owner in the real game: the slip is a free claim (no video, AdMob never started), under the same cap, and the cap survives a relaunch', async () => {
   const dev = await device({ owner: true }); let page = await dev.launch();

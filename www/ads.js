@@ -20,8 +20,8 @@
  *
  * Caps survive a relaunch: they live in Preferences (gg_ad_caps_v1) keyed by the run id (run.tid, which the game's resume keeps).
  *   - the per-run Memory count is restored, so a relaunch does not hand out a second one;
- *   - a banked seal is restored and still arrives in the next chamber; once it has landed in a chamber it is re-added if that same
- *     chamber is rebuilt (collapse, or a resume), the same way the game treats its own Market seal;
+ *   - a banked seal is restored and arrives exactly once, in the chamber after the one it was earned in; once it has landed, every
+ *     wall of that chamber carries it (a collapse builds a new wall; a resume restores the same wall) and it is never added twice;
  *   - a Memory that was granted after the game's last autosave is given back on resume (the saved run does not contain it).
  */
 (function (root) {
@@ -35,7 +35,7 @@
   };
   var K_CLEARED = 'gg_first_tomb_clear', K_CAPS = 'gg_ad_caps_v1';
 
-  function blank(runId) { return { v: 1, run: runId || '', memory: 0, owed: 0, owedAt: 0, seal: 0, sealAt: null, sealN: 0 }; }
+  function blank(runId) { return { v: 1, run: runId || '', memory: 0, owed: 0, owedAt: 0, seal: 0, sealFrom: null, sealAt: null, sealN: 0 }; }
 
   /* deps: { admob, prefs, flags():{ads,adMemory,adSeal,adFree}, adsCfg():{memoryPerRun,sealBonus,cooldownSec}, config:{rewardedId|rewardedIdIos, testing},
              platform, env():{run,state}, emit(name,data), dispatch(name,detail), setActive(on, owner), paintLives(n), now(),
@@ -43,7 +43,7 @@
   function createAds(deps) {
     var now = deps.now || Date.now;
     var inited = false, lastOffer = 0, busy = false;
-    var caps = blank(''), loaded = false, loadP = null, restored = false, stamped = null;
+    var caps = blank(''), loaded = false, loadP = null, restored = false;
 
     function flags() { return (deps.flags && deps.flags()) || {}; }
     function platform() { return deps.platform === 'android' ? 'android' : 'ios'; }
@@ -76,6 +76,7 @@
           caps.memory = Math.max(0, c.memory | 0); caps.owed = Math.max(0, Math.min(3, c.owed | 0)); caps.owedAt = Number(c.owedAt) || 0;
           caps.seal = Math.max(0, Math.min(3, c.seal | 0)); caps.sealN = Math.max(0, Math.min(3, c.sealN | 0));
           caps.sealAt = typeof c.sealAt === 'number' && isFinite(c.sealAt) ? c.sealAt : null;
+          caps.sealFrom = typeof c.sealFrom === 'number' && isFinite(c.sealFrom) ? c.sealFrom : null;
         }
       } catch (e) { caps = blank(''); } // a corrupt record is an empty record
       loaded = true;
@@ -98,20 +99,33 @@
           caps.owedAt = Math.max(now(), Number(snap.t) + 1); dirty = true; // still unsaved as of now; a later autosave settles it
         } else { caps.owed = 0; caps.owedAt = 0; dirty = true; } // saved with the run (or the run is not resumable): nothing owed
       }
-      if (e.state) dirty = stamp(e.state) || dirty; // the game rebuilt the chamber before this file was attached
+      if (e.state) dirty = stamp(e.state, true) || dirty; // the game rebuilt the chamber before this file was attached
       if (dirty) persist();
     }
-    /* Add the seal bonus to a freshly built chamber. Safe to call more than once for the same state object. */
-    function stamp(state) {
-      if (!state || state.train || stamped === state) return false;
-      var i = state.i | 0, n = 0, dirty = false;
-      if (caps.sealN && caps.sealAt !== i) { caps.sealN = 0; caps.sealAt = null; dirty = true; } // the run has moved on
-      if (caps.sealN && caps.sealAt === i) n += caps.sealN;                                     // the same chamber, rebuilt
-      if (caps.seal > 0) { n += caps.seal; caps.sealN = n; caps.sealAt = i; caps.seal = 0; dirty = true; }
-      stamped = state;
-      if (n > 0) state.xs = (state.xs | 0) + n;
+    /* Make a chamber carry exactly the seal bonus it is owed. Safe to call any number of times for the same chamber: it never adds twice.
+     *
+     * A banked seal belongs to the chamber AFTER the one it was earned in (caps.sealFrom), so resuming the chamber whose cleared card
+     * offered it does not spend it. Once it has landed in chamber i (caps.sealAt, caps.sealN) every wall of chamber i carries it.
+     *
+     * The game (rc9a on) saves the live wall, state.xs included, and on resume builds the chamber and then lays the saved wall over it,
+     * which overwrites state.xs after newChamber has returned. So the bonus is tracked on the chamber itself, in two plain fields the
+     * game saves with the wall: adxs (how many of its seals are ours) and adxsT (what state.xs was right after we added them). If both
+     * still agree with state.xs the bonus is already in; if the saved wall predates the bonus, state.xs no longer matches and it is put back. */
+    function stamp(state, built) {
+      if (!state || state.train) return false;
+      var i = state.i | 0, dirty = false;
+      if (built) { // only a chamber the game has just built may move the books; a repaint or an event may see a stale chamber
+        if (caps.sealN && caps.sealAt !== i) { caps.sealN = 0; caps.sealAt = null; dirty = true; } // the run has moved on
+        if (caps.seal > 0 && (caps.sealFrom == null || i > caps.sealFrom)) {                       // a later chamber than the one it was earned in
+          caps.sealN = (caps.sealAt === i ? caps.sealN : 0) + caps.seal; caps.sealAt = i; caps.seal = 0; caps.sealFrom = null; dirty = true;
+        }
+      }
+      var n = caps.sealAt === i ? caps.sealN : 0, added = false;
+      if (n > 0 && !(state.adxs === n && (state.xs | 0) === state.adxsT)) {
+        state.xs = (state.xs | 0) + n; state.adxs = n; state.adxsT = state.xs; added = true;
+      }
       if (dirty) persist();
-      return n > 0;
+      return added;
     }
 
     /* Google's User Messaging Platform: shows the consent form where the law needs one (UK, some US states). */
@@ -164,7 +178,9 @@
         if (deps.paintLives) deps.paintLives(e.run.lives);
         return true;
       }
-      if (kind === 'seal') { c.seal += (cfg.sealBonus == null ? 1 : cfg.sealBonus) || 1; persist(); return true; }
+      if (kind === 'seal') { // banked for the chamber after this one
+        c.seal += (cfg.sealBonus == null ? 1 : cfg.sealBonus) || 1; c.sealFrom = e.state && typeof e.state.i === 'number' ? e.state.i | 0 : null; persist(); return true;
+      }
       return false;
     }
 
@@ -206,13 +222,18 @@
     /* wrap target for the game's newChamber(i): call after the original has built `state` */
     function onNewChamber(state) {
       if (!loaded) { // the record is still being read (first moments after launch): stamp this chamber as soon as it is
-        load().then(function () { if (state && !state.train && caps.run === runKey()) stamp(state); });
+        load().then(function () { if (state && !state.train && caps.run === runKey()) stamp(state, true); });
         return false;
       }
       reconcile();
       if (!state || state.train) return false;
       forRun();
-      return stamp(state);
+      return stamp(state, true);
+    }
+    /* Cheap re-check, called after the game repaints and on its events: puts the bonus back if a resumed wall overwrote it. */
+    function sync(state) {
+      if (!loaded || !state || state.train || caps.run !== runKey()) return false;
+      return stamp(state, false);
     }
 
     function onClick(ev) {
@@ -223,7 +244,7 @@
     }
 
     return { enabled: enabled, kindOn: kindOn, owner: owner, consent: consent, unitIds: function () { return { rewarded: unitId() }; }, offer: offer, onEvent: onEvent,
-             onNewChamber: onNewChamber, onClick: onClick, refresh: refresh, canOffer: canOffer, load: load, firstClear: cleared,
+             onNewChamber: onNewChamber, sync: sync, onClick: onClick, refresh: refresh, canOffer: canOffer, load: load, firstClear: cleared,
              pending: function () { return { seal: caps.seal, memory: caps.memory, run: caps.run, adFree: owner() }; } };
   }
 
