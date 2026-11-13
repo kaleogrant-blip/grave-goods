@@ -1,0 +1,46 @@
+PASS default tray: the six worth most of eight tray [0,2,3,4,5,7] of [0,1,2,3,4,5,6,7]
+PASS pick and unpick by tapping finds; a tap on a find never digs on/off/on, hammer tap safe, seventh refused
+PASS seal takes exactly the tray; the rest stay loose; picks reset banked 660 for 6 finds
+PASS tenth find: the oldest crumbles, state and screen agree find 0 gone, pixels 388 -> 73
+FAIL tenth find: the oldest crumbles, state and screen agree (Reduce Motion) page.waitForTimeout: Target page, context or browser has been closed
+    at /home/claude/grave-goods/work/tray/t/tray.cjs:73:16
+    at async T (/home/claude/grave-goods/work/tray/t/tray.cjs:6:41)
+    at async /home/claude/grave-goods/work/tray/t/tray.cjs:58:32
+FAIL several in one strike: the lowest Worth counts as oldest; a sarcophagus does not count browser.newContext: Target page, context or browser has been closed
+    at async Object.open (/home/claude/grave-goods/work/tray/t/h.cjs:13:20)
+    at async fresh (/home/claude/grave-goods/work/tray/t/tray.cjs:17:37)
+    at async /home/claude/grave-goods/work/tray/t/tray.cjs:78:134
+    at async T (/home/claude/grave-goods/work/tray/t/tray.cjs:6:41)
+    at async /home/claude/grave-goods/work/tray/t/tray.cjs:78:3
+FAIL resume mid-pick: tray picks and find ages come back exactly browser.newContext: Target page, context or browser has been closed
+    at async Object.open (/home/claude/grave-goods/work/tray/t/h.cjs:13:20)
+    at async fresh (/home/claude/grave-goods/work/tray/t/tray.cjs:17:37)
+    at async /home/claude/grave-goods/work/tray/t/tray.cjs:92:89
+    at async T (/home/claude/grave-goods/work/tray/t/tray.cjs:6:41)
+    at async /home/claude/grave-goods/work/tray/t/tray.cjs:92:3
+FAIL seeded determinism: same seed and same taps give the same result, twice browser.newContext: Target page, context or browser has been closed
+    at async Object.open (/home/claude/grave-goods/work/tray/t/h.cjs:13:20)
+    at async fresh (/home/claude/grave-goods/work/tray/t/tray.cjs:17:37)
+    at async run1 (/home/claude/grave-goods/work/tray/t/tray.cjs:105:140)
+    at async /home/claude/grave-goods/work/tray/t/tray.cjs:111:13
+    at async T (/home/claude/grave-goods/work/tray/t/tray.cjs:6:41)
+    at async /home/claude/grave-goods/work/tray/t/tray.cjs:105:3
+FAIL Hoard is a full tray; numbers are x3; caps are off; version and tag browser.newContext: Target page, context or browser has been closed
+    at async Object.open (/home/claude/grave-goods/work/tray/t/h.cjs:13:20)
+    at async fresh (/home/claude/grave-goods/work/tray/t/tray.cjs:17:37)
+    at async /home/claude/grave-goods/work/tray/t/tray.cjs:113:115
+    at async T (/home/claude/grave-goods/work/tray/t/tray.cjs:6:41)
+    at async /home/claude/grave-goods/work/tray/t/tray.cjs:113:3
+
+| Test | Result | Note |
+|---|---|---|
+| default tray: the six worth most of eight | PASS | tray [0,2,3,4,5,7] of [0,1,2,3,4,5,6,7] |
+| pick and unpick by tapping finds; a tap on a find never digs | PASS | on/off/on, hammer tap safe, seventh refused |
+| seal takes exactly the tray; the rest stay loose; picks reset | PASS | banked 660 for 6 finds |
+| tenth find: the oldest crumbles, state and screen agree | PASS | find 0 gone, pixels 388 -> 73 |
+| tenth find: the oldest crumbles, state and screen agree (Reduce Motion) | FAIL | page.waitForTimeout: Target page, context or browser has been closed |
+| several in one strike: the lowest Worth counts as oldest; a sarcophagus does not count | FAIL | browser.newContext: Target page, context or browser has been closed |
+| resume mid-pick: tray picks and find ages come back exactly | FAIL | browser.newContext: Target page, context or browser has been closed |
+| seeded determinism: same seed and same taps give the same result, twice | FAIL | browser.newContext: Target page, context or browser has been closed |
+| Hoard is a full tray; numbers are x3; caps are off; version and tag | FAIL | browser.newContext: Target page, context or browser has been closed |
+TRAY FAIL 5
