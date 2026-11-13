@@ -1,7 +1,7 @@
 // Tray rule on the real build, real touchscreen taps for every player action. node tray.cjs [build]
 // Setup (which tiles are still covered) is written directly so a test needs ten taps, not two hundred; every uncovering, pick, unpick and seal is a real tap.
 const H=require('./h.cjs');const assert=require('assert');const path=require('path');
-const FILE=process.argv[2]||H.BUILD,SHOTS=path.join(H.DIR,'shots');
+const FILE=process.argv[2]||H.BUILD,SHOTS=path.join(__dirname,'results','shots');try{require('fs').mkdirSync(SHOTS,{recursive:true})}catch(e){} // working pictures; the owner's set is made by shots.cjs
 const rows=[];let fail=0;
 const T=async(name,fn)=>{try{const note=await fn();rows.push([name,'PASS',note||'']);console.log('PASS',name,note||'')}catch(e){fail++;rows.push([name,'FAIL',String(e.message).slice(0,300)]);console.log('FAIL',name,e.stack||e)}};
 // leave the first n ordinary finds one tile from open; returns [{id,x,y}] of the tile still covered

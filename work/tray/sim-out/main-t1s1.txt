@@ -1,0 +1,6 @@
+  carried on: 140 runs were already done
+  190 runs, 11 s
+  290 runs, 30 s
+  390 runs, 47 s
+  490 runs, 70 s
+  590 runs, 83 s
