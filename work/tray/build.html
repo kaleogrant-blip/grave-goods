@@ -1,4 +1,4 @@
-<title>Grave Goods</title>
+<title>Grave Goods: Tray Test</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Alegreya:ital,wght@0,500;0,700;1,500&display=swap">
 <style>
 /* Layout: an MMO inventory screen. Dark stone backdrop, iron-bound oak panels with brass trim, parchment menus, rarity-colored items. The wall is a blocky stone-and-dirt sprite grid. Single committed dark look. */
@@ -1895,8 +1895,15 @@ header #walk.s11arm small{white-space:normal;font-size:9px;line-height:1}
 /* High-contrast dirt also lifts the chrome a little */
 body.hc #wrap{box-shadow:inset 0 0 0 2px var(--iron),inset 0 0 0 3px #000}
 
+/* ---- TRAY TEST (v1.0-tray1) ---- */
+#trayTag{position:fixed;left:50%;top:calc(1px + env(safe-area-inset-top));transform:translateX(-50%);z-index:2147483000;pointer-events:none;padding:1px 7px 0;border-radius:0 0 5px 5px;background:#7a1620;color:#ffe9a8;font:700 9px/13px var(--display);letter-spacing:.12em;white-space:nowrap;box-shadow:0 0 0 1px #000;opacity:.94}
+#looseTag{position:absolute;right:6px;top:6px;z-index:3;pointer-events:none;padding:2px 8px;border-radius:3px;background:rgba(18,13,8,.9);color:#f0d27a;font:700 11px/16px var(--display);letter-spacing:.06em;box-shadow:0 0 0 1px #000,inset 0 0 0 1px #7d5f22;white-space:nowrap}
+#looseTag[hidden]{display:none}
+#looseTag.near{color:#ffcf5a;box-shadow:0 0 0 1px #000,inset 0 0 0 1px #c9a24a}
+#looseTag.full{background:#5a1218;color:#ffe9a8;box-shadow:0 0 0 1px #000,inset 0 0 0 1px #ff7a7f}
 </style>
 
+<div id="trayTag" aria-label="Test build: tray rule, version 1.0 tray 1">TRAY TEST &middot; v1.0-tray1</div>
 <div class="win hx">
 
 <header>
@@ -1927,7 +1934,7 @@ body.hc #wrap{box-shadow:inset 0 0 0 2px var(--iron),inset 0 0 0 3px #000}
 <div class="meterwrap"><span class="sub">Wall</span><div class="meter" id="meter"><i id="crack"></i><svg id="sec" aria-hidden="true"></svg></div><span class="sub" id="crackTxt">0%</span></div></div>
  </div>
 </section>
-<div id="wrap"><canvas id="c"></canvas><div id="purse" hidden role="status" aria-label="Gold in the purse" title="Gold in the purse. It goes to your wallet when the run ends."><i>◆</i><b>0</b></div><div id="log">The wall is untouched. Tap it.</div></div>
+<div id="wrap"><canvas id="c"></canvas><div id="looseTag" hidden role="status"></div><div id="purse" hidden role="status" aria-label="Gold in the purse" title="Gold in the purse. It goes to your wallet when the run ends."><i>◆</i><b>0</b></div><div id="log">The wall is untouched. Tap it.</div></div>
 
 <div class="pouch" id="relicbar" hidden><span class="sub">Relic</span><div id="relicinfo" style="grid-column:span 2;min-width:0;font-size:13px;line-height:1.15;display:flex;align-items:center;gap:6px"></div><button id="feed" class="ore">Feed<small>offer a find</small></button></div>
 <div class="pouch" id="pouch"><span class="sub">Pouch</span><button class="ore" id="ore0">—</button><button class="ore" id="ore1">—</button><button class="ore" id="ore2">—</button><button class="ore" id="ore3" hidden>—</button></div>
@@ -1944,16 +1951,16 @@ body.hc #wrap{box-shadow:inset 0 0 0 2px var(--iron),inset 0 0 0 3px #000}
 <div id="overlay"><div class="card" id="card"></div></div>
 
 <script>
-// ===== sprint 8 / A: Store, the one persist layer for every rw_* key. localStorage is read and written first (instant, works offline); when the runtime grants `user` + `db`, the same keys are mirrored to one private doc, data/users/<id>/profile. =====
+// ===== sprint 8 / A: Store, the one persist layer for every S15T_* key. localStorage is read and written first (instant, works offline); when the runtime grants `user` + `db`, the same keys are mirrored to one private doc, data/users/<id>/profile. =====
 // Store.get/set/remove/keys keep localStorage's string semantics. Nothing here ever throws into the game, and with no window.claude it is a plain localStorage wrapper.
 const Store=(()=>{
-  const UA='rw_ua',DEBOUNCE=1000,RETRY_MS=15000; // rw_ua = updatedAt of the local profile (ms). It is bookkeeping: never part of the synced keys.
+  const UA='S15T_ua',DEBOUNCE=1000,RETRY_MS=15000; // S15T_ua = updatedAt of the local profile (ms). It is bookkeeping: never part of the synced keys.
   const mem={}; // fallback when localStorage throws (private window, blocked storage, quota)
   const L=()=>{try{return localStorage}catch(e){return null}};
   function rd(k){if(Object.prototype.hasOwnProperty.call(mem,k))return mem[k];try{const v=L().getItem(k);return v===undefined?null:v}catch(e){return null}}
   function wr(k,v){try{L().setItem(k,v);delete mem[k]}catch(e){mem[k]=v}}
   function rm(k){delete mem[k];try{L().removeItem(k)}catch(e){}}
-  function allKeys(){const o=new Set(Object.keys(mem));try{const s=L();for(let i=0;i<s.length;i++){const k=s.key(i);if(k)o.add(k)}}catch(e){}return[...o].filter(k=>k.indexOf('rw_')===0)}
+  function allKeys(){const o=new Set(Object.keys(mem));try{const s=L();for(let i=0;i<s.length;i++){const k=s.key(i);if(k)o.add(k)}}catch(e){}return[...o].filter(k=>k.indexOf('S15T_')===0)}
   const keys=()=>allKeys().filter(k=>k!==UA);
   const ua=()=>Number(rd(UA))||0;
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -1962,7 +1969,7 @@ const Store=(()=>{
   const paint=()=>{try{cfg.paint&&cfg.paint()}catch(e){}};
   const say=(k,t)=>{if(toasted[k])return;toasted[k]=1;try{cfg.toast&&cfg.toast(t)}catch(e){}};
   function bump(){let t=Date.now();const p=ua();if(t<=p)t=p+1;wr(UA,String(t))}
-  function touch(k){if(k.indexOf('rw_')!==0||k===UA||boot)return;bump();sched()} // writes during the first synchronous run are the game loading itself: they never make the local copy look newer
+  function touch(k){if(k.indexOf('S15T_')!==0||k===UA||boot)return;bump();sched()} // writes during the first synchronous run are the game loading itself: they never make the local copy look newer
   function sched(){if(!live||!ref||S.halt)return;dirty=true;clearTimeout(tmr);tmr=setTimeout(pump,DEBOUNCE)}
   function get(k){return rd(k)}
   function set(k,v){v=String(v);if(rd(k)===v)return;wr(k,v);touch(k)}
@@ -1970,7 +1977,7 @@ const Store=(()=>{
   function snapshot(){const o={};keys().forEach(k=>{const v=rd(k);if(typeof v==='string')o[k]=v});return{v:1,updatedAt:ua(),keys:o}}
   function adopt(d){ // the cloud copy becomes the local copy: same keys, same values, same updatedAt. Keys the cloud does not have are dropped.
     const c=d.keys;keys().forEach(k=>{if(!Object.prototype.hasOwnProperty.call(c,k))rm(k)});
-    Object.keys(c).forEach(k=>{if(k.indexOf('rw_')===0&&k!==UA&&typeof c[k]==='string'&&k.length<64)wr(k,c[k])});
+    Object.keys(c).forEach(k=>{if(k.indexOf('S15T_')===0&&k!==UA&&typeof c[k]==='string'&&k.length<64)wr(k,c[k])});
     wr(UA,String(Math.floor(Number(d.updatedAt))));
   }
   // ---- errors. Branch on code; an unknown code counts as `unavailable`.
@@ -2046,7 +2053,7 @@ const Store=(()=>{
       if(!user||!db)return goLocal();
       let id=null;try{id=await user.id()}catch(e){}
       if(!id||typeof id!=='string')return goLocal(); // no identity: no private subtree, so no cloud save
-      ref=db.doc('data/users/'+id+'/profile');
+      ref=db.doc('data/users/'+id+'/profile_tray');
       await first(0);
     }catch(e){goLocal()}
   }
@@ -2063,7 +2070,7 @@ const Store=(()=>{
     try{await reconcile();if(ref)S.mode='cloud'}catch(e){fail(e)}
     paint();return S.mode==='cloud'&&!S.err&&!S.halt&&!dirty;
   }
-  function wipe(){ // Reset profile: every rw_* key, rw_ua included, and the cloud copy
+  function wipe(){ // Reset profile: every S15T_* key, S15T_ua included, and the cloud copy
     clearTimeout(tmr);tmr=0;dirty=false;fresh=false;
     allKeys().forEach(rm);
     if(S.mode!=='local'&&!S.halt){delReq=true;if(live&&ref)pump()}
@@ -2901,18 +2908,18 @@ const POWERS={
  "Aegis of Athena":{d:"Mimics can't bite. Sarcophagi cost 6 crack.",hunger:"a Greek find",want:f=>f.civ===1},
  "Golden Fleece":{d:"Every seal pays 50% more.",hunger:"a Coin",want:f=>f.name==="Coin"},
  "Pandora's Jar":{d:"Two extra ores per chamber. One of them is Pyrite.",hunger:"an ore from your pouch",wantOre:true},
- "Shield of Achilles":{d:"Hammer and pick crack the wall 25% less.",hunger:"a find worth 6 or more",want:f=>f.worth>=6},
+ "Shield of Achilles":{d:"Hammer and pick crack the wall 25% less.",hunger:"a find worth 18 or more before its age",want:f=>f.worth>=6},
  "Mjölnir":{d:"Hammer clears 4×4 (Brute: 5×5), hits a layer harder, cracks 20% less.",hunger:"a Norse find",want:f=>f.civ===2},
  "Brísingamen":{d:"Timelines give +1 extra Fame.",hunger:"a Norse find aged 7 or older",want:f=>f.civ===2&&f.age>=7},
  "Gjallarhorn":{d:"Seals made past 80% crack score x1.5.",hunger:"any find, fed past 60% crack",want:f=>state.crack/maxCrack()>.6},
- "Draupnir":{d:"Every find sealed drips +3.",hunger:"a find whose age divides by 3",want:f=>f.age%3===0},
+ "Draupnir":{d:"Every find sealed drips +9.",hunger:"a find whose age divides by 3",want:f=>f.age%3===0},
  "Jade Mask of Pakal":{d:"Maya finds, age included, are worth triple.",hunger:"a Maya find",want:f=>f.civ===3},
  "Dresden Codex":{d:"Start every chamber with a free 5×5 X-ray.",hunger:"a Tablet or Shard",want:f=>f.name==="Tablet"||f.name==="Shard"},
  "Obsidian Blade":{d:"Pick digs 2 deep (never cracks under 1.5).",hunger:"Bones or a Spear",want:f=>f.name==="Bone"||f.name==="Bones"||f.name==="Spear"},
  "Quetzal Headdress":{d:"Dynasties give +0.3 extra Fame.",hunger:"a Mask or Crown",want:f=>f.name==="Mask"||f.name==="Crown"},
  "Mask of Warka":{d:"Finds aged 4 or younger are worth double. Finds aged 10 or older are worth half.",hunger:"a Mesopotamian find",want:f=>f.civ===4},
  "Standard of Ur":{d:"A seal with a Spear and a Crown in it scores ×4.",hunger:"a Spear",want:f=>f.name==="Spear"},
- "Code of Hammurabi":{d:"If the wall collapses, the builder pays: the full value of what you lost is banked anyway.",hunger:"a find worth 3 or less",want:f=>f.worth<=3},
+ "Code of Hammurabi":{d:"If the wall collapses, the builder pays: the full value of what you lost is banked anyway.",hunger:"a find worth 9 or less before its age",want:f=>f.worth<=3},
  "Flood Tablet":{d:"Every seal washes 30 crack off the wall.",hunger:"a Tablet or Shard",want:f=>f.name==="Tablet"||f.name==="Shard"},
  "Mask of Tutankhamun":{d:"Your first seal each chamber scores ×2.",hunger:"a Mask",want:f=>f.name==="Mask"},
  "Narmer Palette":{d:"Egyptian Dynasties need only 2 finds.",hunger:"a find from outside Egypt",want:f=>f.civ!==0},
@@ -2920,7 +2927,7 @@ const POWERS={
  "Antikythera Mechanism":{d:"Timelines can skip up to two ages: 3, 6, 8 counts as a run. Order across seals still counts.",hunger:"a Shard",want:f=>f.name==="Shard"},
  "Mask of Agamemnon":{d:"Every seal scores ×1.6, but costs 10 crack.",hunger:"a Crown",want:f=>f.name==="Crown"},
  "Athenian Owl":{d:"Coins are wild for Dynasties: they join the two civilizations you have most of.",hunger:"a find of odd age",want:f=>f.age%2===1},
- "Ulfberht Sword":{d:"Pick digs through anything in one blow, but never cracks under 1.5.",hunger:"a find worth 8 or more",want:f=>f.worth>=8},
+ "Ulfberht Sword":{d:"Pick digs through anything in one blow, but never cracks under 1.5.",hunger:"a find worth 24 or more before its age",want:f=>f.worth>=8},
  "Gjermundbu Helmet":{d:"The first collapse each chamber stops at 30% crack. You lose what was exposed, not a Memory.",hunger:"a Norse find aged 6 or younger",want:f=>f.civ===2&&f.age<=6},
  "Oseberg Ship":{d:"Your pouch survives a collapse.",hunger:"Bones",want:f=>f.name==="Bone"||f.name==="Bones"},
  "Crystal Skull":{d:"Finds aged 13 are worth triple.",hunger:"a find aged 11 or older",want:f=>f.age>=11},
@@ -2929,13 +2936,13 @@ const POWERS={
 };
 // ---- sprint 4: tomb unlocks. One per tomb cleared, in this order, cap 3. Applied by GEAR_N(), POUCH_N() and VAULT_MAX.
 const OLD_UNLOCKS=[{id:"gear",n:"A fourth item on offer",d:"Every kit now offers four items, not three."},{id:"pouch",n:"+1 pouch slot",d:"The pouch holds four ores."},{id:"vault",n:"A 13th Vault slot",d:"One more shelf for one more relic."}];
-let _unl=(()=>{try{const a=JSON.parse(Store.get('rw_unl')||'[]');return(Array.isArray(a)?a:[]).filter((x,i,s)=>OLD_UNLOCKS.some(u=>u.id===x)&&s.indexOf(x)===i)}catch(e){return[]}})();
+let _unl=(()=>{try{const a=JSON.parse(Store.get('S15T_unl')||'[]');return(Array.isArray(a)?a:[]).filter((x,i,s)=>OLD_UNLOCKS.some(u=>u.id===x)&&s.indexOf(x)===i)}catch(e){return[]}})();
 const hasUnl=id=>_unl.includes(id);
 const GEAR_N=()=>s15Daily()?DAILY.offers:3+(hasUnl('gear')?1:0),POUCH_N=()=>s15Daily()?DAILY.pouch:3+(hasUnl('pouch')?1:0); // Sprint 15 (D-10): the Daily ignores unlocks
 let _vaultBase=12+(hasUnl('vault')?1:0);
 Object.defineProperty(window,'VAULT_MAX',{configurable:true,get(){let m=_vaultBase;try{if(SHOP.vault)m+=1;if(gear&&gear.id==='reliquary')m+=PROG_DATA.gear.reliquary.vault;m=Math.max(m,loadColl().length)}catch(e){}return m},set(v){_vaultBase=v}});
 function unlNext(){return OLD_UNLOCKS.find(u=>!hasUnl(u.id))||null}
-function unlAward(){const u=unlNext();if(!u)return null;_unl.push(u.id);try{Store.set('rw_unl',JSON.stringify(_unl))}catch(e){}if(u.id==='vault')VAULT_MAX=13;return u}
+function unlAward(){const u=unlNext();if(!u)return null;_unl.push(u.id);try{Store.set('S15T_unl',JSON.stringify(_unl))}catch(e){}if(u.id==='vault')VAULT_MAX=13;return u}
 const TIERS={uncommon:{n:"Uncommon",c:"#4ee04a",w:5},rare:{n:"Rare",c:"#3a8cff",w:3},epic:{n:"Epic",c:"#c46af0",w:2},legendary:{n:"Legendary",c:"#ff9a1f",w:1}};
 const TIER_ORDER=["uncommon","rare","epic","legendary"];
 const RARITY={"Ankh":"uncommon","Aegis of Athena":"uncommon","Dresden Codex":"uncommon","Obsidian Blade":"uncommon",
@@ -2998,7 +3005,7 @@ const ORES={
   malachite:{n:"Malachite",s:"+Dynasty",d:"Next seal of 3+ finds gains an extra Dynasty: ×1.5, on top of any real ones."},
   lapis:{n:"Lapis",s:"skip an age",d:"Next seal's Timelines may skip an age."},
   skyiron:{n:"Sky Iron",s:"see all",d:"Every ore and relic glints through the dirt, and every find shows its outline, this chamber."},
-  jade:{n:"Jade",s:"+1 ♥",d:"Restores a Memory. 25 points if you have all three."},
+  jade:{n:"Jade",s:"+1 ♥",d:"Restores a Memory. 75 points if you have all three."},
 };
 // Each ore glints in its own colour on the wall and in the pouch: [mid, bright, dark, glow rgb]
 const ORE_COL={
@@ -3021,27 +3028,27 @@ const ORE_COL={
 const ORE_POOL=["gold","gold","quick","quick","lode","flint","amber","nitre","malachite","lapis","skyiron","jade","pyrite"]; // pyrite is the junk; jade is the rare one
 const ORE_REAL=ORE_POOL.filter(t=>t!=="pyrite");
 const SKILL={ // sprint 8 · B, C, D, F. Every number the Balance seat may turn is here.
-  targets:[300,900,4500],           // PER-CHAMBER targets for Tomb 1 (counted from state.bankedThisChamber). Tomb and stake scaling is unchanged (progTargets).
+  targets:[900,2700,9000],            // TRAY TEST: 300 / 900 / 3,000 (was 4,500), then every Worth and target x3           // PER-CHAMBER targets for Tomb 1 (counted from state.bankedThisChamber). Tomb and stake scaling is unchanged (progTargets).
   deepMul:1.6, long4:.75,                      // 'Descend further': depth N asks round(targets[2] * deepMul^(N-3) / 500) * 500, x0.45 for the Long Dark's fourth chamber
   seals:{free:3,sack:2,memory:1},   // seals per wall before the next one costs; the Sack keeps its own cap; Memories a paid seal costs
   order:{pay:.5,floorFrom:'timeline'}, // a scattered Timeline pays this share of its bonus above x1; floor = top age of the Timelines already sealed ('any' = of every find sealed)
   hint:{frac:.5,min:3},             // "A Greek Dynasty is close": share of a buried set's tiles that must be open, and the finds of one civ that make a set
   fever:{grace:1,decay:.15},        // empty strikes before Fever drains (was 3), and the share of the bar each empty strike takes
   press2:{lucky:-2,tremor:2},       // Stake 2 shifts the red-zone odds 60/30/10 to 60/28/12 (was -5/+5)
-  cap:{fame:120,reward:1.5},        // Sprint 10 (T17, T18): one seal's Fame never passes cap.fame. Gold and XP are paid on at most cap.reward x the chamber's target (the surplus of a clearing seal is not paid)
+  cap:{fame:Infinity,reward:Infinity}, // TRAY TEST: both caps off        // Sprint 10 (T17, T18): one seal's Fame never passes cap.fame. Gold and XP are paid on at most cap.reward x the chamber's target (the surplus of a clearing seal is not paid)
   rel2:1.5,                         // Sprint 10 (T17): the second and later relics in one seal each multiply by this (the first multiplies by 2, or 3 with the Dowser / Eye of Horus)
   mercy:{free:2},                   // Sprint 10: collapses of a new profile that cost no Memory, counted over the profile's life (was: the first one only)
-  ch2T1:400,                        // Sprint 13b: was 500 (Sprint 11, was 900). Novice ch2 first-wall clear 14% -> 23%, human/planner/setter tomb clear unchanged. team/sprint13b/balance.md Tombs II to V keep targets[1]. team/sprint11/balance.md
-  firstReal:200,                    // Sprint 10 (T4/T5): the first real chamber of a profile that has cleared nothing but the training chamber asks this (set 0 to switch off)
+  ch2T1:1200,                       // Sprint 13b: was 500 (Sprint 11, was 900). Novice ch2 first-wall clear 14% -> 23%, human/planner/setter tomb clear unchanged. team/sprint13b/balance.md Tombs II to V keep targets[1]. team/sprint11/balance.md
+  firstReal:600,                   // Sprint 10 (T4/T5): the first real chamber of a profile that has cleared nothing but the training chamber asks this (set 0 to switch off)
   guard:{per:.03,free:3,max:.3},    // Sprint 10 (T19): from Tomb III on, the guardian chamber asks +per for every Vault relic above free, at most +max
   adj:["Egyptian","Greek","Norse","Maya","Mesopotamian","Chinese"]
 };
 const TARGETS=SKILL.targets.slice();
 // beginner's mercy: the very first collapse of a profile costs no Memory (cached in memory in case storage is blocked)
 let _mercy=null;
-function mercyUsed(){if(_mercy!==null)return _mercy;try{_mercy=Math.max(0,Math.floor(+Store.get('rw_mercy')||0))}catch(e){_mercy=0}return _mercy} // free collapses used so far (an old save's '1' reads as 1)
+function mercyUsed(){if(_mercy!==null)return _mercy;try{_mercy=Math.max(0,Math.floor(+Store.get('S15T_mercy')||0))}catch(e){_mercy=0}return _mercy} // free collapses used so far (an old save's '1' reads as 1)
 function mercyGet(){return mercyUsed()>0}
-function mercyTake(){if(mercyUsed()>=SKILL.mercy.free)return false;_mercy=mercyUsed()+1;try{Store.set('rw_mercy',String(_mercy))}catch(e){}return true}
+function mercyTake(){if(mercyUsed()>=SKILL.mercy.free)return false;_mercy=mercyUsed()+1;try{Store.set('S15T_mercy',String(_mercy))}catch(e){}return true}
 function rgba(hex,a){const n=parseInt(hex.slice(1),16);return`rgba(${n>>16},${n>>8&255},${n&255},${a})`}
 let state,tool="hammer",cls=null,gear=null,run=skillRun({banked:0,pouch:[],lives:3,scarabUsed:false,seed:seedWord()}),raider=null;
 const RJ={s:1,sv:0,r:0,rv:0}; // raider juice
@@ -3050,13 +3057,13 @@ let cell=36,tick=null;
 
 // collection (per-device, best effort)
 const RENAMES={"Scarab of Khufu":"Heart Scarab","Ankh of Isis":"Ankh","Pandora's Box":"Pandora's Jar","Mjölnir's Haft":"Mjölnir","Jade Death Mask":"Jade Mask of Pakal","Codex Fragment":"Dresden Codex","Feathered Headdress":"Quetzal Headdress"};
-function loadColl(){try{const raw=JSON.parse(Store.get('rw_coll')||'[]');const out=[];raw.forEach(nm=>{const n2=RENAMES[nm]||nm;if(typeof RELIC_BY!=='undefined'&&!RELIC_BY[n2])return;if(!out.includes(n2))out.push(n2)});return out}catch(e){return[]}}
-function saveColl(c){progPrune(c);seenAdd(loadColl());try{Store.set('rw_coll',JSON.stringify(c))}catch(e){}seenAdd(c)} // whatever was on the shelf before this write counts as seen, so profiles from before rw_seen existed keep their discoveries
-// rw_seen: the permanent discovery log. A relic goes in the first time it reaches the Vault or a seal, and never comes out (release and a Fence trade do not touch it).
+function loadColl(){try{const raw=JSON.parse(Store.get('S15T_coll')||'[]');const out=[];raw.forEach(nm=>{const n2=RENAMES[nm]||nm;if(typeof RELIC_BY!=='undefined'&&!RELIC_BY[n2])return;if(!out.includes(n2))out.push(n2)});return out}catch(e){return[]}}
+function saveColl(c){progPrune(c);seenAdd(loadColl());try{Store.set('S15T_coll',JSON.stringify(c))}catch(e){}seenAdd(c)} // whatever was on the shelf before this write counts as seen, so profiles from before S15T_seen existed keep their discoveries
+// S15T_seen: the permanent discovery log. A relic goes in the first time it reaches the Vault or a seal, and never comes out (release and a Fence trade do not touch it).
 // The Vault shows what you own now; the Codex shows what you have ever found.
-function seenRaw(){try{const a=JSON.parse(Store.get('rw_seen')||'[]');return Array.isArray(a)?a.filter(x=>typeof x==='string'):[]}catch(e){return[]}}
+function seenRaw(){try{const a=JSON.parse(Store.get('S15T_seen')||'[]');return Array.isArray(a)?a.filter(x=>typeof x==='string'):[]}catch(e){return[]}}
 function seenAdd(names){
-  try{const cur=seenRaw(),set=new Set(cur);(names||[]).forEach(n=>{n=RENAMES[n]||n;if(typeof n==='string'&&RELIC_BY[n])set.add(n)});if(set.size!==cur.length){discSeen(cur,set);Store.set('rw_seen',JSON.stringify([...set]))}}catch(e){}
+  try{const cur=seenRaw(),set=new Set(cur);(names||[]).forEach(n=>{n=RENAMES[n]||n;if(typeof n==='string'&&RELIC_BY[n])set.add(n)});if(set.size!==cur.length){discSeen(cur,set);Store.set('S15T_seen',JSON.stringify([...set]))}}catch(e){}
 }
 function loadSeen(){const out=loadColl();seenRaw().forEach(n=>{n=RENAMES[n]||n;if(RELIC_BY[n]&&!out.includes(n))out.push(n)});return out}
 
@@ -3078,7 +3085,7 @@ function maxCrack(){const m=Math.round((state&&state.train?240:gear&&gear.id==="
 function newChamber(i){
   MENU_MODE=false;campStop();if(i===0)_gp=null;pauseReset();
   const TR=!!(run.train&&i===0);TARGETS[0]=TR?TRAIN_T:SKILL.targets[0];if(TR&&gear&&gear.id==="sack")gear=GEAR[0];
-  if(TARGETS[i]===undefined)TARGETS[i]=Math.round(SKILL.targets[2]*Math.pow(SKILL.deepMul,i-2)*(stakeN()>=6&&i===3?SKILL.long4:1)/500)*500; // 'Descend further': each extra chamber asks 1.5x the last
+  if(TARGETS[i]===undefined)TARGETS[i]=Math.round(SKILL.targets[2]*Math.pow(SKILL.deepMul,i-2)*(stakeN()>=6&&i===3?SKILL.long4:1)/1500)*1500; // 'Descend further': each extra chamber asks 1.5x the last
   if(i===0&&!RS().t0)RS().t0=Date.now();
   const _oc=COLS;COLS=wallCols(i);
   Q.clear();srand(hashStr(run.seed+'#'+i+'#'+(run.tries=(run.tries||0)+1)+tombSuf()));
@@ -3130,8 +3137,94 @@ function newChamber(i){
   ui();draw();
 }
 function exposedFinds(){return state.finds.filter(f=>!f.banked&&!f.sarc&&f.cells.every(([x,y])=>state.dirt[y][x]===0))}
+
+// ===================== TRAY TEST (v1.0-tray1): a finds tray holds six, and the wall has room for nine loose finds =====================
+// f.ord  = the find's place in the order of uncovering on this wall (1 = first). Saved with the find, so a resumed dig keeps every age.
+// f.tray = the player's own choice: 1 on the tray, 0 left on the wall, absent = the default (the six worth most go on).
+const TRAY={n:6,loose:9,x:3,coach:3};
+const trayByOrd=(a,b)=>(a.ord|0)-(b.ord|0)||a.id-b.id;
+function trayRank(f){return f.fake?findWorth(Object.assign({},f,{fake:false})):findWorth(f)} // a Pyrite relic is ranked as the relic it pretends to be, so the default pick never gives it away
+function trayList(ex){ // the finds the next seal takes: the ones tapped on first, then the most valuable of the rest, six at most
+  ex=ex||exposedFinds();
+  const on=ex.filter(f=>f.tray===1).sort(trayByOrd).slice(0,TRAY.n);
+  const auto=ex.filter(f=>f.tray!==1&&f.tray!==0).sort((a,b)=>trayRank(b)-trayRank(a)||trayByOrd(a,b)).slice(0,TRAY.n-on.length);
+  const S=new Set(on.concat(auto));return ex.filter(f=>S.has(f))}
+function trayOldest(){const ex=exposedFinds();return ex.length>=TRAY.loose?ex.slice().sort(trayByOrd)[0]:null}
+function trayCoach(k){try{const o=JSON.parse(Store.get('S15T_traycoach')||'{}')||{};const n=o[k]|0;if(n>=(k==='six'?2:TRAY.coach))return false;o[k]=n+1;Store.set('S15T_traycoach',JSON.stringify(o));return true}catch(e){return false}}
+function trayTick(){ // after anything that can uncover a find: stamp the new ones, and if more than nine lie loose the oldest crumble
+  if(!state||!state.finds||state.over)return[];
+  const ex=exposedFinds(),fresh=ex.filter(f=>f.ord==null);
+  if(!fresh.length)return[];
+  fresh.sort((a,b)=>trayRank(a)-trayRank(b)||a.id-b.id).forEach(f=>{state.useq=(state.useq|0)+1;f.ord=state.useq}); // several in one strike: the lowest Worth counts as oldest
+  const gone=ex.length>TRAY.loose?ex.slice().sort(trayByOrd).slice(0,ex.length-TRAY.loose):[];
+  gone.forEach(f=>{f.banked=true;f.lost=true;f.crumb=1;delete f.tray;(state.crumbs=state.crumbs||[]).push({id:f.id,t0:performance.now()});RS().cr=(RS().cr|0)+1});
+  if(gone.length){try{sfx('dig',{mat:3,big:true,n:2});hap([30,40,60]);if(!rmEff())shake(7)}catch(e){}
+    if(trayCoach('cr'))uiToast('No room on the wall. The '+gone[0].name+', your oldest loose find, crumbled. Seal a tray to make room.',5200)}
+  else if(!state.train){const n=ex.length;
+    if(n===TRAY.loose){if(trayCoach('nine'))uiToast('Nine loose finds. The wall has room for no more. Uncover a tenth and the oldest crumbles.',5200)}
+    else if(n>TRAY.n&&n-fresh.length<=TRAY.n){if(trayCoach('six'))uiToast('A tray holds six. The six worth most are on it. Tap a find to swap it on or off.',5200)}}
+  return gone}
+function trayGoneMsg(g){return g.length?'Crumbled: '+g.map(f=>(f.relic?'★ ':'')+f.name+' (age '+f.age+')').join(', ')+'. ':''}
+function trayAt(cx,cy){ // the loose find under a tap, when a tap there means "move it on or off the tray"
+  if(!state||state.over||state.sealing||state.train||feedMode||tool==='xray'||tool==='lode'||tool==='blast')return null;
+  const row=state.owner[cy],o=row?row[cx]:-1;if(!(o>=0))return null;const f=state.finds[o];
+  return f&&!f.banked&&!f.sarc&&f.cells.every(([x,y])=>state.dirt[y][x]===0)?f:null}
+function trayTap(cx,cy){ // one tap on an uncovered find swaps it on or off the tray. Never digs, never costs crack.
+  const f=trayAt(cx,cy);if(!f)return false;
+  const ex=exposedFinds(),L=trayList(ex),say=()=>{const n=trayList().length;return' Tray '+n+'/'+TRAY.n+'.'};
+  if(L.indexOf(f)>=0){f.tray=0;log((f.relic?'★ ':'')+f.name+' left on the wall for a later seal.'+say())}
+  else if(L.length>=TRAY.n&&L.every(q=>q.tray===1)){log('The tray is full. Tap one of its six to take it off first.');hap(6);return true}
+  else{f.tray=1;log((f.relic?'★ ':'')+f.name+' goes on the tray.'+say())}
+  RS().tp=(RS().tp|0)+1;hap(8);sfx('tap');try{juice(f.j,.35,.2)}catch(e){}
+  ui();draw();try{S15.touch()}catch(e){}
+  return true}
+function traySealed(){state.finds.forEach(f=>{if(f.tray!=null)delete f.tray})} // a seal is made: whatever was held back goes on the next tray by default
+function trayUi(all,L){ // "Loose 7/9" over the wall
+  const el=document.getElementById('looseTag');if(!el)return;
+  const n=all.length,show=n>0&&!state.train&&!state.over;
+  el.hidden=!show;if(!show)return;
+  const t='Loose '+n+'/'+TRAY.loose+(n>=TRAY.loose?' · full':'');if(el.textContent!==t)el.textContent=t;
+  el.classList.toggle('near',n===TRAY.loose-1);el.classList.toggle('full',n>=TRAY.loose);
+  el.title=n>=TRAY.loose?'The wall has room for nine loose finds. Uncover a tenth and the oldest crumbles.':'Loose finds on the wall. Room for nine.'}
+function trayDraw(){ // marks on the wall: which finds are on the tray, the crack on the oldest when nine lie loose, and anything crumbling
+  if(!state||state.falling)return;
+  const ex=exposedFinds(),L=new Set(trayList(ex)),mark=!state.train&&!state.over&&(ex.length>TRAY.n||ex.some(f=>f.tray===0)),old=state.train||state.over?null:trayOldest(),rm=rmEff();
+  const has=(f,x,y)=>f.cells.some(c=>c[0]===x&&c[1]===y);
+  const rim=(f,col,w,dash)=>{ctx.save();ctx.strokeStyle=col;ctx.lineWidth=w;if(dash)ctx.setLineDash(dash);ctx.beginPath();const h=w/2;
+    f.cells.forEach(([x,y])=>{const X=x*cell,Y=y*cell;
+      if(!has(f,x,y-1)){ctx.moveTo(X,Y+h);ctx.lineTo(X+cell,Y+h)}if(!has(f,x,y+1)){ctx.moveTo(X,Y+cell-h);ctx.lineTo(X+cell,Y+cell-h)}
+      if(!has(f,x-1,y)){ctx.moveTo(X+h,Y);ctx.lineTo(X+h,Y+cell)}if(!has(f,x+1,y)){ctx.moveTo(X+cell-h,Y);ctx.lineTo(X+cell-h,Y+cell)}});ctx.stroke();ctx.restore()};
+  const crackOn=(f,k,a)=>{ // a zigzag crack across each tile, grown to k (0..1)
+    ctx.save();ctx.globalAlpha=a;ctx.lineJoin='round';
+    f.cells.forEach(([x,y],i)=>{const X=x*cell,Y=y*cell,P=[[.18,.05],[.42,.3],[.3,.52],[.58,.68],[.5,.95]],m=Math.max(2,Math.round(P.length*k));
+      for(const [col,w] of [['#120a06',Math.max(2.5,cell*.09)],['#ff6a4d',Math.max(1,cell*.035)]]){ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();
+        P.slice(0,m).forEach(([u,v],j)=>{const px=X+(i%2?1-u:u)*cell,py=Y+v*cell;if(j)ctx.lineTo(px,py);else ctx.moveTo(px,py)});
+        if(k>.6){ctx.moveTo(X+(i%2?.7:.3)*cell,Y+.52*cell);ctx.lineTo(X+(i%2?.92:.08)*cell,Y+.66*cell)}ctx.stroke()}});
+    ctx.restore()};
+  if(mark)ex.forEach(f=>{
+    if(L.has(f)){rim(f,'#000',Math.max(4,cell*.12));rim(f,'#ffd44a',Math.max(2,cell*.07));
+      const c=f.cells[0],s=Math.max(11,Math.round(cell*.36)),x=(c[0]+1)*cell-s-2,y=c[1]*cell+2; // a brass tick in the corner: on the tray
+      ctx.fillStyle='#000';ctx.fillRect(x-1,y-1,s+2,s+2);ctx.fillStyle='#ffd44a';ctx.fillRect(x,y,s,s);
+      ctx.strokeStyle='#2a1a06';ctx.lineWidth=Math.max(2,s*.18);ctx.beginPath();ctx.moveTo(x+s*.2,y+s*.55);ctx.lineTo(x+s*.42,y+s*.76);ctx.lineTo(x+s*.82,y+s*.26);ctx.stroke();ctx.lineWidth=1}
+    else{ctx.fillStyle='rgba(8,6,10,.58)';f.cells.forEach(([x,y])=>ctx.fillRect(x*cell,y*cell,cell,cell));rim(f,'#8a8a92',Math.max(1.5,cell*.045),[cell*.14,cell*.1])}});
+  if(old){crackOn(old,1,1);rim(old,rm||(frame>>4)%2?'#ff6a4d':'#7a1620',Math.max(2,cell*.07))}
+  const C=state.crumbs;if(!C||!C.length)return;
+  const now=performance.now(),D=rm?1100:950;
+  state.crumbs=C.filter(c=>now-c.t0<D&&state.finds[c.id]);
+  state.crumbs.forEach(c=>{const f=state.finds[c.id],p=Math.max(0,Math.min(1,(now-c.t0)/D)),pal=f.relic?["#ffd27a","#ff9a1f","#8a4a00"]:civPal(f.civ);
+    const xs=f.cells.map(q=>q[0]),ys=f.cells.map(q=>q[1]),x0=Math.min(...xs)*cell,y0=Math.min(...ys)*cell,x1=(Math.max(...xs)+1)*cell,y1=(Math.max(...ys)+1)*cell;
+    const body=a=>{ctx.save();ctx.globalAlpha=a;if(f.relic&&RELIC_BY[f.name]){ctx.fillStyle='#2a1d08';ctx.fillRect(x0,y0,x1-x0,y1-y0);drawSprite(ctx,f,x0,y0,cell/8)}else if(!drawItem(f,x0,y0,cell/8,pal)){ctx.fillStyle=pal[1];f.cells.forEach(([x,y])=>ctx.fillRect(x*cell+1,y*cell+1,cell-2,cell-2))}ctx.restore()};
+    if(rm){body(1-p);crackOn(f,1,1-p)} // Reduce Motion: no travel, no shake; the cracked find fades where it lies
+    else if(p<.38){const k=p/.38,j=(1-k)*0+Math.sin(now/18)*cell*.04;ctx.save();ctx.translate(j,0);body(1);crackOn(f,k,1);ctx.fillStyle='rgba(255,90,60,'+(.28*k).toFixed(2)+')';f.cells.forEach(([x,y])=>ctx.fillRect(x*cell,y*cell,cell,cell));ctx.restore()}
+    else{const q=(p-.38)/.62,h=cell/2;ctx.save();ctx.globalAlpha=Math.max(0,1-q*q);
+      f.cells.forEach(([x,y],i)=>{for(let k=0;k<4;k++){const sx=x*cell+(k%2)*h,sy=y*cell+(k>>1)*h,dx=((k%2)?1:-1)*q*cell*(.25+((i+k)%3)*.12),dy=q*q*cell*(1.4+((i*3+k)%4)*.35)-q*cell*.25;
+        ctx.fillStyle=k%2?pal[1]:pal[0];ctx.fillRect(sx+dx+1,sy+dy+1,h-2,h-2);ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(sx+dx+1,sy+dy+h-4,h-2,3)}});ctx.restore()}
+    const a=rm?1-p*p:Math.min(1,(1-p)*3),fs=Math.max(11,Math.round(cell*.3));ctx.save();ctx.globalAlpha=Math.max(0,a);ctx.font='900 '+fs+'px Cinzel, Georgia, serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    const tw=ctx.measureText('CRUMBLED').width+12,lx=Math.min(COLS*cell-tw/2-2,Math.max(tw/2+2,(x0+x1)/2)),ly=Math.max(fs,y0-fs*.8)-(rm?0:p*cell*.3);
+    ctx.fillStyle='rgba(18,8,6,.92)';ctx.fillRect(lx-tw/2,ly-fs*.75,tw,fs*1.5);ctx.strokeStyle='#ff6a4d';ctx.lineWidth=1;ctx.strokeRect(lx-tw/2+.5,ly-fs*.75+.5,tw-1,fs*1.5-1);ctx.fillStyle='#ffb09a';ctx.fillText('CRUMBLED',lx,ly+1);ctx.restore()});
+}
 function sarcAt(x,y){const o=state.owner[y][x];if(o<0)return null;const f=state.finds[o];return f.sarc&&!f.banked&&f.cells.every(([a,b])=>state.dirt[b][a]===0)?f:null}
-function findWorth(f){return Math.round(findWorth0(f)*progWorthMul(f)*(f.lucky?LUCK.press.luckyMult:1)*kitWorthMul())}
+function findWorth(f){const w=Math.round(findWorth0(f)*(f.fake?1/TRAY.x:1)*progWorthMul(f)*(f.lucky?LUCK.press.luckyMult:1)*kitWorthMul());return w*TRAY.x} // TRAY TEST: every Worth x3 (Pyrite is already x3 in kitPyrite)
 function findWorth0(f){
   if(f.fake)return kitPyrite();
   let w=state&&state.tell==="unstable"?Math.round(f.worth*(1+LUCK.tell.unstable.worth)):f.worth;const aw=cls.hear?1:pw('Madrid Codex')?PROG_DATA.rel.madrid.age:.35; // age counts 35% for everyone but the Medium
@@ -3178,7 +3271,7 @@ function score(list){
   if(pw('Mask of Tutankhamun')&&state.sealed===0)mult(2,'Boy King');
   if(pw('Mask of Agamemnon'))mult(1.6,'Agamemnon');
   if(pw('Standard of Ur')&&list.some(f=>f.name==="Spear")&&list.some(f=>f.name==="Crown"))mult(4,'War and Peace');
-  if(pw('Draupnir')){worth+=3*list.length;notes.push('Draupnir +'+3*list.length)}
+  if(pw('Draupnir')){worth+=3*TRAY.x*list.length;notes.push('Draupnir +'+3*TRAY.x*list.length)}
   {const nb=list.filter(f=>f.relic&&!f.fake&&f.fin==='blighted').length;if(nb){fame+=BLIGHT.fame*nb;notes.push('Blighted +'+(BLIGHT.fame*nb).toFixed(2))}}
   worth+=s9Score(list,worth,fame,notes,mult);
   if(fame>SKILL.cap.fame){fame=SKILL.cap.fame;notes.push('Fame ceiling ×'+SKILL.cap.fame)}
@@ -3187,16 +3280,16 @@ function score(list){
   return{worth,fame,total,notes,tl,mags};
 }
 function ui(){
-  const ex=exposedFinds();const s=score(ex);
+  trayTick();const exAll=exposedFinds(),ex=trayList(exAll);const s=score(ex);trayUi(exAll,ex);
   const hs=document.getElementById('handSets');const armed=(state.goldDust&&!s.notes.some(x=>/^Gold Dust/i.test(x))?'<span class="pill armed">✦ Gold ×1.5</span>':'')+(state.flint?`<span class="pill armed">✦ Flint ${state.flint}</span>`:'')+(state.freeze?`<span class="pill armed">✦ Amber ${state.freeze}</span>`:'')+(state.oneCiv?'<span class="pill armed">✦ Dynasty</span>':'')+(state.gapOre?'<span class="pill armed">✦ Lapis</span>':'')+kitPills();
-  const hint=nextHint(ex),setsTxt=armed+(s.notes.length?s.notes.map(pillOf).join(''):(ex.length?`<span class="t">${ex.length} uncovered · badge = age · no sets yet</span>`:'<span class="t">Nothing uncovered</span>'))+(hint?`<span class="pill hint">${hint}</span>`:'')+skillBuriedPill();
+  const hint=nextHint(ex),setsTxt=armed+(s.notes.length?s.notes.map(pillOf).join(''):(ex.length?`<span class="t">${ex.length} on the tray · badge = age · no sets yet</span>`:exAll.length?'<span class="t">Tray empty · tap a find</span>':'<span class="t">Nothing uncovered</span>'))+(hint?`<span class="pill hint">${hint}</span>`:'')+skillBuriedPill();
   if(hs.innerHTML!==setsTxt){hs.innerHTML=setsTxt;if(s.notes.length>(state.lastNotes||0)){bump('hFame');sfx('note',{n:s.notes.length})}state.lastNotes=s.notes.length}
   const hw=document.getElementById('hWorth'),hf=document.getElementById('hFame'),ht=document.getElementById('hTotal');
   if(hw.textContent!=String(s.worth)){hw.textContent=s.worth;bump('hWorth')}
   if(hf.textContent!=String(s.fame)){hf.textContent=s.fame}
   hf.classList.toggle('hot',s.fame>1);hf.classList.toggle('capd',s.notes.some(n=>/Fame ceiling/.test(n)));hf.title=hf.classList.contains('capd')?'Fame tops out at ×'+SKILL.cap.fame+' for one seal.':'';
   if(ht.dataset.to!==String(s.total)){ht.dataset.to=s.total;rollNum(ht,s.total);bump('hTotal')}
-  {const tp=document.getElementById('fameTip'),row=(a,b,c)=>`<div class="ft${c||''}"><span>${a}</span><b>${b}</b></div>`;tp.innerHTML=row('Worth',s.worth)+s.notes.map(x=>{const m=/^(.*?)\s*×([\d.]+)$/.exec(x)||[0,x,''];return row(m[1],m[2]===''?'':'×'+m[2])}).join('')+row(s.worth+' × '+s.fame,s.total,' tot')+row('Dynasty ×1.5: 3 finds of one civilization','',' how')+row('Timeline ×2+: 3 ages in a row, climbing across seals','',' how')+row('Relic ×2, each more ×1.5 · Hoard ×2 ('+hoardMin()+'+ finds) · one Timeline a seal · Fame tops out at ×'+SKILL.cap.fame,'',' how')}
+  {const tp=document.getElementById('fameTip'),row=(a,b,c)=>`<div class="ft${c||''}"><span>${a}</span><b>${b}</b></div>`;tp.innerHTML=row('Worth',s.worth)+s.notes.map(x=>{const m=/^(.*?)\s*×([\d.]+)$/.exec(x)||[0,x,''];return row(m[1],m[2]===''?'':'×'+m[2])}).join('')+row(s.worth+' × '+s.fame,s.total,' tot')+row('Dynasty ×1.5: 3 finds of one civilization','',' how')+row('Timeline ×2+: 3 ages in a row, climbing across seals','',' how')+row('Relic ×2, each more ×1.5 · Hoard ×2 ('+(hoardMin()>=TRAY.n?'a full tray of '+TRAY.n:hoardMin()+'+ finds')+') · one Timeline a seal','',' how')}
   if(cls.mystic)mysticMeter();else{mysticLabel('Fever');document.getElementById('fever').style.width=Math.min(100,state.fever*100)+"%";document.getElementById('fmeter').classList.toggle('full',state.fever>=1);document.getElementById('feverTxt').textContent=state.fever>=1?'×2':Math.round(state.fever*100)+'%';document.body.classList.toggle('fever',state.fever>=1)}
   document.getElementById('crack').style.width=(state.crack/maxCrack()*100)+"%";
   document.getElementById('crackTxt').textContent=Math.round(state.crack/maxCrack()*100)+"%";
@@ -3210,7 +3303,7 @@ function ui(){
   document.getElementById('hammer').disabled=(gear&&gear.id==="glass"&&state.glassUses>=3)||kitHamOff();
   kitUi();
   document.getElementById('seal').disabled=gear&&gear.id==="sack"&&state.sealed>=2;
-  document.getElementById('seal').classList.toggle('ready',ex.length>0&&s.total>=(state.train?1:15)&&!(gear&&gear.id==="sack"&&state.sealed>=2)&&!skillPaid());
+  document.getElementById('seal').classList.toggle('ready',ex.length>0&&s.total>=(state.train?1:45)&&!(gear&&gear.id==="sack"&&state.sealed>=2)&&!skillPaid());
   skillSealUi();
   const rb=document.getElementById('relicbar');rb.hidden=!relic;
   if(relic){const P=POWERS[relic.name];const st=relic.state;const col=st==='sated'?'var(--uncommon)':st==='dormant'?'#a2937a':'var(--legend)';document.getElementById('relicinfo').innerHTML=`<span style="color:${col};font-family:var(--display);font-size:12px">${relic.name}</span><span style="color:var(--muted)">${relic.blight?progBlightTxt():st==='sated'?'Sated · Fame ×'+(pw('Bronze Ding')?PROG_DATA.rel.ding.sated:2):st==='dormant'?'Asleep · feed to wake':'Hungry for '+P.hunger}</span>`;const fb=document.getElementById('feed');fb.disabled=st==='sated'||state.over||!!(relic.blight&&state.blightFed);fb.classList.toggle('on',feedMode);}
@@ -3222,7 +3315,7 @@ function ui(){
 }
 function pickupOre(o){
   o.taken=true;
-  if(o.type==="pyrite"){const pv=kitPyrite();run.banked+=pv;if(gear&&gear.id==='sieve')ecoEarn(ECON.gold.sieve,'sieve');sfx('ore',{t:'pyrite'});log(pv>1?`Pyrite. Fool's gold, but the Sieve knows a buyer. +${pv} points.`:"Pyrite. Fool's gold. Worth exactly 1.");return}
+  if(o.type==="pyrite"){const pv=kitPyrite();run.banked+=pv;if(gear&&gear.id==='sieve')ecoEarn(ECON.gold.sieve,'sieve');sfx('ore',{t:'pyrite'});log(pv>1?`Pyrite. Fool's gold, but the Sieve knows a buyer. +${pv} points.`:"Pyrite. Fool's gold. Worth exactly "+pv+".");return}
   if(run.pouch.length>=POUCH_N()){(state.offerQ=state.offerQ||[]).push(o.type);return} // B15: pouch full, so the swap card asks (oreOfferRun)
   run.pouch.push(o.type);sfx('ore',{t:o.type});
   log(`✦ ${ORES[o.type].n} — ${ORES[o.type].d}`);
@@ -3283,7 +3376,7 @@ let logT=null;function log(t){const el=document.getElementById('log');el.textCon
 // ---- sprint 4 integration: no softlocks (B9 B10 B11 B12). Every chamber can always be ended.
 function dirtLeft(){return state.dirt.some(r=>r.some(d=>d>0))}
 function sackSpent(){return !!(gear&&gear.id==="sack"&&state.sealed>=2)}
-function canSeal(){return exposedFinds().length>0&&!sackSpent()}
+function canSeal(){return exposedFinds().length>0&&!sackSpent()} // TRAY TEST: an emptied tray can be refilled with a tap, so loose finds still count as something to do
 function sarcShut(){return state.finds.filter(f=>f.sarc&&!f.banked&&f.cells.every(([x,y])=>state.dirt[y][x]===0))}
 function legalAction(){return dirtLeft()||canSeal()||sarcShut().length>0||(run.pouch.includes('jade')&&!chWon())} // anything that can still move the chamber
 function walkVisible(){return !!state&&!state.over&&!!walkWhy()}
@@ -3341,6 +3434,7 @@ function strike(cx,cy){
   else if(done>0){state.combo=Math.min(5,state.combo+1);state.miss=0;state.fever=Math.min(1,state.fever+(.25*done+.05*state.combo)*(pw('Ballcourt Ring')?2:1));if(state.fever>=1){state.feverLeft=feverLen();musicStinger('fever');luckFever();shake(10);state.floats.push({t:1.6,txt:'FEVER ×2 · '+feverLen()+' strikes',x:cell*COLS/2,y:cell*ROWS*.3,col:'#ff9a1f',size:1.5,pop:true})}else if(state.combo>=3)state.floats.push({t:.9,txt:'COMBO '+state.combo,x:cx*cell+cell/2,y:cy*cell,col:'#ffe08a',size:.6})}
   else{state.miss++;if(state.miss>=SKILL.fever.grace){state.combo=0;if(state.fever>0&&feverDecay()>0){state.fever=Math.max(0,state.fever-feverDecay());state.floats.push({t:.8,txt:'fever −'+Math.round(feverDecay()*100)+'%',x:cx*cell+cell/2,y:cy*cell,col:'#ff9a1f',size:.42})}}}
   sfx('dig',{mat,big:tool!=="pick"||bl,n:opened.length});fxImpact(cx,cy,r+(big?.5:0),mat,opened.length,bl);
+  const _gone=trayTick();
   let msg="";
   let oreMsg=false;
   opened.forEach(([x,y])=>{const o=state.ores.find(o=>!o.taken&&o.x===x&&o.y===y);if(o){pickupOre(o);oreMsg=true}});
@@ -3352,6 +3446,7 @@ function strike(cx,cy){
   shake(tool==="pick"?2:5);
   const ex=exposedFinds();if(ex.length)s10Tut('first_find');
   if(ex.length)msg+=`Uncovered: ${ex.slice(0,3).map(f=>(f.relic?"★ ":"")+f.name+" (age "+f.age+", worth "+fmtN(findWorth(f))+")").join(", ")}${ex.length>3?` and ${ex.length-3} more`:""}`;
+  if(_gone.length)msg=trayGoneMsg(_gone)+msg;
   if(state.finds.some(f=>f.sarc&&!f.banked&&f.cells.every(([a,b])=>state.dirt[b][a]===0)))msg="A sarcophagus. Tap to open it (12 crack). Mostly bones. Sometimes not. "+msg;
   if(!(state.train&&trainSay())&&msg)log(msg);
   if(state.crack>=maxCrack()){state.crack=maxCrack();collapse();}
@@ -3387,13 +3482,15 @@ function xray(cx,cy){
 function seal(){
   if(PAUSE.on||state.over||state.sealing)return;
   if(gear&&gear.id==="sack"&&state.sealed>=2){log("The sack is full. Two seals per chamber, as agreed.");return}
-  const ex=exposedFinds();
-  if(!ex.length){log("Nothing uncovered yet. Dig first.");return}
+  const all=exposedFinds();
+  if(!all.length){log("Nothing uncovered yet. Dig first.");return}
+  const ex=trayList(all);
+  if(!ex.length){log("The tray is empty. Tap a find to put it on the tray.");return}
   if(skillPaid()){skillPayCard();return}
   sealGo(ex);
 }
 function sealGo(ex){
-  const s=score(ex);s.gold=ecoSealG(s);ex.forEach(f=>f.banked=true);state.sealed++;skillSealed(s,ex);state.goldDust=false;
+  const s=score(ex);s.gold=ecoSealG(s);ex.forEach(f=>f.banked=true);traySealed();state.sealed++;skillSealed(s,ex);state.goldDust=false;
   s10Tut('first_seal');statsSeal(s,ex);{const T=RS();T.seals++;if(s.total>T.best){T.best=s.total;T.notes=notesFit(s.notes,120)}}
   state.oneCiv=false;state.gapOre=false;s9Sealed(s);
   if(pw('Flood Tablet'))state.crack=Math.max(0,state.crack-30);
@@ -3433,10 +3530,10 @@ function chestOdds(pool){ // Sprint 15 (C-5): the chest table as numbers. Each c
   return `Each chest is rolled on its own: ore ${pc('ore')}, ${ECON.gold.chest} ◆ Gold ${pc('gold')}, a Memory ${pc('life')}, a relic ${pc('relic')}, dust ${pc('dust')} (${n} equal lots; rounded).`}
 function bump(id){const el=document.getElementById(id);el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump')}
 function collapse(){
-  if(pw('Gjermundbu Helmet')&&!state.helmUsed){state.helmUsed=true;const hit=exposedFinds();hit.forEach(f=>{f.banked=true;f.lost=true});state.crack=Math.round(maxCrack()*.3);shake(16);sfx('clang');log(`The helmet takes the blow. ${hit.length} unsealed find${hit.length===1?"":"s"} lost. The wall holds.`);ui();draw();return}
+  if(pw('Gjermundbu Helmet')&&!state.helmUsed){state.helmUsed=true;const hit=exposedFinds();hit.forEach(f=>{f.banked=true;f.lost=true;delete f.tray});state.crack=Math.round(maxCrack()*.3);shake(16);sfx('clang');log(`The helmet takes the blow. ${hit.length} unsealed find${hit.length===1?"":"s"} lost. The wall holds.`);ui();draw();return}
   luckNearCollapse();statsCollapse();state.over=true;shake(22);musicStinger('collapse');hap([80,50,160,50,260]);wrapKick(3);raiderAnim('fall');state.whiteFlash=1;
   const lost=exposedFinds();
-  if(pw('Code of Hammurabi')&&lost.length){lost.paid=score(lost).total;run.banked+=lost.paid}
+  if(pw('Code of Hammurabi')&&lost.length){lost.paid=score(trayList(lost)).total;run.banked+=lost.paid}
   lost.pouch=pw('Oseberg Ship')?0:run.pouch.length;if(!pw('Oseberg Ship'))run.pouch=[];
   state.falling=[];for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){state.falling.push({x,y,vy:-Math.random()*2,vx:(Math.random()-.5)*2,rot:0,vr:(Math.random()-.5)*.2,delay:Math.random()*18+(ROWS-y)*1.5,py:y*cell,px:x*cell,d:state.dirt[y][x],xx:x,yy:y})}
   collapseFx(()=>endChamber(false,lost));
@@ -3499,7 +3596,7 @@ function endChamber(win,lost){
   }else{
     rivalCollapse();
     const lr=lost.filter(f=>f.relic);
-    const l=(state.walked?'You walked away. The wall stands. The tomb remembers. ':'')+(lost.length?`Lost to the rubble: ${lost.length} unsealed find${lost.length>1?"s":""}, worth ${fmtN(score(lost).total)}.${lr.length?` <em style="color:var(--danger)">The ${lr[0].name} is buried again.</em>`:""}${lost.paid?` The Code pays ${fmtN(lost.paid)}.`:""}`:(state.walked?"":"Nothing was uncovered when it fell. Small mercies."));
+    const l=(state.walked?'You walked away. The wall stands. The tomb remembers. ':'')+(lost.length?`Lost to the rubble: ${lost.length} unsealed find${lost.length>1?"s":""}, a tray of them worth ${fmtN(score(trayList(lost)).total)}.${lr.length?` <em style="color:var(--danger)">The ${lr[0].name} is buried again.</em>`:""}${lost.paid?` The Code pays ${fmtN(lost.paid)}.`:""}`:(state.walked?"":"Nothing was uncovered when it fell. Small mercies."));
     const pl=lost.pouch?` The pouch (${lost.pouch} ore${lost.pouch>1?"s":""}) is under the rubble.`:"";
     let saved='';if(state.bare){saved='bare'}else if(mercyTake()){saved='mercy'}else if(pw('Heart Scarab')&&!run.scarabUsed){run.scarabUsed=true;saved='scarab'}else if(pw('Ankh')&&!state.ankhUsed){state.ankhUsed=true;saved='scarab'}else if(kitRope()){saved='rope'}else{run.lives--;sfx('memLost')}
     document.getElementById('lives').textContent='♥'.repeat(Math.max(0,run.lives))+'♡'.repeat(Math.max(0,3-run.lives));run.day=(run.day||1)+1;RS().col++;s13bFlush();
@@ -3565,11 +3662,11 @@ function gearPool(){if(!_gp||_gpSeed!==run.seed){let a=s15Daily()?kitGearList().
 const TUT_STEPS=[
  {el:'#wrap', at:'top',   h:'1 · Dig',   get t(){const N=kitNames(),C=s=>s[0].toUpperCase()+s.slice(1);return'Tap to dig. Hold a finger down to preview the crack first, then tap. The '+C(N.pick)+(N.stdPick?' takes a tile':' is your small tool')+(N.ham?', the '+C(N.ham)+(N.stdHam?' a patch':' your heavy one'):'')+'.'}},
  {el:'#wrap', at:'top',   h:'2 · Finds', t:'A find glows once every tile of it is clear. Half a bone is just a rumour. The panel above prices whatever is glowing.'},
- {el:'#seal', at:'above', h:'3 · Seal',  t:'Seal banks everything that glows: Worth × Fame, straight into Banked. Unsealed finds are the wall\'s.'},
+ {el:'#seal', at:'above', h:'3 · Seal',  t:'Seal banks the tray: six finds at most, Worth × Fame, straight into Banked. Unsealed finds are the wall\'s.'},
  {el:'#meter',at:'below', h:'4 · The Wall', t:'Each strike fills this. At 100% the wall collapses, takes everything unsealed, and costs you a Memory (♥). Seal early.'}
 ];
-function tutGet(){try{return Store.get('rw_tut')}catch(e){return null}}
-function tutSet(){try{Store.set('rw_tut','1')}catch(e){}}
+function tutGet(){try{return Store.get('S15T_tut')}catch(e){return null}}
+function tutSet(){try{Store.set('S15T_tut','1')}catch(e){}}
 let tutBox=null,tutN=0,tutHL=null;
 function maybeTutorial(i){
   return; // B1: replaced by the training wall (trainSay); the modal callouts no longer open
@@ -4123,6 +4220,7 @@ function draw(){
   // relic artwork over exposed 2x2 relics
   state.finds.forEach(f=>{if(state.falling||!f.relic||f.banked||!RELIC_BY[f.name])return;if(!f.cells.every(([x,y])=>state.dirt[y][x]===0))return;const x0=Math.min(...f.cells.map(c=>c[0]))*cell,y0=Math.min(...f.cells.map(c=>c[1]))*cell;tickJuice(f.j);const bob=Math.sin(frame/12)*cell*.06;ctx.save();ctx.translate(x0+cell,y0+cell);ctx.scale(f.j.s,f.j.s);ctx.rotate(f.j.r);ctx.translate(-(x0+cell),-(y0+cell));const gl=ctx.createRadialGradient(x0+cell,y0+cell,cell*.3,x0+cell,y0+cell,cell*1.8);gl.addColorStop(0,`rgba(255,170,40,${.45+.15*Math.sin(frame/7)})`);gl.addColorStop(1,"rgba(255,170,40,0)");ctx.fillStyle=gl;ctx.fillRect(x0-cell,y0-cell,cell*4,cell*4);ctx.fillStyle="#2a1d08";ctx.fillRect(x0,y0+bob,cell*2,cell*2);drawSprite(ctx,f,x0,y0+bob,cell/8);const g=f.fin==="blighted"?((frame>>3)%2?"#c6f060":"#6a9a22"):(frame>>3)%2?"#ffd27a":"#ff9a1f";ctx.strokeStyle=g;ctx.lineWidth=2;ctx.strokeRect(x0+1,y0+1+bob,cell*2-2,cell*2-2);ctx.lineWidth=1;const sh=((frame*3)%(cell*6))-cell*2;const sg=ctx.createLinearGradient(x0+sh,y0,x0+sh+cell*.8,y0+cell*2);sg.addColorStop(0,"rgba(255,255,255,0)");sg.addColorStop(.5,"rgba(255,255,255,.35)");sg.addColorStop(1,"rgba(255,255,255,0)");ctx.fillStyle=sg;ctx.fillRect(x0,y0+bob,cell*2,cell*2);ctx.fillStyle="rgba(10,8,6,.85)";ctx.fillRect(x0+2,y0+2+bob,cell*.5,cell*.38);ctx.fillStyle="#fff6dc";ctx.font=`700 ${Math.floor(cell*.3)}px Cinzel, serif`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(f.age,x0+2+cell*.25,y0+2+cell*.2+bob);ctx.restore();if(frame%6===0)state.bursts.push({x:x0+Math.random()*cell*2,y:y0+Math.random()*cell*2,vx:0,vy:-.6,t:.8,c:"#ffe08a",star:true})});
   if(SETTINGS.cb)cbGlyphs();
+  trayDraw();
   luckDrawMarks();
   // fissures spread with the crack meter
   const pct=state.crack/maxCrack(),fx=cell/8;
@@ -4180,6 +4278,7 @@ function strikePlan(cx,cy){
   const sc=sarcAt(cx,cy);
   if(sc){const cost=pw('Aegis of Athena')?6:12,xs=sc.cells.map(c=>c[0]),ys=sc.cells.map(c=>c[1]),dead=state.crack+cost>=maxCrack();
     return{x0:Math.min(...xs),y0:Math.min(...ys),x1:Math.max(...xs),y1:Math.max(...ys),sarc:true,crack:cost,hit:0,dead,label:dead?"Too risky · wall would fall":"Open it · +"+fmtPct(cost)}}
+  {const tf=trayAt(cx,cy);if(tf){const xs=tf.cells.map(c=>c[0]),ys=tf.cells.map(c=>c[1]),on=trayList().indexOf(tf)>=0;return{x0:Math.min(...xs),y0:Math.min(...ys),x1:Math.max(...xs),y1:Math.max(...ys),crack:0,hit:0,idle:true,label:on?'On the tray · tap to leave it':'Off the tray · tap to add it'}}}
   {const _po=kitPlanOverride(cx,cy);if(_po)return _po}
   let r,dmg,crack,big=false,line=false;
   if(tool==="blast"){r=2;dmg=3;crack=12}
@@ -4235,6 +4334,7 @@ function act(p){ // what one tap on the wall does
   luckSlipHide();
   RS().taps++;statsTap();s10Tut('first_tap');
   if(feedMode&&relic){if(!tryFeed(p.x,p.y)){feedMode=false;ui();log('Nothing there to feed. Feeding called off.')}return}
+  if(trayTap(p.x,p.y))return;
   if(tool==="xray")xray(p.x,p.y);else if(tool==="lode")lodestone(p.x,p.y);else if(tool==="blast")blast(p.x,p.y);else strike(p.x,p.y)
 }
 // B7: a strike fires on pointerdown. A hold (> 250 ms) only shows the crack preview; it never undoes the strike. Drag does nothing but move the preview.
@@ -4245,7 +4345,7 @@ cv.addEventListener('pointerdown',e=>{e.preventDefault();if(PAUSE.on)return;cons
   if(touch)lastTouchT=e.timeStamp;else if(e.timeStamp-lastTouchT<800)return; // a mouse event right after a touch is the browser echoing it: one tap, one strike
   if(!touch){if(inWall(p))act(p);return}
   holdEnd();if(!inWall(p))return;try{cv.setPointerCapture(e.pointerId)}catch(x){}
-  const cf=confirmOn(),now=!cf&&instantTool(),h=hold={id:e.pointerId,p0:p,cur:p,sx:e.clientX,sy:e.clientY,t0:e.timeStamp,shown:false,moved:false,fire:!now,aimed:cf,prev:cf?aimGet():null,timer:0};
+  const tf=!!trayAt(p.x,p.y),cf=confirmOn()&&!tf,now=tf||(!cf&&instantTool()),h=hold={id:e.pointerId,p0:p,cur:p,sx:e.clientX,sy:e.clientY,t0:e.timeStamp,shown:false,moved:false,fire:!now,aimed:cf,prev:cf?aimGet():null,timer:0};
   if(cf){aimSet(p);hap(6)}
   if(now)act(p);
   h.timer=setTimeout(()=>{if(hold===h){h.shown=true;if(!now)hap(8)}},250)});
@@ -4308,8 +4408,8 @@ const M_STAB=[[3,1],[6,2],[10,3],[13,2]];
 // one pad colour per tomb hue: waveform, filter, detune spread, an extra colour tone (semitones over the chord root), shimmer, noise-bed
 const PADS=[{w:'sawtooth',lp:700,det:[-13,0,13],ex:null,sh:0,nz:0},{w:'triangle',lp:1500,det:[-6,0,6],ex:14,sh:.5,nz:0},{w:'sawtooth',lp:1100,det:[-18,-6,6,18],ex:7,sh:.7,nz:0},{w:'square',lp:520,det:[-8,8],ex:12,sh:.2,nz:.5},{w:'sawtooth',lp:900,det:[-22,0,22],ex:0,sh:.35,nz:0},{w:'triangle',lp:1000,det:[-10,0,10],ex:11,sh:.4,nz:.2},{w:'sawtooth',lp:420,det:[-10,10],ex:-12,sh:0,nz:.6}];
 // ---- volume
-function volLoad(){const v={m:.8,s:.8};try{const o=JSON.parse(Store.get('rw_vol')||'null');if(o){if(isFinite(o.m))v.m=Math.min(1,Math.max(0,+o.m));if(isFinite(o.s))v.s=Math.min(1,Math.max(0,+o.s))}}catch(e){}return v}
-function volSave(){try{Store.set('rw_vol',JSON.stringify(MUSIC.vol))}catch(e){}}
+function volLoad(){const v={m:.8,s:.8};try{const o=JSON.parse(Store.get('S15T_vol')||'null');if(o){if(isFinite(o.m))v.m=Math.min(1,Math.max(0,+o.m));if(isFinite(o.s))v.s=Math.min(1,Math.max(0,+o.s))}}catch(e){}return v}
+function volSave(){try{Store.set('S15T_vol',JSON.stringify(MUSIC.vol))}catch(e){}}
 MUSIC.vol=volLoad();
 function vGain(v){return 1.5625*v*v}
 function applyVol(now){const O=MUSIC.out;if(!O||!ac)return;const t=ac.currentTime,m=vGain(MUSIC.vol.m),s=vGain(MUSIC.vol.s),set=(p,v)=>{if(now)p.setValueAtTime(v,t);else p.setTargetAtTime(v,t,.02)};
@@ -4677,7 +4777,7 @@ document.getElementById('hammer').onclick=()=>{if(!s14Fire("hammer"))setTool("ha
 document.getElementById('special').onclick=()=>{if(PAUSE.on||LK.busy)return;if((cls&&cls.skill&&!state.skillUsed)||state.codexXray){setTool(tool==="xray"?"pick":"xray");log("Tap the wall to X-ray a patch.")}};
 document.getElementById('seal').onclick=seal;document.getElementById('walk').onclick=walkAway;
 document.getElementById('music')&&(document.getElementById('music').onclick=()=>{const mb=document.getElementById('music');if(MUSIC.on){clearInterval(MUSIC.timer);MUSIC.on=false;MUSIC.muted=true;SFX.off=true;mb.textContent='♪ off'}else{MUSIC.muted=false;SFX.off=false;startMusic();mb.textContent='♪ on'}});
-// volume popover: Music / Effects sliders (persisted as rw_vol) and the old on/off switch
+// volume popover: Music / Effects sliders (persisted as S15T_vol) and the old on/off switch
 (function(){const pop=document.getElementById('volpop'),btn=document.getElementById('vol'),M=document.getElementById('volM'),S=document.getElementById('volS'),mu=document.getElementById('volMute'),mo=document.getElementById('volMo'),so=document.getElementById('volSo');if(!pop||!btn||!M||!S||!mu)return;
   const sync=()=>{M.value=Math.round(MUSIC.vol.m*100);S.value=Math.round(MUSIC.vol.s*100);mo.textContent=M.value;so.textContent=S.value;mu.textContent=MUSIC.muted?'Sound: off':'Sound: on'};
   const open=o=>{pop.hidden=!o;btn.setAttribute('aria-expanded',o?'true':'false');if(o)sync()};
@@ -4750,7 +4850,7 @@ const STRINGS={
   "Mjölnir":"Hammer clears 4×4 (Brute: 5×5), hits harder, cracks 20% less.",
   "Brísingamen":"Timelines earn +1 Fame on top.",
   "Gjallarhorn":"Seals made past 80% crack score ×1.5. Blow it late.",
-  "Draupnir":"Every sealed find drips +3 worth.",
+  "Draupnir":"Every sealed find drips +9 worth.",
   "Jade Mask of Pakal":"Maya finds, age included, are worth triple.",
   "Dresden Codex":"Every chamber opens with a free 5×5 X-ray.",
   "Obsidian Blade":"Pick digs 2 deep, and never cracks under 1.5.",
@@ -5169,7 +5269,7 @@ new MutationObserver(armCard).observe(document.getElementById('overlay'),{attrib
 document.addEventListener('gg:profilereset',()=>{MENU_MODE=true;armCard()}); // Reset profile restarts the run in memory but leaves the player in Settings
 // ===================== SPRINT 5 / UI-C: CODEX =====================
 // window.showCodex(back): the Codex reference screen. back() runs when the player taps Back (default: the camp).
-// Tabs: Relics, Classes, Gear, Ores, Civilizations. Last tab is remembered in rw_codex_tab.
+// Tabs: Relics, Classes, Gear, Ores, Civilizations. Last tab is remembered in S15T_codex_tab.
 (function(){
 const TABS=[
  ['relics','Relics','Relics','<svg viewBox="0 0 16 16"><path d="M6 1.5h4M6.5 1.5v2C4 5 3.5 8.5 5 11.5c.7 1.5 1.7 3 3 3s2.3-1.5 3-3c1.5-3 1-6.5-1.5-8v-2"/></svg>'],
@@ -5190,7 +5290,7 @@ const ORE_COST={
  malachite:"Spends itself on the next seal, even one of fewer than 3 finds, which gets nothing from it.",
  lapis:"Spends itself on the next seal, Timeline or no Timeline. It forgives a gap in the ages, never a scattered order.",
  skyiron:"This chamber only. It shows outlines and glints, never what a find is.",
- jade:"Already at three Memories, it is only 25 points."
+ jade:"Already at three Memories, it is only 75 points."
 };
 // The six civilization paragraphs (player-facing history; checked against museum sources). Index = civ id.
 const HIST=[
@@ -5201,7 +5301,7 @@ const HIST=[
 "Mesopotamia means 'between the rivers', here the Tigris and the Euphrates, in present-day Iraq. Writing appears at Uruk around 3300 BC, and most of it is rations of barley and beer; the poetry came later. The Sumerians counted in sixty, which is why your hour has sixty minutes. Hammurabi's stele, c. 1754 BC, is not the oldest law code, since Ur-Nammu's is older by some three centuries; it is only the most famous. Surprising item: in 1872 George Smith, reading tablets from Nineveh, found the flood story and, as the tale goes, began to undress with excitement. The Quartermaster recommends keeping your clothes on.",
 "China's early kings asked their ancestors questions and wrote the answers on bones. The Shang, from about 1600 BC, pressed a hot rod into turtle shells and ox shoulder blades, read the cracks, and carved the question beside them; near their last capital, Anyang, more than a hundred thousand such pieces have turned up, the oldest substantial Chinese writing. Qin Shi Huang unified the country in 221 BC and took an army of clay soldiers into his tomb, found in 1974 by farmers digging a well near Xi'an. Surprising item: Han princes were sewn into suits of jade to stop the body decaying. It did not work. The Quartermaster calls this a lesson in packaging."
 ];
-const KEY='rw_codex_tab';
+const KEY='S15T_codex_tab';
 const S={tab:'relics',civ:-1,tier:'',back:null};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -5302,8 +5402,8 @@ window.showCodex=function(back){
 // ---- run stats, personal best, share text
 function RS(){return run.st||(run.st={taps:0,seals:0,best:0,notes:'',relics:[],t0:0,t1:0,col:0,coach:0,logged:0,won:0})} // lazy, so anything that builds `run` by hand still works
 function newRun(seed){ecoNewRun();return skillRun(Object.assign({banked:0,pouch:[],lives:3,scarabUsed:false,seed:seed,st:{taps:0,seals:0,best:0,notes:'',relics:[],t0:0,t1:0,col:0,coach:0,logged:0,won:0}},progRunInit()))}
-function bestGet(){try{return JSON.parse(Store.get('rw_best')||'{}')||{}}catch(e){return{}}}
-function bestPut(o){try{Store.set('rw_best',JSON.stringify(o))}catch(e){}}
+function bestGet(){try{return JSON.parse(Store.get('S15T_best')||'{}')||{}}catch(e){return{}}}
+function bestPut(o){try{Store.set('S15T_best',JSON.stringify(o))}catch(e){}}
 const fmtN=n=>Math.round(n).toLocaleString('en-US');
 // Sprint 12 (T76): the points a run was PAID for (a wall pays on at most SKILL.cap.reward x its target). Share text, Best haul, camp and title use this, not the raw bank.
 function paidBank(){try{const b=+run.banked||0;return run.xc==null?b:Math.max(0,Math.min(b,+run.xc||0))}catch(e){return 0}}
@@ -5356,7 +5456,7 @@ function showSummary(kind){
   s10RunEnd(kind);
 }
 // ---- one screen for class, item and relic (was three screens)
-let _kit={};try{_kit=JSON.parse(Store.get('rw_kit')||'{}')||{}}catch(e){_kit={}}
+let _kit={};try{_kit=JSON.parse(Store.get('S15T_kit')||'{}')||{}}catch(e){_kit={}}
 function showLoadoutS6(){
   const card=document.getElementById('card'),pool=gearPool(),ti=n=>TIER_ORDER.indexOf(RARITY[n]||'uncommon'),vault=loadColl().sort((a,b)=>ti(b)-ti(a));
   const fresh=trainFresh();
@@ -5384,7 +5484,7 @@ function showLoadoutS6(){
   if(rbox){const mk=n=>{const b=document.createElement('button');b.type='button';b.dataset.n=n;b.setAttribute('role','radio');b.title=n||'No relic';if(n){b.style.setProperty('--tc',tierOf(n).c);b.appendChild(spriteCanvas(n,48))}else b.textContent='—';b.onclick=()=>{r=n;paint()};rbox.appendChild(b)};mk('');vault.forEach(mk)}
   card.querySelector('#dig').onclick=()=>{
     cls=CLASSES[k];gear=g;relic=r?{name:r,state:'hungry'}:null;_kit={cls:k,gear:g.id,relic:r};
-    try{Store.set('rw_kit',JSON.stringify(_kit))}catch(e){}
+    try{Store.set('S15T_kit',JSON.stringify(_kit))}catch(e){}
     statsStart(k);TARGETS.length=3;run=newRun(run.seed);run.train=fresh;kitRunInit();document.getElementById('overlay').hidden=true;newChamber(0);
   };
   card.querySelector('#back').onclick=()=>showMenu();
@@ -5458,17 +5558,17 @@ function toolLabel(t){
 // ---- coach: the first seals of a run that bank Fame x1 early get a one-line nudge (twice per run at most)
 function coachSeal(s){
   const S=RS();if(state.train||S.coach>=2||s.fame>1||state.crack/maxCrack()>.6||chMet())return;S.coach++;
-  setTimeout(()=>{if(!state.over)log('That was Fame ×1: base value only. Three finds of one civilization, or three ages in a row, multiply it. Hold the seal for them.')},1800);
+  setTimeout(()=>{if(!state.over)log('That was Fame ×1: base value only. Three finds of one civilization, or three ages in a row, multiply it. Hold the seal for them, but not past nine loose finds.')},1800);
 }
 // ---- pouch gems: the drawn ore gem, tinted per ore
 const OFILT={gold:'hue-rotate(-130deg) saturate(1.7)',quick:'grayscale(1) brightness(1.5)',lode:'hue-rotate(105deg)',flint:'grayscale(1) sepia(.5) brightness(.9)',amber:'hue-rotate(-145deg) saturate(2) brightness(1.1)',nitre:'hue-rotate(-175deg) saturate(1.8)',malachite:'hue-rotate(-30deg) saturate(1.3)',lapis:'hue-rotate(50deg) saturate(1.5)',skyiron:'brightness(1.5) saturate(.3)',jade:'hue-rotate(-40deg) saturate(1.5)',pyrite:'hue-rotate(-130deg) saturate(.8)'};
 // ===================== SPRINT 4: DESIGN PASS =====================
 // ---- B1: the training wall (a fresh profile's first chamber): teach by doing, three one-line prompts
-const TRAIN_T=30; // the training chamber's target; clearing it rounds the bank up to 450 (see endChamber)
+const TRAIN_T=90; // the training chamber's target; clearing it rounds the bank up to 450 (see endChamber)
 let _trained=false;
 function lsGet(k){try{return Store.get(k)}catch(e){return null}}
-function trainFresh(){return !_trained&&!lsGet('rw_tut')&&!lsGet('rw_train')&&(!(bestGet().runs>0)||!!lsGet('rw_replay'))}
-function trainDone(){_trained=true;try{Store.set('rw_train','1')}catch(e){}tutSet();run.train=0}
+function trainFresh(){return !_trained&&!lsGet('S15T_tut')&&!lsGet('S15T_train')&&(!(bestGet().runs>0)||!!lsGet('S15T_replay'))}
+function trainDone(){_trained=true;try{Store.set('S15T_train','1')}catch(e){}tutSet();run.train=0}
 function trainWall(dirt,owner,finds){
   for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)dirt[y][x]=y>2&&(x*3+y*5)%7<2?2:1; // fixed: mostly depth 1, a few depth 2 below the third row
   dirt[1][4]=1;
@@ -5520,7 +5620,7 @@ function showDailyKit(){
     if(run.seed!==seed){run.seed=dailySeed()}                      // the card sat open past midnight: dig today's
     const K=dailyKit(run.seed),k=K.cls;
     cls=CLASSES[k];gear=K.gear;relic={name:K.relic,state:'hungry',blight:false};
-    PROG.sel={tomb:K.tomb,stake:K.stake,tool:K.tool};                // the player's own saved kit (rw_kit, kit2) is not touched
+    PROG.sel={tomb:K.tomb,stake:K.stake,tool:K.tool};                // the player's own saved kit (S15T_kit, kit2) is not touched
     statsStart(k);TARGETS.length=3;run=newRun(run.seed);run.train=false;run.daily=1;document.getElementById('overlay').hidden=true;
     try{kitRunInit();run.kit.tool=K.tool;if(cls&&cls.carto)run.lives=PROG_DATA.carto.memories}catch(x){console.error(x)}
     s10RunStart({fresh:false,g:gear,tl:K.tool,k,st:K.stake,tb:K.tomb,daily:true});
@@ -5533,16 +5633,16 @@ function s15Took(){return !!(window.S15&&S15.took&&Date.now()-S15.took<1500)} //
 function s15Daily(){return !!run&&(run.seed===dailySeed()||(!!run.daily&&/^DAILY-\d{8}$/.test(String(run.seed))))} // Sprint 15: a Daily run stays a Daily run when it is resumed after midnight
 function dailySeed(){const d=new Date();return"DAILY-"+d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0")}
 function dailyLabel(s){const m=/^DAILY-(\d{4})(\d{2})(\d{2})$/.exec(s||"");return m&&+m[2]>=1&&+m[2]<=12?"Daily · "+MON[+m[2]-1]+" "+(+m[3]):""}
-function dailyGet(){try{const o=JSON.parse(Store.get('rw_daily')||'{}');return o&&typeof o==='object'&&!Array.isArray(o)?o:{}}catch(e){return{}}}
-function dailyPut(o){try{const ks=Object.keys(o).sort();while(ks.length>30)delete o[ks.shift()];Store.set('rw_daily',JSON.stringify(o))}catch(e){}}
+function dailyGet(){try{const o=JSON.parse(Store.get('S15T_daily')||'{}');return o&&typeof o==='object'&&!Array.isArray(o)?o:{}}catch(e){return{}}}
+function dailyPut(o){try{const ks=Object.keys(o).sort();while(ks.length>30)delete o[ks.shift()];Store.set('S15T_daily',JSON.stringify(o))}catch(e){}}
 function dailyBtn(){
   if(trainFresh())return'';
   const s=dailySeed(),b=+dailyGet()[s.slice(6)]||0;
   return`<button type="button" id="daily" class="daily-btn">${dailyLabel(s)}<small>${b?'best '+fmtN(b):'not dug yet'}</small></button>`;
 }
 // ---- B4b: the run streak (consecutive runs that cleared chamber 3)
-function streakGet(){try{const o=JSON.parse(Store.get('rw_streak')||'{}')||{};return{n:Math.max(0,+o.n||0),best:Math.max(0,+o.best||0)}}catch(e){return{n:0,best:0}}}
-function streakPut(o){try{Store.set('rw_streak',JSON.stringify(o))}catch(e){}}
+function streakGet(){try{const o=JSON.parse(Store.get('S15T_streak')||'{}')||{};return{n:Math.max(0,+o.n||0),best:Math.max(0,+o.best||0)}}catch(e){return{n:0,best:0}}}
+function streakPut(o){try{Store.set('S15T_streak',JSON.stringify(o))}catch(e){}}
 function streakText(n){return n>=2?n+' tombs cleared in a row':n===1?'A streak starts at two.':'No streak. The tomb is patient.'}
 function campExtras(){
   if(trainFresh())return'';
@@ -5563,15 +5663,15 @@ function sumExtras(kind){
 // when they exist (and say "Coming next sprint" when they do not). Render into #card like every other screen and make your Back button call
 // showMenu(). showMenu() is pause-aware: while a run is paused it re-opens the pause card instead, so Settings and How to play opened from
 // Pause come back to Pause. uiToast(text) is a toast that shows above the overlay. window.onRunAbandon(stats) is called (if defined) when a run is abandoned.
-const GAME_VERSION='v1.0-rc9b';
+const GAME_VERSION='v1.0-tray1';
 const PAUSE={on:false,mg:null,cLeft:0};
 function uiReduce(){try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}}
 let _toastT=0;
-function uiToast(msg){
+function uiToast(msg,ms){
   let el=document.getElementById('uitoast');
   if(!el){el=document.createElement('div');el.id='uitoast';el.setAttribute('role','status');document.body.appendChild(el)}
   el.textContent=msg;el.hidden=false;el.style.animation='none';void el.offsetWidth;el.style.animation='';
-  clearTimeout(_toastT);_toastT=setTimeout(()=>{el.hidden=true},1800);
+  clearTimeout(_toastT);_toastT=setTimeout(()=>{el.hidden=true},ms||1800);
 }
 
 // ---- Title (Step 4, v1.0-rc5c candidate): the trailer. A living camp on a canvas (parallax sky, ruins and camp; fire, embers and light flicker on the tents;
@@ -5765,7 +5865,7 @@ function titleCount(){ // the hook strip's numbers, each from the same helper th
 }
 function titleLeft(){const d=new Date(),n=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1),s=Math.max(0,Math.floor((n-d)/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60),q=s%60,p=v=>String(v).padStart(2,'0');return{s,txt:p(h)+':'+p(m)+':'+p(q),short:h+'h '+m+'m'}}
 function showTitle(){
-  discMigrate();seenAdd(loadColl()); // profiles from before rw_seen: everything on the shelf at boot counts as discovered
+  discMigrate();seenAdd(loadColl()); // profiles from before S15T_seen: everything on the shelf at boot counts as discovered
   if(_title)return;
   let reduce=uiReduce();try{reduce=reduce||rmEff()}catch(e){}
   const el=document.createElement('div'),H=titleCount(),lf=titleLeft();
@@ -5905,7 +6005,7 @@ function pauseAbandon(){
   progAbandon();ecoRunEnd();s10RunEnd('abandon');
   state.over=true;state.ended=1;Q.clear();if(tick){clearInterval(tick);tick=null}holdEnd();feedMode=false;
   pauseReset();
-  try{if(typeof window.statsRunEnd==='function')window.statsRunEnd('abandon')}catch(e){console.error(e)} // Stats counts it as a loss; rw_best.runs is untouched so the guided first minute survives
+  try{if(typeof window.statsRunEnd==='function')window.statsRunEnd('abandon')}catch(e){console.error(e)} // Stats counts it as a loss; S15T_best.runs is untouched so the guided first minute survives
   showMenu();
 }
 document.getElementById('pause').onclick=()=>pauseOpen();
@@ -5916,12 +6016,12 @@ document.addEventListener('keydown',e=>{ // Escape pauses, and resumes from the 
 },true);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseOpen()}); // backgrounding the phone pauses the dig
 // ===================== SPRINT 5 / UI-B: settings, how to play, stats =====================
-// One SETTINGS object (rw_settings), applied live. Screens are exposed as window.showSettings(back), window.showHowTo(back), window.showStats(back).
+// One SETTINGS object (S15T_settings), applied live. Screens are exposed as window.showSettings(back), window.showHowTo(back), window.showStats(back).
 const _mm=window.matchMedia.bind(window),_RMQ='(prefers-reduced-motion: reduce)';
 const SET_DEF={music:.8,sfx:.8,sound:true,haptics:true,speed:1,rm:null,shake:true,cb:false,lefty:false,coin:true,crt:true,confirm:false,hc:false}; // rm:null = follow the device's reduce-motion preference
 function setLoad(){
   const S=Object.assign({},SET_DEF);let raw=null;
-  try{raw=JSON.parse(Store.get('rw_settings')||'null')}catch(e){raw=null}
+  try{raw=JSON.parse(Store.get('S15T_settings')||'null')}catch(e){raw=null}
   if(!raw||typeof raw!=='object'||Array.isArray(raw))raw=null;
   const v01=x=>typeof x==='number'&&isFinite(x)?Math.min(1,Math.max(0,x)):null;
   if(raw){
@@ -5930,11 +6030,11 @@ function setLoad(){
     ['sound','haptics','shake','cb','lefty','coin','crt','confirm','hc'].forEach(k=>{if(typeof raw[k]==='boolean')S[k]=raw[k]});
     if(typeof raw.rm==='boolean')S.rm=raw.rm;
     if(raw.speed===1||raw.speed===2||raw.speed===4)S.speed=raw.speed;
-  }else{S.music=MUSIC.vol.m;S.sfx=MUSIC.vol.s} // first run of this build: migrate the old rw_vol (volLoad() has already read it)
+  }else{S.music=MUSIC.vol.m;S.sfx=MUSIC.vol.s} // first run of this build: migrate the old S15T_vol (volLoad() has already read it)
   return S;
 }
 let SETTINGS=setLoad();
-function setSave(){try{Store.set('rw_settings',JSON.stringify(SETTINGS))}catch(e){}}
+function setSave(){try{Store.set('S15T_settings',JSON.stringify(SETTINGS))}catch(e){}}
 function rmEff(){return SETTINGS.rm===null?_mm(_RMQ).matches:!!SETTINGS.rm}
 // every existing matchMedia('(prefers-reduced-motion: reduce)') call in the game now answers with the setting, so one switch rules them all
 window.matchMedia=function(q){const r=_mm(q);if(typeof q==='string'&&/prefers-reduced-motion/.test(q)){const inv=/no-preference/.test(q);return new Proxy(r,{get(t,k){if(k==='matches')return inv?!rmEff():rmEff();const v=t[k];return typeof v==='function'?v.bind(t):v}})}return r};
@@ -5982,11 +6082,11 @@ function cbGlyphs(){
   });
 }
 
-// ---- stats (rw_stats). Cheap writes: counters are saved on key events and, for taps, after a short pause.
+// ---- stats (S15T_stats). Cheap writes: counters are saved on key events and, for taps, after a short pause.
 const stDef=()=>({runs:0,wins:0,chambers:0,best:0,bs:0,bsw:0,bsf:0,bsn:'',taps:0,col:0,rel:0,walk:0,nm:0,cf:0,cw:0,lk:0,tr:0,jp:0,ge:0,gs:0,cls:{},hist:[]});
 function stLoad(){
   const S=stDef();let o=null;
-  try{o=JSON.parse(Store.get('rw_stats')||'null')}catch(e){o=null}
+  try{o=JSON.parse(Store.get('S15T_stats')||'null')}catch(e){o=null}
   const n=v=>typeof v==='number'&&isFinite(v)&&v>0?Math.floor(v):0;
   if(o&&typeof o==='object'&&!Array.isArray(o)){
     ['runs','wins','chambers','best','bs','bsw','taps','col','rel','walk','nm','cf','cw','lk','tr','jp','ge','gs'].forEach(k=>S[k]=n(o[k]));
@@ -5997,7 +6097,7 @@ function stLoad(){
   return S;
 }
 let ST=stLoad(),_stT=0;
-function stSave(){if(_stT){clearTimeout(_stT);_stT=0}try{Store.set('rw_stats',JSON.stringify(ST))}catch(e){}}
+function stSave(){if(_stT){clearTimeout(_stT);_stT=0}try{Store.set('S15T_stats',JSON.stringify(ST))}catch(e){}}
 function stDirty(){if(!_stT)_stT=setTimeout(()=>{_stT=0;stSave()},1500)}
 window.addEventListener('pagehide',stSave);document.addEventListener('visibilitychange',()=>{if(document.hidden)stSave()});
 function clsKey(){return Object.keys(CLASSES).find(k=>CLASSES[k]===cls)||'scholar'}
@@ -6018,8 +6118,8 @@ window.statsRunEnd=k=>statsEnd(k||'abandon'); // for the pause menu's Abandon ru
 
 // ---- reset helpers
 function resetTutorial(){
-  ['rw_tut','rw_train'].forEach(k=>{try{Store.remove(k)}catch(e){}});
-  try{Store.set('rw_replay','1')}catch(e){} // lets the training wall run again even on a profile with runs on record (see trainFresh)
+  ['S15T_tut','S15T_train'].forEach(k=>{try{Store.remove(k)}catch(e){}});
+  try{Store.set('S15T_replay','1')}catch(e){} // lets the training wall run again even on a profile with runs on record (see trainFresh)
   _trained=false;
 }
 function resetProfile(){
@@ -6136,7 +6236,7 @@ function hHeart(g,x,y,on){
   P.forEach((r,j)=>[...r].forEach((ch,i)=>{if(ch!=='#')return;g.fillStyle=on?(j===0&&i<3?'#ff7a7f':'#d8383f'):'#3b2d2d';g.fillRect(x+i*3,y+j*3,3,3)}));
 }
 const HOW=[
- {h:'Dig and seal',t:'Tap the wall to strike it. The pick takes one tile, the hammer takes a 3×3 patch, and every strike fills the Wall meter. Finds that glow are uncovered. Tap Seal to bank them before the wall comes down. Every chamber has its own target, counted from zero.',
+ {h:'Dig and seal',t:'Tap the wall to strike it. The pick takes one tile, the hammer takes a 3×3 patch, and every strike fills the Wall meter. Finds that glow are uncovered. Tap Seal to bank a tray of them, six at most, before the wall comes down. Every chamber has its own target, counted from zero.',
   d(g){
    hGrid(g,["11211121112","11200011211","12100011121","11100011112","21111211121"]);
    hFind(g,'Coin',0,72+24,24+0,5);hFind(g,'Bone',0,72,48,3);
@@ -6147,7 +6247,21 @@ const HOW=[
    hText(g,'SEAL',220,60,{a:'center',s:13,c:'#ffe9a8'});
    hText(g,'WALL',184,100,{s:8,c:'#bcab8c'});g.fillStyle='#0c0804';g.fillRect(212,95,44,10);g.fillStyle='#5fbb4a';g.fillRect(213,96,18,8);g.strokeStyle='#7d5f22';g.strokeRect(212.5,95.5,43,9);
   }},
- {h:'Worth × Fame',t:'Every find has a Worth. Sets multiply it by Fame. Three of one civilization is a Dynasty, ×1.5. Three ages in a row is a Timeline, ×2 and climbing, if it climbs above the Timeline you sealed before it. Dig half of a buried set and the panel whispers which Dynasty is close. A relic, a hoard of eight and a Fever each double it. Fame multiplies; it never politely adds.',
+ {h:'The finds tray',t:'A finds tray holds six. Seal takes the six finds worth most, and the rest wait on the wall for a later seal. Tap any uncovered find to move it on or off the tray; a brass tick marks the ones that go. The wall has room for nine loose finds. Uncover a tenth and the oldest one crumbles, so seal a tray before you dig past nine.',
+  d(g){
+   g.fillStyle='#17141c';g.fillRect(0,0,264,120);
+   hText(g,'TRAY 6/6',10,12,{s:8,c:'#ffd44a'});hText(g,'LOOSE 9/9',254,12,{a:'right',s:8,c:'#ff9a8a'});
+   g.fillStyle='#000';g.fillRect(6,22,164,40);g.fillStyle='#5a4228';g.fillRect(8,24,160,36);g.fillStyle='#c9a24a';g.fillRect(8,24,160,2);g.fillRect(8,58,160,2);
+   const tick=(x,y)=>{g.fillStyle='#000';g.fillRect(x+14,y,10,10);g.fillStyle='#ffd44a';g.fillRect(x+15,y+1,8,8);g.strokeStyle='#2a1a06';g.lineWidth=1.6;g.beginPath();g.moveTo(x+16.5,y+5.5);g.lineTo(x+18.5,y+7.5);g.lineTo(x+21.5,y+3);g.stroke()};
+   [[0,3],[0,4],[1,5],[1,6],[1,7],[2,9]].forEach(([civ,age],k)=>{const x=12+k*26;g.fillStyle='#17141c';g.fillRect(x-1,29,26,26);hFind(g,'Coin',civ,x,30,age);tick(x,30)});
+   [[3,2,0],[2,11,0],[0,1,1]].forEach(([civ,age,old],k)=>{const x=180+k*26,y=30;hFind(g,'Coin',civ,x,y,age);
+     if(old){g.strokeStyle='#120a06';g.lineWidth=3;g.beginPath();g.moveTo(x+5,y+1);g.lineTo(x+11,y+8);g.lineTo(x+8,y+13);g.lineTo(x+15,y+17);g.lineTo(x+12,y+23);g.stroke();g.strokeStyle='#ff6a4d';g.lineWidth=1.2;g.stroke();g.strokeStyle='#ff6a4d';g.lineWidth=1.5;g.strokeRect(x+.5,y+.5,23,23)}
+     else{g.fillStyle='rgba(8,6,10,.5)';g.fillRect(x,y,24,24)}});
+   hText(g,'OLDEST',244,64,{a:'center',s:7,c:'#ff9a8a'});
+   hText(g,'Seal takes six. You choose which.',10,82,{it:1,s:11,c:'#e8dcc0'});
+   hText(g,'A tenth find, and the oldest crumbles.',10,102,{it:1,s:11,c:'#e8dcc0'});
+  }},
+ {h:'Worth × Fame',t:'Every find has a Worth. Sets multiply it by Fame. Three of one civilization is a Dynasty, ×1.5. Three ages in a row is a Timeline, ×2 and climbing, if it climbs above the Timeline you sealed before it. Dig half of a buried set and the panel whispers which Dynasty is close. A relic, a full tray of six (a Hoard) and a Fever each double it. Fame multiplies; it never politely adds.',
   d(g){
    g.fillStyle='#17141c';g.fillRect(0,0,264,120);g.fillStyle='#0e0c12';g.fillRect(0,56,264,2);
    hFind(g,'Coin',0,14,26,3);hFind(g,'Bone',0,50,26,4);hFind(g,'Tablet',0,112,2,5);
@@ -6300,14 +6414,14 @@ const LUCK={
     luckyMult:2,                      // lucky strike: the finds in reach are worth x this
     tremorCrack:.06},                 // tremor: extra crack, as a fraction of the wall (6% of 150 = 9)
   near:{pct:.05},                     // a margin under this share of the wall is a near miss
-  coin:{min:2500,                     // a seal worth at least this may offer the coin (big stakes only: a small flip is a rescue, not a gamble)
+  coin:{min:2700,                     // a seal worth at least this may offer the coin (big stakes only: a small flip is a rescue, not a gamble)
     p:.32,                            // chance of heads
     mult:3,                           // heads pays the seal x this (net +2x); tails takes the seal back. 0.32*2 - 0.68 = -4% of the stake
     spinMs:1500},
   reels:{stop:[650,1050,1450],        // ms at which reel 1, 2, 3 stop (left to right)
     holdMs:900},
   jackpot:{at:4,                      // the Nth full Fever of a run spins the wheel
-    gold:500,
+    gold:1500,
     w:{ore:25,memory:10,gold:10,relic:30,nothing:25},
     spinMs:3600},
   tell:{chance:.15,                   // share of chambers that carry a tell
@@ -6335,7 +6449,7 @@ function lkCoin(i){return lkBone('pranes')} // old name for the sprite; nothing 
 function lkSym(k){return _lkc['s'+k]||(_lkc['s'+k]=artCanvas(LUCK_ART.syms[k].px,LUCK_ART.syms[k].pal,16,16,1))}
 function lkTellIcon(k){return _lkc['t'+k]||(_lkc['t'+k]=artCanvas(LUCK_ART.tells[k].px,LUCK_ART.tells[k].pal,8,8,1))}
 // ---- sounds: everything goes through sfxTone / sfxNoise, so it sits in the same master chain, volume and mute as the rest of the effects
-// ---- stats hooks (rw_stats): close shaves (nm), knucklebones thrown / landed on Pranes (cf, cw), loose stone (lk), tremors (tr), bones read (br). The stored keys are unchanged.
+// ---- stats hooks (S15T_stats): close shaves (nm), knucklebones thrown / landed on Pranes (cf, cw), loose stone (lk), tremors (tr), bones read (br). The stored keys are unchanged.
 function statsNear(){ST.nm=(ST.nm||0)+1;stDirty()}
 function statsCoin(won){ST.cf=(ST.cf||0)+1;if(won)ST.cw=(ST.cw||0)+1;stDirty()}
 function statsLucky(){ST.lk=(ST.lk||0)+1;stDirty()}
@@ -6750,12 +6864,12 @@ HOW.push({h:'Chances',
 // Every number that Balance might tune lives in PROG_DATA. Sprites live in KIT_ART. Copy lives next to the thing it describes.
 // Contract with the Design seat: define `progUnlocked(id)` (ids: class_fence, class_cartographer, tool_*, gear_*, ore_*, hat_*).
 // Until it exists every item counts as unlocked, which is what the standalone content build and the tests want.
-// The current tomb is read from `run.tomb` (0..4, default 0); the equipped tool and hat come from rw_kit2.
+// The current tomb is read from `run.tomb` (0..4, default 0); the equipped tool and hat come from S15T_kit2.
 const PROG_DATA={
  fence:{extraOffers:1,swaps:1,stealMult:.5,pickDmg:1,pickCrack:1,hamR:1,hamDmg:2,hamCrack:12},
  carto:{revealMs:3000,lamp:-1,memories:3,pickDmg:1,pickCrack:1,hamR:1,hamDmg:3,hamCrack:10},
  mystic:{sightMs:4000,perTile:.04,pickDmg:1,pickCrack:1,hamR:2,hamDmg:3,hamCrack:16}, // Sight: the meter gains perTile for every find tile a strike uncovers; full, it shows every relic and ore for sightMs
- rel:{warrior:{n:3,mult:2},suit:{crack:.4,mult:2},ding:{sated:2.5},rhind:{hoard:6},charioteer:{lucky:5},lewis:{bones:3},mammen:{fever:2},madrid:{age:.5},lamassu:{seals:1},ur:{mult:2},cyrus:{flat:8}}, // the new relic powers
+ rel:{warrior:{n:3,mult:2},suit:{crack:.4,mult:2},ding:{sated:2.5},rhind:{hoard:5},charioteer:{lucky:5},lewis:{bones:3},mammen:{fever:2},madrid:{age:.5},lamassu:{seals:1},ur:{mult:2},cyrus:{flat:24}}, // the new relic powers
  rival:{p:.6,from:1, // share of runs that meet a rival (after the first tomb is cleared) and the earliest chamber index they appear at
   wager:{cost:1,w:[10,80,10],fort:[3,1,-1],back:[1,1,0]},  // Odalys: weights, Fortune for the rest of the tomb, Memories that come back
   loan:{keep:.33,collapseCh:3,collapseCost:1},             // Kettle: chance to keep it on a clear; a collapse in this chamber costs Memories
@@ -6769,7 +6883,7 @@ const PROG_DATA={
   powder:{r:2,dmg:3,crack:40,fuse:2,delay:260},        // hammer places a charge; it fires after `fuse` more strikes (+delay ms): 5x5, 30 crack, ores in it are destroyed
   rod:{every:5,arrowMs:1000},
   pulley:{cut:.3,uses:6},brush:{crack:1.5},auger:{down:3,crack:1.5}},                         // every 5th strike draws an arrow to the nearest relic for 1 s
- gear:{lampoil:{lamp:2},rope:{free:1},sieve:{pyrite:5},reliquary:{vault:2,worth:.9},canteen:{decay:.5},ledger:{xp:.25,worth:.9},luckycoin:{p:.36}},
+ gear:{lampoil:{lamp:2},rope:{free:1},sieve:{pyrite:15},reliquary:{vault:2,worth:.9},canteen:{decay:.5},ledger:{xp:.25,worth:.9},luckycoin:{p:.36}},
  ores:{quartz:{pool:1},bitumen:{strikes:3,pool:1},sulfur:{pool:1},silver:{pool:1}},     // pool = copies in the ore pool once unlocked (the base pool has 13 entries)
  tombs:[                                                // chamber-3 twists. The Design seat builds the rules; these numbers feed the guardian slips so copy and rule cannot drift.
   {},
@@ -7178,9 +7292,9 @@ return {RAIDERS:NEW_RAIDERS,HATS,HAT_POS,TOOLS:TOOL_ART,GEAR:GEAR_ART_NEW};
 function kitHas(id){try{return typeof progUnlocked==='function'?!!progUnlocked(id):true}catch(e){return true}}
 function kitLockWords(id){const r=PROG_DATA.rank[id];return(!r||kitHas(id))?'':` Unlocks at Expedition Rank ${r}.`}
 const _kitPct=v=>Math.round(v*100);
-// ---------- saved choices (rw_kit2: tool and hat; the Design seat adds rank/tombs/stakes beside it) ----------
-let _kit2={};try{_kit2=JSON.parse(Store.get('rw_kit2')||'{}')||{}}catch(e){_kit2={}}
-function kitSave(){try{Store.set('rw_kit2',JSON.stringify(_kit2))}catch(e){}}
+// ---------- saved choices (S15T_kit2: tool and hat; the Design seat adds rank/tombs/stakes beside it) ----------
+let _kit2={};try{_kit2=JSON.parse(Store.get('S15T_kit2')||'{}')||{}}catch(e){_kit2={}}
+function kitSave(){try{Store.set('S15T_kit2',JSON.stringify(_kit2))}catch(e){}}
 document.addEventListener('gg:profilereset',()=>{_kit2={}});
 
 // ---------- classes ----------
@@ -7324,7 +7438,7 @@ function kitChamberStart(){ // newChamber(): after the state exists, before the 
   kitSlip();
 }
 function kitBitTake(){if(state.bit>0){state.bit--;return true}return false}
-function kitPyrite(){return gear&&gear.id==='sieve'?PROG_DATA.gear.sieve.pyrite:1}
+function kitPyrite(){return gear&&gear.id==='sieve'?PROG_DATA.gear.sieve.pyrite:TRAY.x}
 function kitWorthMul(){return gear&&gear.id==='reliquary'?PROG_DATA.gear.reliquary.worth:gear&&gear.id==='ledger'?PROG_DATA.gear.ledger.worth:1}
 function kitRope(){if(state.walked&&gear&&gear.id==='rope'&&kitR().rope>0){kitR().rope--;return true}return false}
 function kitWalkLabel(){return gear&&gear.id==='rope'&&kitR().rope>0?'Walk away · free (Rope)':'Walk away · −1 ♥'}
@@ -7406,7 +7520,7 @@ function kitFenceNote(){
 const GEAR_X=[
  {id:'lampoil',n:'Lamp Oil',d:`Lamp radius +${PROG_DATA.gear.lampoil.lamp} tiles`,t:'but it only helps you see. The wall is exactly as hard.'},
  {id:'rope',n:'Rope',d:'Walking away costs no Memory, once per run',t:'but only once, and only when you walk.'},
- {id:'sieve',n:'Sieve',d:`Pyrite is worth ${PROG_DATA.gear.sieve.pyrite} gold, not 1`,get t(){const n=ORE_POOL.filter(t=>t==='pyrite').length,m=ORE_POOL.length;return`but Pyrite is about one ore in ${m}${n>1?'/'+n:''}.`}},
+ {id:'sieve',n:'Sieve',d:`Pyrite is worth ${PROG_DATA.gear.sieve.pyrite} gold, not 3`,get t(){const n=ORE_POOL.filter(t=>t==='pyrite').length,m=ORE_POOL.length;return`but Pyrite is about one ore in ${m}${n>1?'/'+n:''}.`}},
  {id:'reliquary',n:'Reliquary',d:`The Vault holds ${PROG_DATA.gear.reliquary.vault} more relics while you carry it`,t:`but every find is worth ${_kitPct(1-PROG_DATA.gear.reliquary.worth)}% less.`}
 ];
 const GEAR_X_BY=Object.fromEntries(GEAR_X.map(g=>[g.id,g]));
@@ -7703,7 +7817,7 @@ function tombLead(t,i,bar,st){const h=tombMusic[kitTomb()];if(!h.ld||!mRoom())re
 const CIV_X=[{n:"China",c:"#d8553a"}]; // fallback until the Content seat adds civilization 5 to CIVS; theirs wins when it exists
 function civT(T){return CIVS[T.civ]||CIV_X[T.civ-5]||CIVS[0]}
 // ===== SPRINT 9 · COSMETICS (Art Lead): raider skins (palette overrides), hats, lamp colours, title scenes, Ash's tent. Nothing here changes a number. =====
-// Equipped choices live in rw_cos {skin:{class:1..3},lamp:id,title:id}; the hat stays in rw_kit2.hat. Ownership belongs to the Shop seat: define shopOwns('skin:scholar.2'|'lamp:ember'|'title:army'|'hat:nemes') and every
+// Equipped choices live in S15T_cos {skin:{class:1..3},lamp:id,title:id}; the hat stays in S15T_kit2.hat. Ownership belongs to the Shop seat: define shopOwns('skin:scholar.2'|'lamp:ember'|'title:army'|'hat:nemes') and every
 // cosmetic checks it; until it exists everything counts as owned (which is what the standalone build and the screenshots want).
 const COSM={
  skins:{
@@ -7742,8 +7856,8 @@ const COSM={
          {id:'army',n:'The Army at Dawn',line:'Farmers digging a well near Xi\'an found the first warrior in 1974. The pit holds thousands, and the faces are not alike.'},
          {id:'aurora',n:'Aurora over the Mounds',line:'Jelling, Denmark: two burial mounds and two runestones, one of them raised by Harald Bluetooth about 965.'}]
 };
-let COS={skin:{},lamp:'',title:''};try{const q=JSON.parse(Store.get('rw_cos')||'{}');if(q&&typeof q==='object')COS=Object.assign(COS,q);if(!COS.skin||typeof COS.skin!=='object')COS.skin={}}catch(e){}
-function cosSave(){try{Store.set('rw_cos',JSON.stringify(COS))}catch(e){}}
+let COS={skin:{},lamp:'',title:''};try{const q=JSON.parse(Store.get('S15T_cos')||'{}');if(q&&typeof q==='object')COS=Object.assign(COS,q);if(!COS.skin||typeof COS.skin!=='object')COS.skin={}}catch(e){}
+function cosSave(){try{Store.set('S15T_cos',JSON.stringify(COS))}catch(e){}}
 function cosOwn(kind,id){try{return typeof shopOwns==='function'?!!shopOwns(kind+':'+id):true}catch(e){return true}}
 function cosEquip(kind,key,val){ // kind: 'skin' (key = class, val = 0..3), 'hat' (val = hat id or ''), 'lamp' (val = id or ''), 'title' (val = id or '')
   if(kind==='skin')COS.skin[key]=val|0;else if(kind==='hat'){_kit2.hat=val||'';kitSave()}else if(kind==='lamp')COS.lamp=val||'';else if(kind==='title')COS.title=val||'';
@@ -7845,7 +7959,7 @@ function kitSlip(){
 }
 
 // ===================== SPRINT 7: PROGRESSION (tombs, rank, the Ledger, stakes, the Blighted finish) =====================
-// Save keys (new): rw_rank {xp,seen,bf}, rw_tombs {c:{"tomb.stake":clears},last}, rw_stakes {u:{class:highest stake},stamp:{relic:stake found at},fin:{relic:'blighted'}}, rw_kit2 {tomb,stake,tool,hat}.
+// Save keys (new): S15T_rank {xp,seen,bf}, S15T_tombs {c:{"tomb.stake":clears},last}, S15T_stakes {u:{class:highest stake},stamp:{relic:stake found at},fin:{relic:'blighted'}}, S15T_kit2 {tomb,stake,tool,hat}.
 // Everything a Balance or Content seat may want to turn is DATA at the top: XP, BLIGHT, TOMBS, STAKES, UNLOCKS. The rest is the machinery that reads them.
 const XP={hundred:1,chamber:50,tomb:150,relic:25,stakeBonus:.25,A:240,pow:1.7}; // XP per run: 1/100 banked + 50/chamber + 150/tomb + 25/relic sealed, then x(1+.25*(stake-1)). Rank 2 at 240, rank 30 at 73,500 (xpAt: 240 x (rank-1)^1.7), geometric between.
 const BLIGHT={find:.005,offer:.10,worth:2,fame:.1,debt:8,from:4}; // Stake >=4: 0.5% of relic finds are Blighted, 10% of chamber clears bring a Cursed Offer. Worth x2, Fame +0.10, never sated, +8 crack next chamber if unfed.
@@ -7882,7 +7996,7 @@ const rankTitle=r=>{let t=RANK_TITLES[0][1];RANK_TITLES.forEach(([k,n])=>{if(r>=
 
 // ---- the catalogue. One array, one shape: {id,kind,name,rank?,condition?,apply()}. The Ledger renders every entry, the kit screen reads it to decide what can be equipped.
 // Content seat: just add the data (CLASSES+RAIDERS, KIT_TOOL_BY, GEAR, ORES, KIT_ART.HATS); a slot stops being a stub when its data exists (isStub). progUnlocked('tool_trowel') etc. is the gate. A tool may also carry apply(run).
-// kind 'perk' holds the three old per-tomb unlocks (rw_unl) that now live in the Ledger at ranks 2/3/4; players who already own them keep them.
+// kind 'perk' holds the three old per-tomb unlocks (S15T_unl) that now live in the Ledger at ranks 2/3/4; players who already own them keep them.
 const UNLOCKS=[];
 // A slot is a stub until its data exists: the class in CLASSES+RAIDERS, the tool in the Content seat's KIT_TOOL_BY (same ids), the gear in GEAR or the Content seat's GEAR_X, the ore in ORES, the hat in HATS / KIT_ART.HATS. Setting stub:false by hand also works.
 function hatArt(k){try{return HATS[k]||(typeof KIT_ART!=='undefined'&&KIT_ART.HATS&&KIT_ART.HATS[k])||null}catch(e){return null}}
@@ -7915,7 +8029,7 @@ UNL({id:'tool:powder',kind:'tool',key:'powder',name:'Black Powder',tile:'Powder'
 UNL({id:'tool:rod',kind:'tool',key:'rod',name:'Dowsing Rod',tile:'Dowsing',rank:18,condition:{tomb:4,stake:3},stub:true,line:'Every fifth strike points an arrow at the nearest relic.'});
 UNL({id:'gear:lampoil',kind:'gear',key:'lampoil',name:'Lamp Oil',tile:'Lamp Oil',rank:4,stub:true,line:'The lamp reaches two tiles further.'});
 UNL({id:'gear:rope',kind:'gear',key:'rope',name:'Rope',tile:'Rope',rank:7,stub:true,line:'Walking away costs no Memory, once a run.'});
-UNL({id:'gear:sieve',kind:'gear',key:'sieve',name:'Sieve',tile:'Sieve',rank:9,stub:true,line:'Pyrite is worth 5, not 1.'});
+UNL({id:'gear:sieve',kind:'gear',key:'sieve',name:'Sieve',tile:'Sieve',rank:9,stub:true,line:'Pyrite is worth 15, not 3.'});
 UNL({id:'gear:reliquary',kind:'gear',key:'reliquary',name:'Reliquary',tile:'Reliquary',rank:13,stub:true,line:'The Vault holds two more relics while this is packed, and every relic is worth 10% less.'});
 UNL({id:'ore:quartz',kind:'ore',key:'quartz',name:'Quartz',tile:'Quartz',rank:11,stub:true,line:'Your next strike in the red is guaranteed loose stone.'});
 UNL({id:'ore:bitumen',kind:'ore',key:'bitumen',name:'Bitumen',tile:'Bitumen',rank:16,condition:{tomb:2,stake:3},stub:true,line:'Seals the wall: the crack cannot rise for three strikes.'});
@@ -7932,16 +8046,16 @@ function pgPut(k,v){try{Store.set(k,JSON.stringify(v))}catch(e){}}
 function pgInt(v,lo,hi){v=Math.floor(+v);return isFinite(v)?Math.min(hi,Math.max(lo,v)):lo}
 function xpAt(r){return r<=1?0:Math.round(XP.A*Math.pow(r-1,XP.pow)/10)*10}
 function rankFor(xp){let r=1;for(let k=2;k<=30;k++)if(xp>=xpAt(k))r=k;return r}
-function progSaveRank(){pgPut('rw_rank',{xp:PROG.rank.xp,seen:PROG.rank.seen,bf:PROG.rank.bf})}
-function progSaveTombs(){pgPut('rw_tombs',PROG.tombs)}
-function progSaveStakes(){pgPut('rw_stakes',PROG.stakes)}
+function progSaveRank(){pgPut('S15T_rank',{xp:PROG.rank.xp,seen:PROG.rank.seen,bf:PROG.rank.bf})}
+function progSaveTombs(){pgPut('S15T_tombs',PROG.tombs)}
+function progSaveStakes(){pgPut('S15T_stakes',PROG.stakes)}
 function curHat(){try{if(typeof _kit2==='object'&&_kit2&&typeof _kit2.hat==='string')return _kit2.hat}catch(e){}return PROG.kit2.hat}
-function progSaveKit(){ // rw_kit2 is shared with the Content seat (_kit2 = {tool,hat}); write through its object so neither side clobbers the other
+function progSaveKit(){ // S15T_kit2 is shared with the Content seat (_kit2 = {tool,hat}); write through its object so neither side clobbers the other
   try{if(typeof _kit2==='object'&&_kit2&&typeof kitSave==='function'){Object.assign(_kit2,PROG.kit2);kitSave();return}}catch(e){}
-  pgPut('rw_kit2',PROG.kit2);
+  pgPut('S15T_kit2',PROG.kit2);
 }
 function progLoad(){
-  const R=pgGet('rw_rank'),T=pgGet('rw_tombs'),S=pgGet('rw_stakes'),K=pgGet('rw_kit2'),P=PROG;
+  const R=pgGet('S15T_rank'),T=pgGet('S15T_tombs'),S=pgGet('S15T_stakes'),K=pgGet('S15T_kit2'),P=PROG;
   P.rank={xp:R?pgInt(R.xp,0,1e9):0,r:1,seen:R&&Array.isArray(R.seen)?R.seen.filter(x=>typeof x==='string').slice(0,200):[],bf:R&&R.bf?1:0};
   P.tombs={c:{},last:T?pgInt(T.last,1,7):1};
   if(T&&T.c&&typeof T.c==='object')Object.keys(T.c).forEach(k=>{if(/^[1-7]\.[1-6]$/.test(k)){const n=pgInt(T.c[k],0,1e6);if(n)P.tombs.c[k]=n}});
@@ -8009,7 +8123,7 @@ function progNext(){
 }
 function progGrantLegacy(){ // the three old unlocks arrive by rank; anyone who already owned them keeps them
   let ch=0;UNLOCKS.filter(u=>u.legacy).forEach(u=>{if(PROG.rank.r>=u.rank&&!_unl.includes(u.legacy)){_unl.push(u.legacy);ch=1;if(u.legacy==='vault')VAULT_MAX=13}});
-  if(ch)try{Store.set('rw_unl',JSON.stringify(_unl))}catch(e){}
+  if(ch)try{Store.set('S15T_unl',JSON.stringify(_unl))}catch(e){}
 }
 function progOres(){ // new ores join the draw pools only while unlocked and only once their data exists (Content adds ORES.quartz etc.)
   UNLOCKS.filter(u=>u.kind==='ore').forEach(u=>{
@@ -8040,7 +8154,7 @@ function ledgerIcon(u,size){
   return pgIcon('q',size);
 }
 
-// ---- hats: the Content seat owns the art and the drawing (KIT_ART.HATS, raiderCanvas, drawRaider). This seat owns who may wear what: rank, the Ledger's Wear button, and the saved choice (rw_kit2.hat).
+// ---- hats: the Content seat owns the art and the drawing (KIT_ART.HATS, raiderCanvas, drawRaider). This seat owns who may wear what: rank, the Ledger's Wear button, and the saved choice (S15T_kit2.hat).
 const HATS={}; // optional extra registry: HATS[id]={...} counts as hat art for the Ledger
 
 // ---- side streams: anything that must not disturb the wall's own random sequence rolls here, from the seed alone
@@ -8166,7 +8280,7 @@ function progAward(kind){ // once per kind per run; XP is paid as a delta so a s
   const S=RS();S.pgs=S.pgs||{};if(S.pgs[kind])return S.pgs[kind];
   const win=kind==='win',st=stakeN(),k=clsKey(),before=progSnap();
   const wasTomb=!!S.tp;if(win&&!S.tp)S.tp=1;
-  const xb=run.xc==null?run.banked:Math.min(run.banked,run.xc),parts=[[(run.banked>xb?'Paid ':'Banked ')+fmtN(xb)+(run.banked>xb?' of '+fmtN(run.banked)+' banked (a wall pays at most '+SKILL.cap.reward+'× its target)':''),Math.floor(xb/100)*XP.hundred],['Chambers cleared ×'+(S.cc|0),(S.cc|0)*XP.chamber],['Relics sealed ×'+(S.rs|0),(S.rs|0)*XP.relic]];
+  const xb=run.xc==null?run.banked:Math.min(run.banked,run.xc),parts=[[(run.banked>xb?'Paid ':'Banked ')+fmtN(xb)+(run.banked>xb?' of '+fmtN(run.banked)+' banked (a wall pays at most '+SKILL.cap.reward+'× its target)':''),Math.floor(xb/300)*XP.hundred],['Chambers cleared ×'+(S.cc|0),(S.cc|0)*XP.chamber],['Relics sealed ×'+(S.rs|0),(S.rs|0)*XP.relic]];
   if(S.tp)parts.splice(2,0,['Tomb cleared',XP.tomb]);
   const sum=parts.reduce((a,p)=>a+p[1],0),mult=(1+XP.stakeBonus*(st-1))*(gear&&gear.id==='ledger'?1+PROG_DATA.gear.ledger.xp:1),pm=s12PracMult(S),total=Math.round(sum*mult*pm),give=Math.max(0,total-(S.xpg|0));S.xpg=Math.max(S.xpg|0,total);
   const ev=[];
@@ -8253,7 +8367,7 @@ function showLoadout(){
     cls=CLASSES[k];gear=g;relic=r?{name:r,state:st>=4?'dormant':'hungry',blight:finOf(r)==='blighted'}:null;_kit={cls:k,gear:g.id,relic:r};
     if(!fresh&&!daily){PROG.kit2.tomb=tb;PROG.kit2.stake=st;PROG.kit2.tool=tl;progSaveKit()}
     PROG.sel={tomb:tb,stake:st,tool:tl};
-    try{Store.set('rw_kit',JSON.stringify(_kit))}catch(e){}
+    try{Store.set('S15T_kit',JSON.stringify(_kit))}catch(e){}
     statsStart(k);TARGETS.length=3;run=newRun(run.seed);run.train=fresh;document.getElementById('overlay').hidden=true;
     try{if(typeof _kit2==='object'&&_kit2)_kit2.tool=tl;if(typeof kitRunInit==='function')kitRunInit()}catch(e){console.error(e)}
     {const tu=UNLOCKS.find(x=>x.id==='tool:'+tl);if(tu&&!isStub(tu))try{tu.apply(run)}catch(e){console.error(e)}}
@@ -8274,7 +8388,7 @@ window.showLedgerS7=function(back){
   const card=pgOpen(`<div class="tbar">Expedition Ledger</div><div class="body pg pg-led"><h2>Ledger<small>Rank ${r} · ${esc(rankTitle(r))}</small></h2>
     <div class="rkbar"><b>Rank ${r}</b><div class="bar"><i style="width:${pct}%"></i></div><small>${r>=30?'Top of the ledger':fmtN(PROG.rank.xp-lo)+' / '+fmtN(hi-lo)+' XP to Rank '+(r+1)}</small></div>
     <p class="cite" id="ldNext">${nx?`Next: <b>${esc(nx.u.name)}</b>${nx.u.rank>r?' at Rank '+nx.u.rank+' ('+fmtN(nx.away)+' XP away).':'. '+esc(uStatus(nx.u).need.join(' and '))+'.'}`:'Every slot is open.'}</p>
-    <p class="cite">${open.length} of ${UNLOCKS.length} slots open. XP per run: ${XP.hundred} per 100 banked, ${XP.chamber} per chamber, ${XP.tomb} per tomb, ${XP.relic} per relic, then +${Math.round(XP.stakeBonus*100)}% for each stake above the first.</p>
+    <p class="cite">${open.length} of ${UNLOCKS.length} slots open. XP per run: ${XP.hundred} per 300 banked, ${XP.chamber} per chamber, ${XP.tomb} per tomb, ${XP.relic} per relic, then +${Math.round(XP.stakeBonus*100)}% for each stake above the first.</p>
     <div id="ldBody"></div><div class="ldDet" id="ldDet" aria-live="polite"><span>Tap a slot to read it.</span></div><button type="button" id="pgback">Back</button></div>`);
   const body=card.querySelector('#ldBody'),det=card.querySelector('#ldDet');
   const show=(u,b)=>{
@@ -8311,7 +8425,7 @@ function progStatsHtml(){
 }
 
 // ---- How to play: one more card
-HOW.push({h:'The ladder',t:`Every run pays XP: ${XP.hundred} per 100 banked, ${XP.chamber} per chamber cleared, ${XP.tomb} for the tomb, ${XP.relic} per relic sealed, +${Math.round(XP.stakeBonus*100)}% per stake above the first. Rank unlocks tools, gear, ores, classes and hats; the Ledger lists every slot and what it wants. Clear a tomb at Stake 1 to open the next. Clear any tomb at a stake with a class to open the next stake for that class. Each stake stacks the last; every table of chances is printed on the kit screen.`,
+HOW.push({h:'The ladder',t:`Every run pays XP: ${XP.hundred} per 300 banked, ${XP.chamber} per chamber cleared, ${XP.tomb} for the tomb, ${XP.relic} per relic sealed, +${Math.round(XP.stakeBonus*100)}% per stake above the first. Rank unlocks tools, gear, ores, classes and hats; the Ledger lists every slot and what it wants. Clear a tomb at Stake 1 to open the next. Clear any tomb at a stake with a class to open the next stake for that class. Each stake stacks the last; every table of chances is printed on the kit screen.`,
   d(g){
     g.fillStyle='#17141c';g.fillRect(0,0,264,120);
     STAKES.forEach((s,i)=>{const x=14+i*40,h=14+i*12;g.fillStyle=i<3?'#5a4228':'#7e2323';g.fillRect(x,100-h,32,h);g.strokeStyle='#c9a24a';g.strokeRect(x+.5,100-h+.5,31,h-1);hText(g,PGR(s.id),x+16,108,{a:'center',s:8,c:'#f0d27a'})});
@@ -8355,19 +8469,19 @@ function skillSealUi(){
   const t=state.train?'Seal':'Seal '+(sack?Math.min(n+1,B):n+1)+'/'+B;
   if(b.firstChild&&b.firstChild.nodeType===3&&b.firstChild.textContent!==t)b.firstChild.textContent=t;
   b.classList.toggle('paid',skillPaid());b.classList.toggle('dusted',!!state.goldDust);
-  sm.textContent=sack?(n>=B?'sack is full':n?'LAST seal':'TWO seals'):state.train?'bank what glows':n>=B?'costs a Memory':n===B-1?'last free seal':'bank what glows';
+  {const tn=trayList().length,tt=tn?'Tray '+tn+'/'+TRAY.n:'';sm.textContent=sack?(n>=B?'sack is full':tt?tt+(n?' · LAST':''):n?'LAST seal':'TWO seals'):state.train?'bank what glows':n>=B?'costs a Memory':tt?tt+(n===B-1?' · last free':''):n===B-1?'last free seal':'tray of six'}
 }
 function skillPayCardS9(){
   const M=SKILL.seals.memory,card=document.getElementById('card'),ov=document.getElementById('overlay');
   if(run.lives<=M){log(`Seal number ${state.sealed+1} costs a Memory, and that one is your last. Dig on, or walk away.`);return}
   holdEnd();
-  card.innerHTML=`<div class="tbar">Another seal</div><div class="body"><h2>The ${lkOrd(state.sealed+1)} seal<small>${skillBudget()} seals a chamber are free</small></h2><p>This one costs ${M===1?'a Memory':M+' Memories'} (${run.lives} ♥ → ${run.lives-M} ♥). The finds that glow are banked either way.</p><button id="spy" type="button">Spend a Memory and seal</button><button id="spn" type="button">Not yet</button></div>`;
+  card.innerHTML=`<div class="tbar">Another seal</div><div class="body"><h2>The ${lkOrd(state.sealed+1)} seal<small>${skillBudget()} seals a chamber are free</small></h2><p>This one costs ${M===1?'a Memory':M+' Memories'} (${run.lives} ♥ → ${run.lives-M} ♥). The finds on the tray are banked either way.</p><button id="spy" type="button">Spend a Memory and seal</button><button id="spn" type="button">Not yet</button></div>`;
   const shut=()=>{ov.hidden=true;document.removeEventListener('keydown',esc2,true)};
   const esc2=e=>{if(e.key==='Escape'&&card.querySelector('#spn')){e.stopPropagation();shut();ui();draw()}};
   document.addEventListener('keydown',esc2,true);
   card.querySelector('#spn').onclick=()=>{shut();ui();draw()};
   card.querySelector('#spy').onclick=()=>{
-    shut();const ex=exposedFinds();
+    shut();const ex=trayList();
     if(!state||state.over||state.sealing||!ex.length||run.lives<=M||!skillPaid()){ui();draw();return}
     run.lives-=M;state.paidSeals=(state.paidSeals|0)+1;RS().ps=(RS().ps|0)+1;
     document.getElementById('lives').textContent='♥'.repeat(Math.max(0,run.lives))+'♡'.repeat(Math.max(0,3-run.lives));
@@ -8440,7 +8554,7 @@ SKILL.why={
  'tool:rod':"Every fifth strike points at the nearest relic. A hint, not a map.",
  'gear:lampoil':"The lamp reaches two tiles further. See the find before the wall sees you.",
  'gear:rope':"Walk away free, once a run. A Memory saved is a Memory you can spend later.",
- 'gear:sieve':"Pyrite pays 5, not 1. Somebody has to buy the fool's gold, and it is you.",
+ 'gear:sieve':"Pyrite pays 15, not 3. Somebody has to buy the fool's gold, and it is you.",
  'gear:reliquary':"Two more Vault slots while it is packed. Relics are worth less; a library is a burden of love.",
  'ore:quartz':"Your next roll in the red is loose stone, guaranteed. The one sure thing past the red line.",
  'ore:bitumen':"Tar on the wall: three strikes add no crack. Smells terrible, works beautifully.",
@@ -8552,7 +8666,7 @@ window.showLedger=function(back){
   const card=pgOpen(`<div class="tbar">Expedition Ledger</div><div class="body pg pg-led"><h2>Ledger<small>Rank ${r} · ${esc(rankTitle(r))}</small></h2>
     <div class="rkbar"><b>Rank ${r}</b><div class="bar"><i style="width:${pct}%"></i></div><small>${r>=30?'Top of the ledger':fmtN(PROG.rank.xp-lo)+' / '+fmtN(hi-lo)+' XP to Rank '+(r+1)}</small></div>
     <p class="cite" id="ldNext">${nx?`Next: <b>${esc(nx.u.name)}</b>${nx.u.rank>r?' at Rank '+nx.u.rank+' ('+fmtN(nx.away)+' XP away).':'. '+esc(uStatus(nx.u).need.join(' and '))+'.'}`:'Every slot is open.'}</p>
-    <p class="cite">${open.length} of ${UNLOCKS.length} slots open. XP per run: ${XP.hundred} per 100 banked, ${XP.chamber} per chamber, ${XP.tomb} per tomb, ${XP.relic} per relic, then +${Math.round(XP.stakeBonus*100)}% for each stake above the first.</p>
+    <p class="cite">${open.length} of ${UNLOCKS.length} slots open. XP per run: ${XP.hundred} per 300 banked, ${XP.chamber} per chamber, ${XP.tomb} per tomb, ${XP.relic} per relic, then +${Math.round(XP.stakeBonus*100)}% for each stake above the first.</p>
     <div id="ldBody"></div><button type="button" id="pgback">Back</button></div>`);
   const body=card.querySelector('#ldBody');
   UNL_KINDS.forEach(([kind,title,hint])=>{
@@ -8608,10 +8722,10 @@ HOW.splice(2,0,{h:'Seals and order',
     hText(g,'FEVER  +  per find   −'+Math.round(SKILL.fever.decay*100)+'%  per empty strike',132,106,{a:'center',s:8,c:'#f0d27a'});
   }});
 
-// ===== sprint 8 / Collection: discovery log (rw_disc), the Collection screen, share cards =====
-// rw_disc = {relicName:{first:ISO timestamp|null, tomb:1..5|null, stake:1..6|null, count:seals (>=1), finish:''|'blighted'}}
-// Written the first time a relic is seen (seenAdd) and on every seal (count++). Names already in rw_seen / the Vault when this shipped are migrated with first:null. Nothing ever removes an entry.
-const DISC_KEY='rw_disc',DMON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// ===== sprint 8 / Collection: discovery log (S15T_disc), the Collection screen, share cards =====
+// S15T_disc = {relicName:{first:ISO timestamp|null, tomb:1..5|null, stake:1..6|null, count:seals (>=1), finish:''|'blighted'}}
+// Written the first time a relic is seen (seenAdd) and on every seal (count++). Names already in S15T_seen / the Vault when this shipped are migrated with first:null. Nothing ever removes an entry.
+const DISC_KEY='S15T_disc',DMON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function discLoad(){
   let raw={};try{raw=JSON.parse(Store.get(DISC_KEY)||'{}');if(!raw||typeof raw!=='object'||Array.isArray(raw))raw={}}catch(e){raw={}}
   const out={};
@@ -8625,7 +8739,7 @@ function discLoad(){
 function discPut(d){try{Store.set(DISC_KEY,JSON.stringify(d))}catch(e){}}
 function discMk(fin){let t=null,s=null;try{t=TOMB().id}catch(e){}try{s=stakeN()}catch(e){}return{first:new Date().toISOString(),tomb:t,stake:s,count:1,finish:fin?'blighted':''}}
 function discNote(n){try{const r=RS();(r.nd||(r.nd=[])).includes(n)||r.nd.push(n)}catch(e){}} // new this run: the summary card shows it
-function discMigrate(){ // legacy: whatever rw_seen / the Vault already hold counts as found, with no date
+function discMigrate(){ // legacy: whatever S15T_seen / the Vault already hold counts as found, with no date
   try{
     const d=discLoad(),names=new Set(seenRaw());loadColl().forEach(n=>names.add(n));let ch=false;
     names.forEach(n=>{n=RENAMES[n]||n;if(!RELIC_BY[n]||d[n])return;
@@ -8634,7 +8748,7 @@ function discMigrate(){ // legacy: whatever rw_seen / the Vault already hold cou
     if(ch||!Store.get(DISC_KEY))discPut(d);
   }catch(e){console.error(e)}
 }
-function discSeen(before,after){ // called by seenAdd for names that just entered rw_seen: a first discovery
+function discSeen(before,after){ // called by seenAdd for names that just entered S15T_seen: a first discovery
   try{const d=discLoad();let ch=false;const b=new Set(before);after.forEach(n=>{if(b.has(n)||d[n])return;d[n]=discMk(false);discNote(n);ch=true});if(ch)discPut(d)}catch(e){console.error(e)}
 }
 function discRecord(names,rel){ // a seal that held these relics: the first time creates the record, every later seal counts
@@ -8984,11 +9098,11 @@ Object.assign(POWERS,{
  "Terracotta Warrior":{d:`Rank and file: a seal with ${R.warrior.n} or more common finds of one shape scores ×${R.warrior.mult} Fame.`,hunger:"a Spear",want:f=>f.name==="Spear"},
  "Oracle Bone":{d:"In the red the wall never shudders: every tremor becomes a steady roll. The bone said so.",hunger:"a Shard",want:f=>f.name==="Shard"},
  "Jade Burial Suit of Liu Sheng":{d:`A seal made while the wall is under ${pc(R.suit.crack)}% crack scores ×${R.suit.mult} Fame. Wrapped early, kept well.`,hunger:"a find aged 5 or younger",want:f=>f.age<=5},
- "Bronze Ding":{d:`Sated scores ×${R.ding.sated} Fame, not ×2. The cauldron was built for feeding.`,hunger:"a find worth 5 or more",want:f=>f.worth>=5},
+ "Bronze Ding":{d:`Sated scores ×${R.ding.sated} Fame, not ×2. The cauldron was built for feeding.`,hunger:"a find worth 15 or more before its age",want:f=>f.worth>=5},
  "Seated Scribe":{d:"Timelines always pay in full, whatever order you seal them in. The scribe keeps the order.",hunger:"a Tablet or Shard",want:f=>f.name==="Tablet"||f.name==="Shard"},
- "Rhind Mathematical Papyrus":{d:`A Hoard needs ${R.rhind.hoard} finds, not 8.`,hunger:"a find of odd age",want:f=>f.age%2===1},
+ "Rhind Mathematical Papyrus":{d:`A Hoard needs ${R.rhind.hoard} finds, not a full tray of ${TRAY.n}.`,hunger:"a find of odd age",want:f=>f.age%2===1},
  "Charioteer of Delphi":{d:`In the red, loose stone is ${R.charioteer.lucky} points likelier, taken from the steady rolls.`,hunger:"a Coin",want:f=>f.name==="Coin"},
- "Venus de Milo":{d:"Greek Dynasties need only 2 finds.",hunger:"a find worth 3 or less",want:f=>f.worth<=3},
+ "Venus de Milo":{d:"Greek Dynasties need only 2 finds.",hunger:"a find worth 9 or less before its age",want:f=>f.worth<=3},
  "Lewis Chessmen":{d:`Bones are worth ×${R.lewis.bones}.`,hunger:"Bones",want:f=>f.name==="Bone"||f.name==="Bones"},
  "Mammen Axe":{d:`Fever lasts ${R.mammen.fever} strikes longer.`,hunger:"a Norse find",want:f=>f.civ===2},
  "Madrid Codex":{d:`A find's age counts for ${pc(R.madrid.age)}% of its worth, not 35%.`,hunger:"a find aged 8 or older",want:f=>f.age>=8},
@@ -9000,7 +9114,7 @@ Object.assign(POWERS,{
 });}
 {const base=SKILL.seals.free; // Lamassu: one more free seal. Every reader of SKILL.seals.free (budget, button, card, how-to) sees it.
 Object.defineProperty(SKILL.seals,'free',{configurable:true,enumerable:true,get(){return base+(typeof relic!=='undefined'&&pw('Lamassu of Khorsabad')?PROG_DATA.rel.lamassu.seals:0)}})}
-function hoardMin(){return pw('Rhind Mathematical Papyrus')?PROG_DATA.rel.rhind.hoard:8}
+function hoardMin(){return pw('Rhind Mathematical Papyrus')?PROG_DATA.rel.rhind.hoard:TRAY.n}
 function feverLen(){return(pw('Ballcourt Ring')?7:5)+(pw('Mammen Axe')?PROG_DATA.rel.mammen.fever:0)}
 function feverDecay(){return pw('Dragon of the Ishtar Gate')?0:SKILL.fever.decay*(gear&&gear.id==='canteen'?PROG_DATA.gear.canteen.decay:1)}
 function coinP(){return gear&&gear.id==='luckycoin'?PROG_DATA.gear.luckycoin.p:LUCK.coin.p}
@@ -9350,13 +9464,13 @@ const ECO_ART={
  scene:{pal:{k:"#1a1208",s:"#1f1b40",m:"#fff8dc",w:"#2a2636",f:"#ff9a1f",y:"#ffe08a"},px:["kkkkkkkk","ksssmmsk","kssmsssk","ksssssfk","kwwwwfyk","kwwwwwfk","kwwwwwwk","kkkkkkkk"]}
 };
 // ===================== SPRINT 9 · THE ECONOMY: Gold (A), the Black Market (B), the Quartermaster's Shop (C) =====================
-// Premium game: Gold is earned, never bought. Two keys: rw_gold (the wallet, one whole number) and rw_shop (what the Quartermaster has sold you, and what you wear).
-// rw_stats carries ge / gs, lifetime Gold earned and spent. All three are plain rw_* keys, so the cloud save (Store.snapshot) carries them with no extra code.
+// Premium game: Gold is earned, never bought. Two keys: S15T_gold (the wallet, one whole number) and S15T_shop (what the Quartermaster has sold you, and what you wear).
+// S15T_stats carries ge / gs, lifetime Gold earned and spent. All three are plain S15T_* keys, so the cloud save (Store.snapshot) carries them with no extra code.
 // The purse (run.gold) lives and dies with the run: it is the Black Market's money. It is poured into the wallet when the run ends (summary, abandon, or a new run starting), minus nothing.
 // Every number is in ECON. The Balance seat turns these and nothing else.
 const ECON={
   gold:{
-    sealDiv:100,        // A: a seal of T banked pays floor(T / sealDiv) Gold into the purse ("+N ◆" on the tally)
+    sealDiv:300,        // A: a seal of T banked pays floor(T / sealDiv) Gold into the purse ("+N ◆" on the tally)
     chest:15,          // A: the chest that used to hold "30 gold" now holds this much Gold (Balance: half, with the seal rate at 1:100)
     tomb:5,            // A: clearing a tomb pays tomb x tomb number (Tomb 1 = 5, Tomb 2 = 10 ...)
     daily:50,          // A: clearing the Daily Tomb, once per day
@@ -9379,12 +9493,12 @@ const ECON={
 };
 // ---- the art (ECO_ART: Ash and the stall's icons) is prepended by the build, see econ-src/art.js ----
 const ECO_ASH_FACT="Odin's two ravens, Huginn and Muninn, are Thought and Memory. They fly out each dawn and report back; in Grímnismál (stanza 20) Odin fears for Huginn, and more for Muninn. This one is Huginn. He does the thinking, and the pricing. Memories he sells.";
-// ---- C: the catalogue is the Art seat's COSM (skins, hats, lamps, title scenes), defined earlier in the script. The Shop sells it; rw_shop records what you own; rw_cos and rw_kit2.hat record what you wear.
+// ---- C: the catalogue is the Art seat's COSM (skins, hats, lamps, title scenes), defined earlier in the script. The Shop sells it; S15T_shop records what you own; S15T_cos and S15T_kit2.hat record what you wear.
 // ---- state: the wallet and the shop ledger. Loaded at boot and again when the cloud copy replaces the local one.
 function ecoShopDef(){return{own:{skin:[],hat:[],lamp:[],scene:[]},vault:0,fence:0,fu:0,comm:'',dy:'',eq:{skin:{},lamp:'',scene:''}}}
 let _gold=0,SHOP=ecoShopDef(),_shTab='skins',_shCls='';
 function ecoShopLoad(){
-  const D=ecoShopDef();let o=null;try{o=JSON.parse(Store.get('rw_shop')||'null')}catch(e){o=null}
+  const D=ecoShopDef();let o=null;try{o=JSON.parse(Store.get('S15T_shop')||'null')}catch(e){o=null}
   if(!(o&&typeof o==='object'&&!Array.isArray(o)))return D;
   const ids=(a,ok)=>Array.isArray(a)?a.filter((x,i,s)=>typeof x==='string'&&ok(x)&&s.indexOf(x)===i).slice(0,60):[];
   const ow=o.own&&typeof o.own==='object'?o.own:{};
@@ -9393,9 +9507,9 @@ function ecoShopLoad(){
   D.vault=o.vault?1:0;D.fence=o.fence?1:0;D.fu=o.fu?1:0;D.comm=typeof o.comm==='string'&&RELIC_BY[o.comm]?o.comm:'';D.dy=typeof o.dy==='string'?o.dy.slice(0,20):'';
   return D;
 }
-function ecoSave(){try{Store.set('rw_shop',JSON.stringify(SHOP))}catch(e){}}
-function ecoGoldSave(){try{Store.set('rw_gold',String(_gold))}catch(e){}}
-function ecoLoad(){const g=Math.floor(+Store.get('rw_gold')||0);_gold=Math.max(0,Math.min(ECON.gold.cap,isFinite(g)?g:0));SHOP=ecoShopLoad();cosReload();ecoHud()}
+function ecoSave(){try{Store.set('S15T_shop',JSON.stringify(SHOP))}catch(e){}}
+function ecoGoldSave(){try{Store.set('S15T_gold',String(_gold))}catch(e){}}
+function ecoLoad(){const g=Math.floor(+Store.get('S15T_gold')||0);_gold=Math.max(0,Math.min(ECON.gold.cap,isFinite(g)?g:0));SHOP=ecoShopLoad();cosReload();ecoHud()}
 function ecoReset(){_gold=0;SHOP=ecoShopDef();cosReset();_shTab='skins';_shCls='';if(typeof run==='object'&&run){run.gold=0;run.gE=0;run.gS=0;run.gB={};run.loan='';run.comm=undefined}ecoHud()}
 // ---- A: Gold. The purse is run.gold; the wallet is _gold.
 const ecoPurse=()=>(typeof run==='object'&&run&&run.gold>0)?(run.gold|0):0;
@@ -9584,8 +9698,8 @@ function shopOwns(key){
   if(m[1]==='lamp')return SHOP.own.lamp.includes(m[2]);
   return SHOP.own.scene.includes(m[2]);
 }
-function cosReload(){ // rw_cos is re-read with the rest of the profile (boot, a newer cloud copy)
-  let q=null;try{q=JSON.parse(Store.get('rw_cos')||'null')}catch(e){q=null}
+function cosReload(){ // S15T_cos is re-read with the rest of the profile (boot, a newer cloud copy)
+  let q=null;try{q=JSON.parse(Store.get('S15T_cos')||'null')}catch(e){q=null}
   COS={skin:{},lamp:'',title:''};if(q&&typeof q==='object')COS=Object.assign(COS,q);if(!COS.skin||typeof COS.skin!=='object')COS.skin={};
   try{cosApply()}catch(e){}
 }
@@ -9798,10 +9912,10 @@ HOW.push({h:'The Mystic',
 
 // ===== SPRINT 10 · FIX SPRINT (Design Lead + UI Engineer). Every number the Balance seat may turn is in the config objects just below. =====
 const S10={build:GAME_VERSION,cfgVer:10,seedSrc:'new',lastSeed:'',fw:false,afterTrain:false,open:null,prov:null,hidAt:0,hidMs:0,g:null,gEsc:0,offer:null,shKind:'relic',n:0,sid:Math.random().toString(36).slice(2,9)+Date.now().toString(36)};
-const FIRST={on:true,target:300};                 // T4/T5: the first real wall of a profile that has never cleared one (never the Daily). Training no longer counts as chamber 1.
+const FIRST={on:true,target:900};                 // T4/T5: the first real wall of a profile that has never cleared one (never the Daily). Training no longer counts as chamber 1.
 const WALKCFG={wall:.8};                          // T1: crack share at which Walk away is always on offer
 const WASTE={frac:.05};                           // T7 (paid-seal card): warn when a paid seal is worth less than this share of the target
-const MEMFULL={points:25};                        // T36: what a found Memory pays when all three are already held
+const MEMFULL={points:75};                        // T36: what a found Memory pays when all three are already held
 const GUARD={ms:600};                             // T10: overlays and luck panels ignore taps this long after they appear
 const TELCFG={cap:300,beatMs:30000,endpoint:''};  // T25: buffer size, heartbeat, and an optional sink (empty = the local buffer only)
 const FORGE_CIV={n:'Not from anywhere',c:'#a39fb0'}; // T31: the bucket for objects that are not what they were sold as (civ id 6, outside CIVS)
@@ -9849,7 +9963,7 @@ function s10Dry(cx,cy,short){
 // ---- B2 / T7: the paid seal says what it costs, what it is worth and what is left, and can be cancelled. On the last Memory it cannot be bought, and Walk away is on the card.
 function skillPayCard(){
   const M=SKILL.seals.memory,card=document.getElementById('card'),ov=document.getElementById('overlay');
-  const sv=score(exposedFinds()),tg=TARGETS[state.i],b0=chBank(),last=run.lives<=M,cost=M===1?'1 Memory':M+' Memories';
+  const sv=score(trayList()),tg=TARGETS[state.i],b0=chBank(),last=run.lives<=M,cost=M===1?'1 Memory':M+' Memories';
   const hrt=n=>'♥'.repeat(Math.max(0,n))+'♡'.repeat(Math.max(0,3-n)),ord=lkOrd(state.sealed+1);
   holdEnd();
   const offer=s10Offer(sv,last);let shut0=false;
@@ -9866,7 +9980,7 @@ function skillPayCard(){
     card.innerHTML=`<div class="tbar">Another seal</div><div class="body"><h2>The ${ord} seal<small>${skillBudget()} seals a chamber are free</small></h2><p>This seal is worth <b>${fmtN(sv.total)}</b>${sv.fame>1?' (Fame ×'+sv.fame+')':''}. It would bring this chamber to <b>${fmtN(b0+sv.total)} of ${fmtN(tg)}</b>.</p><p class="spcost">It costs <b>${cost}</b>. You have ${run.lives} ${hrt(run.lives)}; you would have <b>${left} ${hrt(left)}</b> left. A collapse costs another.</p>${small?`<p class="spwarn">That is under ${Math.round(WASTE.frac*100)}% of the target. A Memory is a lot to pay for it.</p>`:''}<button id="spy" type="button">Spend ${cost} and seal</button><button id="spn" type="button">Cancel</button></div>`;
     card.querySelector('#spn').onclick=()=>{shut('declined');ui();draw()};
     card.querySelector('#spy').onclick=()=>{
-      shut0=true;ov.hidden=true;document.removeEventListener('keydown',esc2,true);const ex=exposedFinds();
+      shut0=true;ov.hidden=true;document.removeEventListener('keydown',esc2,true);const ex=trayList();
       if(!state||state.over||state.sealing||!ex.length||run.lives<=M||!skillPaid()){s10OfferRes(offer,'expired','state_changed');ui();draw();return}
       s10OfferRes(offer,'paid');
       run.lives-=M;state.paidSeals=(state.paidSeals|0)+1;RS().ps=(RS().ps|0)+1;
@@ -9879,7 +9993,7 @@ function skillPayCard(){
 }
 
 // ---- T4 / T5: training is practice. It hands off to a soft first real wall; nothing carries over.
-function s10FirstCleared(){let v=false;try{v=lsGet('rw_first')==='1'||(ST.chambers|0)>=2||(bestGet().wins|0)>0}catch(e){}return v}
+function s10FirstCleared(){let v=false;try{v=lsGet('S15T_first')==='1'||(ST.chambers|0)>=2||(bestGet().wins|0)>0}catch(e){}return v}
 function s10FirstWall(i,TR){
   if(!FIRST.on||TR||i!==0||!run||/^DAILY-/.test(String(run.seed))||s10FirstCleared())return false;
   if(TARGETS[0]>FIRST.target)TARGETS[0]=FIRST.target;
@@ -9888,7 +10002,7 @@ function s10FirstWall(i,TR){
 function s10TrainDone(){
   const card=document.getElementById('card'),ov=document.getElementById('overlay'),t1=(SKILL.firstReal&&frSoft())?SKILL.firstReal:(FIRST.on?Math.min(SKILL.targets[0],FIRST.target):SKILL.targets[0]);
   S10.afterTrain=true;s10RunEnd('win',{training:true});
-  card.innerHTML=`<div class="tbar">Training complete</div><div class="body"><div class="cbanner"><b>Training wall</b><span>PRACTICE CLEARED</span></div><h2>That was practice<small>The tomb proper starts next.</small></h2><p>Training asked for ${TRAIN_T}. Chamber 1 asks <b>${fmtN(t1)}</b>, and the walls after it ask more. Nothing from training counts toward it: not the tally, not the seals.</p><p class="cite">All three Memories are still yours.</p><button id="go" type="button">Begin chamber 1</button></div>`;
+  card.innerHTML=`<div class="tbar">Training complete</div><div class="body"><div class="cbanner"><b>Training wall</b><span>PRACTICE CLEARED</span></div><h2>That was practice<small>The tomb proper starts next.</small></h2><p>Training asked for ${TRAIN_T}. Chamber 1 asks <b>${fmtN(t1)}</b>, and the walls after it ask more. Nothing from training counts toward it: not the tally, not the seals.</p><p>One rule of the tomb proper. A finds tray holds six, and the wall has room for nine loose finds. Uncover a tenth and the oldest crumbles.</p><p class="cite">All three Memories are still yours.</p><button id="go" type="button">Begin chamber 1</button></div>`;
   card.querySelector('#go').onclick=()=>{
     TARGETS.length=3;const seed=run.seed;run=newRun(seed);run.train=false;try{kitRunInit()}catch(e){console.error(e)}
     ov.hidden=true;s10RunStart({fresh:false,g:gear,tl:'standard',k:clsKey(),st:1,tb:1,daily:false,after:'training'});newChamber(0);
@@ -9914,8 +10028,8 @@ function s10ChamberEnd(win,lost){
     s12FlushOffers();
     s10GAbort();
     const tr=!!state.train,tot=chBank(),T=TARGETS[state.i],wall=Math.max(0,tot-(state.b0||0)),outcome=win?'clear':state.walked?'walk':'collapse';
-    const lv=(!win&&lost&&lost.length)?score(lost).total:0;
-    if(win&&!tr)try{Store.set('rw_first','1')}catch(e){}
+    const lv=(!win&&lost&&lost.length)?score(trayList(lost)).total:0;
+    if(win&&!tr)try{Store.set('S15T_first','1')}catch(e){}
     if(win)s10Tut('chamber_clear');
     if(!run.tid)return;
     const o=S10.open;if(o&&o.id===run.tid)telBeat();
@@ -9946,11 +10060,11 @@ function s10ChamberEnd(win,lost){
 // ---- T26: the menu's Daily button follows the local clock (a menu left open flips at local midnight)
 setInterval(()=>{try{const b=document.getElementById('mDaily'),ov=document.getElementById('overlay');if(!b||ov.hidden)return;const sm=b.querySelector('small');if(!sm)return;const ds=dailySeed(),best=+dailyGet()[ds.slice(6)]||0,t=dailyLabel(ds).replace('Daily · ','')+' · '+(best?'best '+fmtN(best):'not dug yet')+s12DailyRew();if(sm.textContent!==t)sm.textContent=t}catch(e){}},15000);
 
-// ===== T25: telemetry. A buffered emitter with the section 4 schema. It writes to a local ring buffer (rw_tel), and to an optional sink. Opt out with localStorage rw_tel_off=1 (the Settings switch is T24, Sprint 11). =====
-function telOn(){try{return localStorage.getItem('rw_tel_off')!=='1'}catch(e){return true}}
-function telLoad(){try{const a=JSON.parse(localStorage.getItem('rw_tel')||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+// ===== T25: telemetry. A buffered emitter with the section 4 schema. It writes to a local ring buffer (S15T_tel), and to an optional sink. Opt out with localStorage S15T_tel_off=1 (the Settings switch is T24, Sprint 11). =====
+function telOn(){try{return localStorage.getItem('S15T_tel_off')!=='1'}catch(e){return true}}
+function telLoad(){try{const a=JSON.parse(localStorage.getItem('S15T_tel')||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
 const TELBUF=telLoad();window.GG_TEL=TELBUF;
-function telSave(){try{while(TELBUF.length>TELCFG.cap)TELBUF.shift();localStorage.setItem('rw_tel',JSON.stringify(TELBUF))}catch(e){}}
+function telSave(){try{while(TELBUF.length>TELCFG.cap)TELBUF.shift();localStorage.setItem('S15T_tel',JSON.stringify(TELBUF))}catch(e){}}
 function s13bHold(d){s13bFlush();S10.ceHold=d}
 function s13bFlush(){const d=S10.ceHold;if(!d)return;S10.ceHold=null;d.memories_left=run?run.lives:d.memories_left;telEmit('chamber_end',d)}
 function telEmit(name,data,over){
@@ -9966,7 +10080,7 @@ function telEmit(name,data,over){
 function telBeat(){ // the heartbeat: at every chamber boundary and every 30 s. A relaunch closes an open run at this time, not at launch time.
   const o=S10.open;if(!o||o.ended)return;
   o.hb=Date.now();o.lives=run&&run.lives;
-  try{localStorage.setItem('rw_tel_open',JSON.stringify({id:o.id,t0:o.t0,hb:o.hb,ch:o.maxCh|0,lives:o.lives,seq:o.seq,hid:S10.hidMs,prov:S10.prov?S10.prov.event_id:''}))}catch(e){}
+  try{localStorage.setItem('S15T_tel_open',JSON.stringify({id:o.id,t0:o.t0,hb:o.hb,ch:o.maxCh|0,lives:o.lives,seq:o.seq,hid:S10.hidMs,prov:S10.prov?S10.prov.event_id:''}))}catch(e){}
 }
 setInterval(telBeat,TELCFG.beatMs);
 function s10Active(o){return Math.max(0,Math.round((Date.now()-o.t0-S10.hidMs)/1000))}
@@ -9989,7 +10103,7 @@ function s10Continue(){
 }
 function s10RunEnd(kind,extra){
   const o=S10.open;if(!o||o.ended||!run||run.tid!==o.id)return;
-  o.ended=true;S10.prov=null;try{localStorage.removeItem('rw_tel_open')}catch(e){}
+  o.ended=true;S10.prov=null;try{localStorage.removeItem('S15T_tel_open')}catch(e){}
   const outcome=kind==='win'?'won':kind==='dead'?'dead':'abandoned';
   telEmit('run_end',Object.assign({outcome,xp_awarded:Math.max(0,(PROG.rank.xp||0)-o.xp0),gold_awarded:Math.max(0,_gold-o.gold0),rank_after:PROG.rank.r,chambers_reached:o.maxCh|0,memories_left:run.lives,active_seconds:s10Active(o),banked_run:run.banked,seed:run.seed,segment:o.cont|0},extra||{}),{run_id:o.id});
 }
@@ -10006,10 +10120,10 @@ function s10Show(){ // the player is back in the same run: the provisional run_e
 document.addEventListener('visibilitychange',()=>{document.hidden?s10Hide():s10Show()});
 window.addEventListener('pagehide',s10Hide);window.addEventListener('pageshow',s10Show);
 function s10TelBoot(){ // a run left open by a dead tab: close it once, at its last heartbeat
-  let rec=null;try{rec=JSON.parse(localStorage.getItem('rw_tel_open')||'null')}catch(e){}
-  if(!rec||!rec.id)return;try{localStorage.removeItem('rw_tel_open')}catch(e){}
+  let rec=null;try{rec=JSON.parse(localStorage.getItem('S15T_tel_open')||'null')}catch(e){}
+  if(!rec||!rec.id)return;try{localStorage.removeItem('S15T_tel_open')}catch(e){}
   if(!telOn())return;
-  try{const rz=JSON.parse(localStorage.getItem('rw_resume')||'null');if(rz&&rz.v===1&&rz.tid===rec.id&&Date.now()-rz.t<14*864e5)return}catch(e){} // Sprint 11 (T51): the run will resume, so it is not closed
+  try{const rz=JSON.parse(localStorage.getItem('S15T_resume')||'null');if(rz&&rz.v===1&&rz.tid===rec.id&&Date.now()-rz.t<14*864e5)return}catch(e){} // Sprint 11 (T51): the run will resume, so it is not closed
   if(TELBUF.some(e=>e.event==='run_end'&&e.run_id===rec.id&&!e.provisional))return;
   const prov=TELBUF.find(e=>e.event==='run_end'&&e.run_id===rec.id&&e.provisional);
   if(prov){prov.provisional=false;prov.recovered=true;telSave();return}
@@ -10032,7 +10146,7 @@ function s10GRes(decision,result){const g=S10.g;if(!g||g.done)return;g.done=true
 function s10GAbort(){const g=S10.g;if(g&&!g.done)s10GRes('dismissed')}
 function s10GFree(kind,o){telEmit('gamble_resolve',Object.assign({kind,staked:false,decision:'free'},o))}
 function s10Tut(step){
-  try{const k='rw_tel_tut';let a=JSON.parse(localStorage.getItem(k)||'[]');if(!Array.isArray(a))a=[];if(a.includes(step))return;a.push(step);localStorage.setItem(k,JSON.stringify(a))}catch(e){}
+  try{const k='S15T_tel_tut';let a=JSON.parse(localStorage.getItem(k)||'[]');if(!Array.isArray(a))a=[];if(a.includes(step))return;a.push(step);localStorage.setItem(k,JSON.stringify(a))}catch(e){}
   telEmit('tutorial_step',{step});
 }
 function ecoMarket(i,done){telEmit('market_open',{chamber:i+1,purse:typeof ecoPurse==='function'?ecoPurse():null});return ecoMarketS9(i,done)}
@@ -10620,12 +10734,12 @@ applySettings();
 cls=CLASSES.scholar;gear=GEAR[0];newChamber(0);size();showTitle();
 
 // ===== sprint 8 / A: cloud save hooks =====
-// Re-read every cached rw_* value after the cloud copy replaced the local one (Store.start's `reload`). Same loaders the boot uses; nothing is invented here.
+// Re-read every cached S15T_* value after the cloud copy replaced the local one (Store.start's `reload`). Same loaders the boot uses; nothing is invented here.
 function reloadFromStore(){
-  _unl.length=0;try{const a=JSON.parse(Store.get('rw_unl')||'[]');(Array.isArray(a)?a:[]).filter((x,i,s)=>OLD_UNLOCKS.some(u=>u.id===x)&&s.indexOf(x)===i).forEach(x=>_unl.push(x))}catch(e){}
+  _unl.length=0;try{const a=JSON.parse(Store.get('S15T_unl')||'[]');(Array.isArray(a)?a:[]).filter((x,i,s)=>OLD_UNLOCKS.some(u=>u.id===x)&&s.indexOf(x)===i).forEach(x=>_unl.push(x))}catch(e){}
   _vaultBase=12+(hasUnl('vault')?1:0);_mercy=null;_trained=false;
-  try{_kit=JSON.parse(Store.get('rw_kit')||'{}')||{}}catch(e){_kit={}}
-  try{_kit2=JSON.parse(Store.get('rw_kit2')||'{}')||{}}catch(e){_kit2={}}
+  try{_kit=JSON.parse(Store.get('S15T_kit')||'{}')||{}}catch(e){_kit={}}
+  try{_kit2=JSON.parse(Store.get('S15T_kit2')||'{}')||{}}catch(e){_kit2={}}
   MUSIC.vol=volLoad();SETTINGS=setLoad();ST=stLoad();ecoLoad();try{s12Load()}catch(e){}
   progLoad();progGrantLegacy();progOres();applySettings();discMigrate();
   const card=$id('card'),ov=$id('overlay');
@@ -10744,13 +10858,13 @@ GUARD.risk=900;
 
 // ---- T51: a run survives the app being closed. Autosave at every chamber start (and when the Black Market opens); on launch the run resumes at the start of its chamber
 (function(){
-  const KEY='rw_resume',LIFE=14*864e5;
+  const KEY='S15T_resume',LIFE=14*864e5;
   const live=()=>{const o=S10.open;return !!(run&&run.tid&&o&&o.id===run.tid&&!o.ended&&!run.train&&state)};
   // Sprint 15 (X-1 / U-9 / X-5): the record carries the live wall (dirt, finds, ores, crack, chamber bank, seals, Fever) as well as the run.
   // It is written when a seal is committed (before its tally), when the wall starts to fall, when the app is hidden, and at most 600 ms after anything else changes.
   // Resume rebuilds the chamber from its seed and then lays the saved wall over it, so a quit never rerolls a wall. A record that fails validation is dropped.
   const S15=window.S15={hold:false,err:0,n:0,timer:0};
-  const DROP={flash:1,parts:1,pops:1,floats:1,shatter:1,bursts:1,fly:1,falling:1,puffs:1,rings:1,motes:1,whiteFlash:1,sealing:1,clearing:1,over:1,ended:1,pgEnd:1,endWin:1,xray:1,offerQ:1,sarcWarn:1,sarcWarnT:1,lastNotes:1,stuck:1};
+  const DROP={crumbs:1,flash:1,parts:1,pops:1,floats:1,shatter:1,bursts:1,fly:1,falling:1,puffs:1,rings:1,motes:1,whiteFlash:1,sealing:1,clearing:1,over:1,ended:1,pgEnd:1,endWin:1,xray:1,offerQ:1,sarcWarn:1,sarcWarnT:1,lastNotes:1,stuck:1};
   const KEEP={i:1,train:1,tomb:1,twist:1,hideOre:1,roots:1,ptint:1,tell:1,tellText:1,lampR:1,seenExposed:1,finds:1,kit:1}; // rebuilt from the seed, or handled by hand below
   const wallSnap=()=>{
     const w={};for(const k in state){if(DROP[k]||k.slice(0,2)==='__')continue;const v=state[k];if(typeof v==='function'||v===undefined)continue;w[k]=v}
@@ -10818,8 +10932,8 @@ GUARD.risk=900;
     if(!Array.isArray(w.ores)||w.ores.length>40||!w.ores.every(o=>o&&inb([o.x,o.y])&&Object.prototype.hasOwnProperty.call(ORES,o.type)))return false;
     if(!num(w.crack)||w.crack<0)return false;
     for(const k of['sealed','sealsHere','paidSeals','bankedThisChamber'])if(!num(w[k])||w[k]<0)return false;
-    if(w.pend!=null&&(typeof w.pend!=='object'||!num(w.pend.t)||w.pend.t<0||w.pend.t>1e6||!Array.isArray(w.pend.r)||!w.pend.r.every(Number.isInteger)))return false;
-    if(w.coinPend!=null&&(typeof w.coinPend!=='object'||!num(w.coinPend.t)||w.coinPend.t<0||w.coinPend.t>1e6))return false;
+    if(w.pend!=null&&(typeof w.pend!=='object'||!num(w.pend.t)||w.pend.t<0||w.pend.t>1e9||!Array.isArray(w.pend.r)||!w.pend.r.every(Number.isInteger)))return false;
+    if(w.coinPend!=null&&(typeof w.coinPend!=='object'||!num(w.coinPend.t)||w.coinPend.t<0||w.coinPend.t>1e9))return false;
     return true};
   S11.peekResume=function(){
     let z=null;try{z=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
@@ -10977,19 +11091,19 @@ GUARD.risk=900;
   requestAnimationFrame(mon);
   S11.crtOff=function(why){
     if(C.off||!F.on)return;C.off=true;C.slow=0;C.n=0;C.ewma=0;
-    try{localStorage.setItem('rw_crt_auto',String(Date.now()))}catch(e){}
+    try{localStorage.setItem('S15T_crt_auto',String(Date.now()))}catch(e){}
     try{setSet('crt',false)}catch(e){console.error(e)}
     try{telEmit('crt_auto_off',{reason:why})}catch(e){}
     // Sprint 15 (U-2): switched off silently; Settings still shows the switch
   };
   // turning it back on clears the note and the guard
-  const _ss=setSet;setSet=function(k,v){if(k==='crt'&&v){C.off=false;C.n=0;C.ewma=0;C.slow=0;try{localStorage.removeItem('rw_crt_auto')}catch(e){}}return _ss.apply(this,arguments)};
+  const _ss=setSet;setSet=function(k,v){if(k==='crt'&&v){C.off=false;C.n=0;C.ewma=0;C.slow=0;try{localStorage.removeItem('S15T_crt_auto')}catch(e){}}return _ss.apply(this,arguments)};
   // one line in Settings
   const _sh=showSettings;
   showSettings=function(){
     const r=_sh.apply(this,arguments);
     try{
-      let t=null;try{t=localStorage.getItem('rw_crt_auto')}catch(e){}
+      let t=null;try{t=localStorage.getItem('S15T_crt_auto')}catch(e){}
       const b=document.querySelector('#card .sw[data-k="crt"]');
       if(t&&b&&!SETTINGS.crt){const lb=b.closest('.st-row').querySelector('.lb');const s=document.createElement('small');s.className='crtnote';s.textContent='Switched off automatically on '+new Date(+t).toLocaleDateString()+': the game was running slowly with it on.';lb.appendChild(s)}
     }catch(e){}
@@ -11087,7 +11201,7 @@ document.addEventListener('keydown',e=>{
       sec.insertAdjacentElement('afterend',row2);sec.insertAdjacentElement('afterend',row);
       const sw=row.querySelector('#telsw'),paint=()=>sw.setAttribute('aria-checked',String(telOn()));
       paint();
-      sw.onclick=()=>{try{if(telOn()){telEmit('settings_change',{key:'play_log',value:false});localStorage.setItem('rw_tel_off','1')}else{localStorage.removeItem('rw_tel_off');telEmit('settings_change',{key:'play_log',value:true})}}catch(e){}paint()};
+      sw.onclick=()=>{try{if(telOn()){telEmit('settings_change',{key:'play_log',value:false});localStorage.setItem('S15T_tel_off','1')}else{localStorage.removeItem('S15T_tel_off');telEmit('settings_change',{key:'play_log',value:true})}}catch(e){}paint()};
       row2.querySelector('#telcp').onclick=e=>{let t='';try{t=JSON.stringify(telLoad().slice(-300))}catch(x){t='[]'}copyText(t,e.currentTarget);row2.querySelector('#telcpn').textContent=telLoad().length?'Copied. Paste it into your report.':'The log is empty (it is off, or nothing has happened yet).'};
     }catch(e){console.error(e)}
     return r;
@@ -11134,13 +11248,13 @@ function s12DailyRew(){try{const d=dailySeed().slice(6);if(SHOP&&s15Claimed(d))r
 function s12Label(){const b=document.getElementById('blabel');if(!b)return;let t=window.innerWidth<372?'Chamber':'This chamber';if(b.textContent!==t)b.textContent=t;
   if(t==='This chamber'&&b.scrollWidth>b.clientWidth+1)b.textContent='Chamber'} // landscape phones clip it too (844x390: "THIS CHA…")
 
-// ---- small profile flags: the two coaching notes are shown once each, and the practice-seed list (rw_s12)
+// ---- small profile flags: the two coaching notes are shown once each, and the practice-seed list (S15T_s12)
 function s12Load(){
   const F={hold:0,dyn:0,cs:[],cls:[]};
-  try{const o=JSON.parse(Store.get('rw_s12')||'null');if(o&&typeof o==='object'&&!Array.isArray(o)){F.hold=o.hold?1:0;F.dyn=o.dyn?1:0;F.cs=Array.isArray(o.cs)?o.cs.filter(x=>typeof x==='string').slice(-150):[];F.cls=Array.isArray(o.cls)?o.cls.filter(x=>typeof x==='string').slice(-12):[]}}catch(e){}
+  try{const o=JSON.parse(Store.get('S15T_s12')||'null');if(o&&typeof o==='object'&&!Array.isArray(o)){F.hold=o.hold?1:0;F.dyn=o.dyn?1:0;F.cs=Array.isArray(o.cs)?o.cs.filter(x=>typeof x==='string').slice(-150):[];F.cls=Array.isArray(o.cls)?o.cls.filter(x=>typeof x==='string').slice(-12):[]}}catch(e){}
   if(typeof S12==='object'&&S12)S12.F=F;return F;
 }
-function s12Save(){try{Store.set('rw_s12',JSON.stringify(S12.F))}catch(e){}}
+function s12Save(){try{Store.set('S15T_s12',JSON.stringify(S12.F))}catch(e){}}
 
 // ---- T75: a typed or custom seed pays 25% XP once it has been cleared. The Daily and the seeds the game rolls are never practice.
 function s12PracKey(){return String(run.seed||'')+'|'+tombN()+'|'+stakeN()}
@@ -11721,9 +11835,9 @@ function paint(){
   // finds
   let n=0;try{n=exposedFinds().length}catch(e){}
   const b=bestSet();
-  if(n>0){el.chip.hidden=false;el.chip.textContent=n+(n===1?' find':' finds')+(b?' · ×'+b.v+(win.clientWidth>=370&&b.name?' '+b.name.split(' ').slice(-1)[0]:''):'');}else el.chip.hidden=true;
+  if(n>0){el.chip.hidden=false;el.chip.textContent='Loose '+n+'/'+TRAY.loose+(b?' · ×'+b.v+(win.clientWidth>=370&&b.name?' '+b.name.split(' ').slice(-1)[0]:''):'');}else el.chip.hidden=true;
   if(S.n>=0&&n>S.n)play(el.chip,POP,360);S.n=n;
-  strip.setAttribute('aria-label','Context sheet. Worth '+w+' times Fame '+f+' makes '+t+'. '+$('banked').textContent.trim()+' banked of '+$('target').textContent.trim()+'. Wall '+$('crackTxt').textContent.trim()+', Fever '+$('feverTxt').textContent.trim()+'. '+(n?n+' finds open. ':'')+(S.open?'Tap to close.':'Tap to open.'));
+  strip.setAttribute('aria-label','Context sheet. Worth '+w+' times Fame '+f+' makes '+t+'. '+$('banked').textContent.trim()+' banked of '+$('target').textContent.trim()+'. Wall '+$('crackTxt').textContent.trim()+', Fever '+$('feverTxt').textContent.trim()+'. '+(n?n+' loose finds of '+TRAY.loose+'. ':'')+(S.open?'Tap to close.':'Tap to open.'));
   // banked rose (a seal landed): show the sheet for a moment
   if(bk>S.ban&&S.ban>=0&&S.tgt===tg){peek(2600)}
   S.ban=bk;S.tgt=tg;
@@ -11742,8 +11856,8 @@ function setOpen(v,auto){
 function paintLabel(){const a=strip.getAttribute('aria-label')||'';strip.setAttribute('aria-label',a.replace(/Tap to (open|close)\.$/,S.open?'Tap to close.':'Tap to open.'))}
 function peek(ms){if(S.open)return;if(!layoutOn())return;setOpen(true,ms)} // an open sheet (tapped or already peeking) is left alone: a count-up does not keep restarting the timer
 const layoutOn=()=>getComputedStyle(strip).display!=='none';
-{let seen=false;try{seen=Store.get('rw_s14tap')==='1'}catch(e){}if(!seen)strip.classList.add('s14-hint')} // until the strip has been tapped once, ever, its brass tab breathes
-strip.addEventListener('click',()=>{if(strip.classList.contains('s14-hint')){strip.classList.remove('s14-hint');try{Store.set('rw_s14tap','1')}catch(e){}}setOpen(!(S.open&&!S.auto))});
+{let seen=false;try{seen=Store.get('S15T_s14tap')==='1'}catch(e){}if(!seen)strip.classList.add('s14-hint')} // until the strip has been tapped once, ever, its brass tab breathes
+strip.addEventListener('click',()=>{if(strip.classList.contains('s14-hint')){strip.classList.remove('s14-hint');try{Store.set('S15T_s14tap','1')}catch(e){}}setOpen(!(S.open&&!S.auto))});
 document.addEventListener('pointerdown',e=>{
   const t=e.target;if(!t||!t.closest)return;
   if(S.open&&!S.auto&&!t.closest('#top,#strip'))setOpen(false);

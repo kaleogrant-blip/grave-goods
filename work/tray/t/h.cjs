@@ -1,8 +1,8 @@
 // Sprint 15b harness: loads a build file by path in Chromium, taps with a touchscreen, drives seeded runs.
 const path=require('path');
-let chromium;try{({chromium}=require('playwright'))}catch(e){({chromium}=require('/home/claude/.npm-global/lib/node_modules/playwright'))}
+let chromium;try{({chromium}=require('/home/claude/.npm-global/lib/node_modules/playwright'))}catch(e){({chromium}=require('playwright'))} // the repo's own node_modules copy does not match the installed browser, so the global one is tried first
 const DIR=path.resolve(__dirname,'..');
-const BUILD=path.join(DIR,'build.html'),RC9A=path.join(DIR,'rc9a.html');
+const BUILD=path.join(DIR,'build.html'),RC9A=path.resolve(DIR,'../../game/current.html'),MAIN=RC9A;
 const GUARD=1100;
 let _b=null;
 async function browser(){return _b||(_b=await chromium.launch())}
@@ -11,7 +11,7 @@ async function close(){if(_b){await _b.close();_b=null}}
 async function open(file,o={}){
   const b=await browser();
   const ctx=o.ctx||await b.newContext({viewport:{width:o.w||390,height:o.h||844},deviceScaleFactor:1,isMobile:false,hasTouch:true,reducedMotion:o.rm?'reduce':'no-preference'});
-  if(!o.ctx)await ctx.addInitScript(o.fresh?'':`try{if(!localStorage.getItem('rw_train'))localStorage.setItem('rw_train','1')}catch(e){}`);
+  if(!o.ctx)await ctx.addInitScript(o.fresh?'':`try{for(const k of ['rw_train','S15T_train'])if(!localStorage.getItem(k))localStorage.setItem(k,'1')}catch(e){}`);
   if(!o.ctx&&o.init)await ctx.addInitScript(o.init);
   if(!o.ctx)await ctx.addInitScript(`window.__vib=[];window.__vibEarly=[];(()=>{let tapped=false;addEventListener('pointerdown',()=>{tapped=true},true);try{navigator.vibrate=function(p){if(!tapped)window.__vibEarly.push(p);window.__vib.push([Math.round(performance.now()),p]);return true}}catch(e){}})();`); // headless Chromium refuses vibrate, so the calls are recorded instead; __vibEarly holds any made before the first tap (a real browser logs an error for those)
   const page=await ctx.newPage(),errors=[];await page.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.fulfill({status:200,contentType:'text/css',body:''}));
@@ -40,7 +40,7 @@ async function startSeeded(page,seed,o={}){
 const wallSig=page=>page.evaluate(()=>JSON.stringify({i:state.i,d:state.dirt,f:state.finds.map(f=>[f.name,f.cells,f.sarc?1:0,f.relic?1:0,f.worth,f.age]),o:state.ores.map(o=>[o.x,o.y,o.type]),tell:state.tell||null,tg:TARGETS[state.i]}));
 // screen coordinates of the centre of wall cell (x,y)
 const cellXY=(page,x,y)=>page.evaluate(([x,y])=>{const c=document.getElementById('c'),r=c.getBoundingClientRect();return{x:r.left+(x+.5)*cell,y:r.top+(y+TOP+.5)*cell}},[x,y]);
-module.exports={chromium,browser,close,open,tap,tapXY,startSeeded,wallSig,cellXY,BUILD,RC9A,DIR,GUARD};
+module.exports={chromium,browser,close,open,tap,tapXY,startSeeded,wallSig,cellXY,BUILD,RC9A,MAIN,DIR,GUARD};
 // ---- reading helpers
 // uncover the first unopened sarcophagus (setup, direct), return a cell of it
 const bareSarc=page=>page.evaluate(()=>{try{luckSlipHide()}catch(e){}const f=state.finds.find(f=>f.sarc&&!f.banked);if(!f)return null;f.cells.forEach(([x,y])=>state.dirt[y][x]=0);ui();draw();return f.cells[0]});
