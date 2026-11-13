@@ -2,7 +2,7 @@
  {
   "vp": "390x844",
   "errors": 0,
-  "taps_dug": 7,
+  "taps_dug": 10,
   "res": {
    "sarc": "ore",
    "fever": "nothing"
@@ -12,7 +12,7 @@
  {
   "vp": "360x640",
   "errors": 0,
-  "taps_dug": 10,
+  "taps_dug": 8,
   "res": {
    "sarc": "relic",
    "fever": "ore"
@@ -22,7 +22,7 @@
  {
   "vp": "844x390",
   "errors": 0,
-  "taps_dug": 17,
+  "taps_dug": 12,
   "res": {
    "sarc": "bones",
    "fever": "nothing"
