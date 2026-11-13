@@ -68,7 +68,7 @@ const fp=c=>[c.title,c.ov,c.panel,c.pause,c.over,c.i,c.crack,c.banked,c.lives,c.
         await page.waitForTimeout(c.panel?70:130);continue}
       if(!c.hasState){await page.waitForTimeout(100);continue}
       if(x<.07){const ids=['#pick','#hammer','#special','#pouchBtn','#strip','#speed'];await page.locator(ids[Math.floor(R()*ids.length)]).tap({timeout:800,force:true}).catch(()=>{});note('hud');continue}
-      if(x<.14){await page.locator('#seal').tap({timeout:800,force:true}).catch(()=>{});note('seal');await page.waitForTimeout(60);continue}
+      if(x<.14&&!(process.env.FUZZ_HOLD&&R()<.92)){await page.locator('#seal').tap({timeout:800,force:true}).catch(()=>{});note('seal');await page.waitForTimeout(60);continue} // FUZZ_HOLD=1: hardly ever seals, so walls fill past nine loose finds and the crumble is hit often
       if(x<.17){const o=page.locator('#pouch .ore:visible');const n=await o.count();if(n)await o.nth(Math.floor(R()*n)).tap({timeout:800,force:true}).catch(()=>{});note('ore');continue}
       if(x<.185){await page.locator(R()<.5?'#walk':'#pause').tap({timeout:800,force:true}).catch(()=>{});note('walk/pause');continue}
       if(x<.21){await H.tapXY(page,5+R()*(w-10),5+R()*(h-10));note('anywhere');continue}

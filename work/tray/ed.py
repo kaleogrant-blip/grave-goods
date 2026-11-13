@@ -25,6 +25,7 @@ rep('</style>', '''/* ---- TRAY TEST (v1.0-tray1) ---- */
 #trayTag{position:fixed;left:50%;top:calc(1px + env(safe-area-inset-top));transform:translateX(-50%);z-index:2147483000;pointer-events:none;padding:1px 7px 0;border-radius:0 0 5px 5px;background:#7a1620;color:#ffe9a8;font:700 9px/13px var(--display);letter-spacing:.12em;white-space:nowrap;box-shadow:0 0 0 1px #000;opacity:.94}
 #looseTag{position:absolute;right:6px;top:6px;z-index:3;pointer-events:none;padding:2px 8px;border-radius:3px;background:rgba(18,13,8,.9);color:#f0d27a;font:700 11px/16px var(--display);letter-spacing:.06em;box-shadow:0 0 0 1px #000,inset 0 0 0 1px #7d5f22;white-space:nowrap}
 #looseTag[hidden]{display:none}
+@media (orientation:landscape) and (max-height:560px){#looseTag{top:auto;bottom:6px}} /* the toast sits at the top of the wall in landscape */
 #looseTag.near{color:#ffcf5a;box-shadow:0 0 0 1px #000,inset 0 0 0 1px #c9a24a}
 #looseTag.full{background:#5a1218;color:#ffe9a8;box-shadow:0 0 0 1px #000,inset 0 0 0 1px #ff7a7f}
 </style>''')
@@ -146,17 +147,17 @@ function trayDraw(){ // marks on the wall: which finds are on the tray, the crac
     else{ctx.fillStyle='rgba(8,6,10,.58)';f.cells.forEach(([x,y])=>ctx.fillRect(x*cell,y*cell,cell,cell));rim(f,'#8a8a92',Math.max(1.5,cell*.045),[cell*.14,cell*.1])}});
   if(old){crackOn(old,1,1);rim(old,rm||(frame>>4)%2?'#ff6a4d':'#7a1620',Math.max(2,cell*.07))}
   const C=state.crumbs;if(!C||!C.length)return;
-  const now=performance.now(),D=rm?1100:950;
+  const now=performance.now(),D=rm?1600:1500; // long enough to be read: half a second of cracking, a second of falling
   state.crumbs=C.filter(c=>now-c.t0<D&&state.finds[c.id]);
   state.crumbs.forEach(c=>{const f=state.finds[c.id],p=Math.max(0,Math.min(1,(now-c.t0)/D)),pal=f.relic?["#ffd27a","#ff9a1f","#8a4a00"]:civPal(f.civ);
     const xs=f.cells.map(q=>q[0]),ys=f.cells.map(q=>q[1]),x0=Math.min(...xs)*cell,y0=Math.min(...ys)*cell,x1=(Math.max(...xs)+1)*cell,y1=(Math.max(...ys)+1)*cell;
     const body=a=>{ctx.save();ctx.globalAlpha=a;if(f.relic&&RELIC_BY[f.name]){ctx.fillStyle='#2a1d08';ctx.fillRect(x0,y0,x1-x0,y1-y0);drawSprite(ctx,f,x0,y0,cell/8)}else if(!drawItem(f,x0,y0,cell/8,pal)){ctx.fillStyle=pal[1];f.cells.forEach(([x,y])=>ctx.fillRect(x*cell+1,y*cell+1,cell-2,cell-2))}ctx.restore()};
-    if(rm){body(1-p);crackOn(f,1,1-p)} // Reduce Motion: no travel, no shake; the cracked find fades where it lies
+    if(rm){const a=p<.45?1:Math.max(0,1-(p-.45)/.55);body(a);crackOn(f,1,a)} // Reduce Motion: no travel, no shake; the cracked find fades where it lies
     else if(p<.38){const k=p/.38,j=(1-k)*0+Math.sin(now/18)*cell*.04;ctx.save();ctx.translate(j,0);body(1);crackOn(f,k,1);ctx.fillStyle='rgba(255,90,60,'+(.28*k).toFixed(2)+')';f.cells.forEach(([x,y])=>ctx.fillRect(x*cell,y*cell,cell,cell));ctx.restore()}
     else{const q=(p-.38)/.62,h=cell/2;ctx.save();ctx.globalAlpha=Math.max(0,1-q*q);
       f.cells.forEach(([x,y],i)=>{for(let k=0;k<4;k++){const sx=x*cell+(k%2)*h,sy=y*cell+(k>>1)*h,dx=((k%2)?1:-1)*q*cell*(.25+((i+k)%3)*.12),dy=q*q*cell*(1.4+((i*3+k)%4)*.35)-q*cell*.25;
         ctx.fillStyle=k%2?pal[1]:pal[0];ctx.fillRect(sx+dx+1,sy+dy+1,h-2,h-2);ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(sx+dx+1,sy+dy+h-4,h-2,3)}});ctx.restore()}
-    const a=rm?1-p*p:Math.min(1,(1-p)*3),fs=Math.max(11,Math.round(cell*.3));ctx.save();ctx.globalAlpha=Math.max(0,a);ctx.font='900 '+fs+'px Cinzel, Georgia, serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    const a=rm?(p<.6?1:Math.max(0,1-(p-.6)/.4)):Math.min(1,(1-p)*4),fs=Math.max(11,Math.round(cell*.3));ctx.save();ctx.globalAlpha=Math.max(0,a);ctx.font='900 '+fs+'px Cinzel, Georgia, serif';ctx.textAlign='center';ctx.textBaseline='middle';
     const tw=ctx.measureText('CRUMBLED').width+12,lx=Math.min(COLS*cell-tw/2-2,Math.max(tw/2+2,(x0+x1)/2)),ly=Math.max(fs,y0-fs*.8)-(rm?0:p*cell*.3);
     ctx.fillStyle='rgba(18,8,6,.92)';ctx.fillRect(lx-tw/2,ly-fs*.75,tw,fs*1.5);ctx.strokeStyle='#ff6a4d';ctx.lineWidth=1;ctx.strokeRect(lx-tw/2+.5,ly-fs*.75+.5,tw-1,fs*1.5-1);ctx.fillStyle='#ffb09a';ctx.fillText('CRUMBLED',lx,ly+1);ctx.restore()});
 }

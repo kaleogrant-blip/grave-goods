@@ -9,7 +9,7 @@
  *   node sim.cjs verify [build]                     fake clock + calls  vs  real time + real taps
  *   node sim.cjs table  [N=1500] [rows] [pols]      rows like 1:1,1:3,3:1,5:1,5:6 (tomb:stake); pols like early,hold,pick,hammer,novice
  *   node sim.cjs one <tomb> <stake> <pol> <cls> <seed>   one run, verbose
- * Env: BUILD=path, PAGES=2, OUT=file.json, SET='{"SKILL.targets.2":8000}' (numbers poked into the build before the runs, for retunes)
+ * Env: BUILD=path, PAGES=2, OUT=file.json, EVAL='js run in the page after loading (for retunes)', SET='{"SKILL.targets.2":8000}' (numbers poked into the build before the runs, for retunes)
  */
 'use strict';
 const path = require('path'), fs = require('fs');
@@ -36,6 +36,7 @@ async function openSim(browser, set) {
   await page.waitForFunction(() => typeof newChamber === 'function' && typeof S11 === 'object');
   await page.addScriptTag({ path: path.join(__dirname, 'simlib.js') });
   if (set) await page.evaluate(set => { for (const k in set) { const p = k.split('.'); let o = window.eval(p[0]); for (let i = 1; i < p.length - 1; i++) o = o[p[i]]; o[p[p.length - 1]] = set[k]; } if (typeof TARGETS_BASE !== 'undefined') for (let i = 0; i < 3; i++) TARGETS_BASE[i] = SKILL.targets[i]; }, set);
+  if (process.env.EVAL) await page.evaluate(code => { (0, eval)(code); }, process.env.EVAL); // a retune tried without touching the build, e.g. other Stake multipliers
   return { page, ctx, errors };
 }
 function agg(rs) {
@@ -48,16 +49,22 @@ async function table(N, rows, pols, set) {
   for (const [tomb, stake] of rows) for (const pol of pols) for (const cls of CLASSES) for (let a = 0; a < per; a += B)
     jobs.push({ o: { tomb, stake, pol, cls }, seeds: Array.from({ length: Math.min(B, per - a) }, (_, k) => 'S' + tomb + '-' + stake + '-' + cls + '-' + (a + k)) });
   const res = {}, t0 = Date.now(); let done = 0, next = 0; const errs = [], unknown = {}, stuck = [];
+  // every finished batch is appended to <OUT>.jobs, so a run that is cut off carries on from there when started again
+  const JF = process.env.OUT ? process.env.OUT + '.jobs' : null, have = {};
+  if (JF && fs.existsSync(JF)) for (const l of fs.readFileSync(JF, 'utf8').split('\n')) { if (!l) continue; try { const r = JSON.parse(l); have[r.k] = r.out; } catch (e) { } }
+  const keyOf = j => [j.o.tomb, j.o.stake, j.o.pol, j.o.cls, j.seeds[0], j.seeds.length].join('|');
+  const take = (j, out) => { const k = j.o.tomb + ':' + j.o.stake + '|' + j.o.pol; (res[k] = res[k] || { all: [], by: {} }); res[k].all.push(...out); (res[k].by[j.o.cls] = res[k].by[j.o.cls] || []).push(...out); done += out.length; };
+  let resumed = 0; for (const j of jobs) { const h = have[keyOf(j)]; if (h) { take(j, h); j.done = true; resumed += h.length; } }
+  if (resumed) process.stderr.write(`  carried on: ${resumed} runs were already done\n`);
   await Promise.all(Array.from({ length: P }, async () => {
     let s = await openSim(browser, set), used = 0;
     while (next < jobs.length) {
-      const j = jobs[next++];
+      const j = jobs[next++]; if (j.done) continue;
       if (used++ >= 40) { await s.ctx.close(); s = await openSim(browser, set); used = 0; } // a fresh page now and then keeps memory flat
       let out;
       try { out = await s.page.evaluate(([o, seeds]) => SIM.batch(o, seeds), [j.o, j.seeds]); }
       catch (e) { errs.push('batch failed ' + JSON.stringify(j.o) + ' ' + String(e).slice(0, 200)); try { await s.ctx.close(); } catch (_) { } s = await openSim(browser, set); used = 0; continue; }
-      const k = j.o.tomb + ':' + j.o.stake + '|' + j.o.pol; (res[k] = res[k] || { all: [], by: {} }); res[k].all.push(...out); (res[k].by[j.o.cls] = res[k].by[j.o.cls] || []).push(...out);
-      done += out.length;
+      take(j, out); if (JF) fs.appendFileSync(JF, JSON.stringify({ k: keyOf(j), out }) + '\n');
       if (s.errors.length) { errs.push(...s.errors.splice(0)); }
       if (jobs.length > 20 && next % Math.ceil(jobs.length / 20) === 0) process.stderr.write(`  ${done} runs, ${((Date.now() - t0) / 1000).toFixed(0)} s\n`);
     }
