@@ -1,0 +1,2 @@
+{"daily":true,"seed":"DAILY-20261113","cls":"cartographer","gear":"knuckle","tomb":3,"stake":1,"tg":[900,2700,9000],"card":"Daily · NOV 13Today's digThe same tomb, creature and kit for","ov":false}
+DAILY PASS: started from the title, tray pick and seal worked, same wall and kit on a second launch, 0 page errors

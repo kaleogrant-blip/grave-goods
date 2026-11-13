@@ -15,3 +15,16 @@
   890 runs, 324 s
   950 runs, 338 s
   1010 runs, 351 s
+  1070 runs, 363 s
+  1130 runs, 373 s
+  1190 runs, 384 s
+  1200 runs, 385 s
+
+600 runs a cell (5 classes), 385 s. Tomb clear rate. SET {"SKILL.targets.2":10800}
+| Tomb:Stake | early | pick9 |
+|---|---|---|
+| 1:1 | 44.5% | 63.2% |
+
+detail: win, cleared ch1, cleared ch2, best seal median / 95th pct, seals a run, walls a run, crumbles a run, bare walls / collapses / walk-aways a run, strikes a run, by class
+1:1|early     44.5% 100.0% 100.0%   3408 /  7290  13.2  6.0  0.00  0.96/2.22/0.35  155  {"scholar":80,"brute":6.7,"medium":42.5,"fence":15,"cartographer":78.3}
+1:1|pick9     63.2% 100.0% 100.0%   5130 / 10044  10.7  5.3  0.64  0.50/1.78/0.39  135  {"scholar":87.5,"brute":30.8,"medium":68.3,"fence":45,"cartographer":84.2}

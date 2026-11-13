@@ -106,6 +106,7 @@ So that ×3 "changes nothing but the digits", these moved with it: first-wall so
 | **Same seed, same wall as rc9b** (`seeds.cjs`): 60 walls over 20 seeds, dirt, finds, ores, tell and generator state identical | PASS |
 | **Main-game save untouched** (`mainsave.cjs`): play rc9b to a saved dig, then play the tray build from the title in the same browser profile (the two files do share one storage: checked), then reopen rc9b. All 12 main-game keys byte-identical, none added or removed; the tray build wrote 12 keys, all `S15T_`; it did not offer the main game's run; rc9b resumed the same wall, crack, bank and tap count | PASS |
 | **Smaller rules and words** (`extras.cjs`): tag and version at three sizes, tag above cards, the new How to Play card present with its text, no retired wording, Rhind 5, Draupnir +9, Cyrus +24, Terracotta Warrior, Gold per 300, knucklebone 2,700, tomb targets, training wall clears with one tray | PASS, 16 of 16 |
+| **The Daily** (`daily.cjs`): started from the title by real taps, eight loose finds, a pick by tap, a seal; launched twice | PASS. Same wall and same kit both times (today: Tikal, Cartographer, Knuckle Pick, Stake 1), 0 page errors |
 | **rc9b's own resume test** on this build (`rc9b-resume.cjs`): 28 relaunches mid-reading (sarcophagus and second bone) plus 3 mid-dig | PASS, every one ends in the same state as the uninterrupted run |
 | **rc9b's own honest-fork test** on this build (`rc9b-fork.cjs`) | PASS |
 | **Fuzz** (`fuzz.cjs`), 3 × 1,200 random actions (one run per screen size), tray taps in the mix, tray rules checked after every action | PASS. 0 page errors, 0 tray-rule breaks, 0 stuck, no horizontal scroll. Up to 9 loose finds reached, 89 tray taps, 6 crumbles |
@@ -125,7 +126,14 @@ It does not re-implement the game. It opens the real `build.html` in headless Ch
 
 **Check against the real build** (`node sim.cjs verify`): a simulated run is recorded, then the same actions are made on an untouched copy of the build in real time with real taps. Before every decision a fingerprint must match: chamber, bank, Memories, crack, loose finds, dirt left, seals, finds lost, and the state of the seeded generator.
 
-VERIFY-TABLE
+| Run | Replayed with real taps | Fingerprints compared | Result |
+|---|---|---|---|
+| Early sealer, Scholar, Tomb I Stake 1 | first 150 of 505 recorded steps, 79 taps | 71 | PASS |
+| Chooser at nine, Medium, Tomb I Stake 1 | first 150 of 312 steps, 82 taps | 68 | PASS |
+| Hammer bot, Brute, Tomb I Stake 1 | the whole run, 141 steps, 91 taps | 54 | PASS |
+| Holder, Fence, Tomb III Stake 3 | first 150 of 450 steps, 80 taps | 70 | PASS |
+
+263 fingerprints, all equal, on the final build (`sim-out/verify.txt`).
 
 The first version of this check failed, and it was right to: the simulator's players were acting before the second bone came out (it arrives 0.7 s after the fourth Fever). The players now wait for it. That is the only correction it forced.
 
@@ -165,7 +173,7 @@ Points are in ×3 units: divide by 3 to compare with the proposal ("a best seal 
 | Test | Result on the real build |
 |---|---|
 | Tomb I, Stake 1, ordinary player between 45% and 60% | **Pass.** Early sealer 56.3%. |
-| No policy above about 75% on Tomb I | **Just over.** The chooser at nine clears 77.2% (Scholar 95%, Cartographer 93%). HIGHER-TARGET |
+| No policy above about 75% on Tomb I | **Just over.** The chooser at nine clears 77.2% (Scholar 95%, Cartographer 93%). A chamber 3 target of 3,300 (9,900 on screen) instead of 3,000 brings it to 70.0% and the early sealer to 50.2% (600 runs each, ±4), which passes all three tests. That number is **not** in the build: the build has the proposal's 3,000. |
 | Skilled play clearly beats hold-only | **Pass, clearly.** Choosing adds 21 points for the red-bar holder and 31 points for the holder at nine. And "when" matters now too: sealing at nine instead of at the red bar adds 22 to 32 points. |
 
 ### Why the holder numbers are so far from the proposal
@@ -185,11 +193,39 @@ My holder lands on the proposal's holder (92% against 90%), so the two simulator
 
 ### Other tombs and Stakes
 
-ROWS-TABLE
+Tomb clear rate. ROWS-NOTE
+
+| | Early sealer | Holder | Holder who chooses | Chooser at nine | Hammer bot |
+|---|---|---|---|---|---|
+| Tomb I, Stake 1 (1,500) | 56.3% | 24.1% | 45.2% | 77.2% | 41.7% |
+ROWS-BODY
+
+The proposal's predictions for the same rows (early sealer / holder / hammer bot / holder who chooses): Tomb I Stake 3: 36 / 53 / 44 / 60. Tomb III Stake 1: 40 / 59 / 74 / 64. Tomb V Stake 1: 25 / 28 / 28 / 32. Tomb V Stake 6: 1 / 2 / 6 / 2.
+
+What the rows say:
+- The order of the players is the same in every row: the chooser at nine is best, the red-bar holder and the hammer bot are worst.
+- Everything past Tomb I is harder for these players than the proposal predicted. Part of that is the players: they carry no relic, use no ore and skip the Market, and those matter more the deeper you go. Part of it is real: the guardian chambers of Tombs III and V were tuned for one giant seal.
+- Tomb V at Stake 1 is 14% for the best player and 3% for the early sealer. Its guardian chamber asks 11,700 on a wall that holds 30% less crack.
+- The Tomb III hammer bot is at 9%, not the proposal's 74%. The proposal itself flagged that 74% as unexplained.
+- Chambers 1 and 2 are cleared in nearly every run in every row. The whole difficulty is the last chamber (and the fourth at Stake 6).
 
 ### Tomb V, Stake 6 and the Stake retune
 
-RETUNE
+Tomb V, Stake 6 as built (the proposal's method, Stake multipliers untouched): targets 1,040 / 3,100 / 13,450 / 12,070, and **nobody clears it**: 0 of 300 for four players, 2 of 300 for the chooser at nine. The proposal predicted 1 to 6% and said the Stake multipliers "must come down". This is how far I got, in the simulator only (`sim-retune.sh`; 300 runs a cell, ±4; early sealer and chooser at nine):
+
+| Setting tried | Targets at Tomb V, Stake 6 | Early sealer | Chooser at nine |
+|---|---|---|---|
+| As built: Stakes 4 / 5 / 6 ask ×1.05 / 1.10 / 1.15, fourth chamber ×0.75 of the deep step | 1,040 / 3,100 / 13,450 / 12,070 | 0.0% | 0.7% |
+| A. No Stake multiplier | 900 / 2,700 / 11,700 / 10,500 | 0.7% | 0.3% |
+| B. A, and the fourth chamber ×0.5 | 900 / 2,700 / 11,700 / 7,500 | 0.7% | 2.0% |
+| C. Stakes 4 / 5 / 6 ask ×0.9 / 0.8 / 0.7, fourth chamber ×0.5 | 630 / 1,890 / 8,190 / 5,250 | 3.0% | 17.3% |
+| D. ×0.85 / 0.7 / 0.55, fourth chamber ×0.4 | 500 / 1,480 / 6,430 / 3,300 | 13.3% | 32.3% |
+
+Plainly:
+- Taking the Stake multipliers away is not enough (A, B). The targets have to drop by about a third before anyone gets through.
+- **C is where I would start.** It puts the best player at 17% and the early sealer at 3%. For scale, the proposal's figures for today's rules at Tomb V Stake 6 are 14% for the holder and 1% for the early sealer.
+- **None of this is in the build.** The build has today's multipliers.
+- Not done: Stakes 4 and 5 were not run with the new multipliers (only Stake 6). No tomb other than V was run at Stake 6. The Stake cards still say "Targets +5% / +10% / +15%" and would need new words. And the real problem may be the Ur guardian chamber itself, not the Stake: Tomb V at Stake 1 is already 3 to 14%. A retune of the guardian twists (target +30%, wall 30% weaker) was not tried.
 
 ### How far to trust the simulator
 - The rules are the build's own, and the fake-clock runs match real-time runs tap for tap (table above). That part is solid.
@@ -209,6 +245,6 @@ RETUNE
 - **Classes are uneven** and were not rebalanced.
 - **The free bare-wall loop** is reported, not changed.
 - **Timeline tiers for 7 and 8 ages** can no longer be reached and were left in the table.
-- **The Daily** runs under the tray rule in this build and keeps its own best score under `S15T_`. Not separately tested beyond the shared code paths.
+- **The Daily** runs under the tray rule in this build and keeps its own best score under `S15T_`. Tested for start, pick, seal and same-wall-twice only.
 - **Store text, README and docs** were not touched.
 - One check in `extras.cjs` ("no em dash in the rendered manual") failed once in four runs and passed in the other three. I did not capture what it matched. The build's own new text has no em dash. Most likely one of rc9b's own cards printed a "—" placeholder for a kit that varies with the random gear offer.

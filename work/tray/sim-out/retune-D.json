@@ -1,0 +1,63 @@
+{
+ "build": "/home/claude/grave-goods/work/tray/build.html",
+ "set": {
+  "SKILL.long4": 0.4
+ },
+ "N": 300,
+ "secs": 188.484,
+ "rows": {
+  "5:6|early": {
+   "n": 300,
+   "win": 0.13333333333333333,
+   "c1": 1,
+   "c2": 0.9966666666666667,
+   "best50": 2664,
+   "best95": 6210,
+   "seals": 11.683333333333334,
+   "walls": 5.766666666666667,
+   "cr": 0,
+   "bare": 0.006666666666666667,
+   "col": 3.466666666666667,
+   "walk": 0.013333333333333334,
+   "strikes": 125.9,
+   "stuck": 0,
+   "to": 0,
+   "cls": {
+    "scholar": 16.7,
+    "brute": 3.3,
+    "medium": 31.7,
+    "fence": 6.7,
+    "cartographer": 8.3
+   }
+  },
+  "5:6|pick9": {
+   "n": 300,
+   "win": 0.3233333333333333,
+   "c1": 0.9966666666666667,
+   "c2": 0.9966666666666667,
+   "best50": 4248,
+   "best95": 8964,
+   "seals": 10.79,
+   "walls": 5.71,
+   "cr": 0.23,
+   "bare": 0,
+   "col": 3.04,
+   "walk": 0.006666666666666667,
+   "strikes": 125.79333333333334,
+   "stuck": 0,
+   "to": 0,
+   "cls": {
+    "scholar": 45,
+    "brute": 8.3,
+    "medium": 40,
+    "fence": 23.3,
+    "cartographer": 45
+   }
+  }
+ },
+ "errors": [],
+ "unknownCards": {
+  "A Cursed Offer|otake,oleave": 55
+ },
+ "stuck": []
+}
