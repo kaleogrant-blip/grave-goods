@@ -6542,7 +6542,8 @@ function boneSvg(rows,key){
    +`<g class="bn-rod"><rect x="176" y="352" width="150" height="8" rx="2" fill="#7d5f22" transform="rotate(-32 180 358)"/><rect x="176" y="352" width="34" height="8" rx="2" fill="#ff9a1f" transform="rotate(-32 180 358)"/><rect x="290" y="349" width="40" height="14" rx="3" fill="#4a3521" transform="rotate(-32 180 358)"/></g></svg>`;
 }
 // ---- sound and touch: everything is a one-shot from the game's own engine; boneQuiet() stops whatever is still sounding (and any vibration) when a reading is cut short
-function boneQuiet(){try{BONE_AU.forEach(n=>{try{n.stop()}catch(e){}});}catch(e){}try{navigator.vibrate&&SETTINGS.haptics&&navigator.vibrate(0)}catch(e){}}
+let _bnLive=0; // a reading is (or was just) on screen: only then is there a hiss or a vibration pattern of ours to cut short
+function boneQuiet(){if(!_bnLive)return;_bnLive=0;try{BONE_AU.forEach(n=>{try{n.stop()}catch(e){}});}catch(e){}try{navigator.vibrate&&SETTINGS.haptics&&navigator.vibrate(0)}catch(e){}} // never called at boot: a browser logs an error for vibrate() before the first tap
 // ---- the reading. mode 'sarc' | 'fever'; key = the answer already decided and saved; done() pays it (called once, when the panel closes)
 function luckBoneOpen(mode,rows,key,done){
   const st0=state,fev=mode==='fever',side=boneSide(mode,key),rev=boneRevised(rows,side),nOff=rows.filter(r=>r.side!==side&&r.w>0).length;
@@ -6556,7 +6557,7 @@ function luckBoneOpen(mode,rows,key,done){
    +`<div class="bn-stage" id="bnstage">${boneSvg(rows,key)}<div class="bn-tag" id="bntag" role="status"></div></div>`
    +`<div class="bn-cap" id="bncap" role="status" aria-live="polite"></div>`
    +`<div class="bn-tray"><button type="button" class="bn-go" id="bngo"></button>${fastOk?'<button type="button" class="bn-sm" id="bnfast">Read it at once<small>one tap</small></button>':''}</div></div>`;
-  const ovr=document.getElementById('overlay');ovr.parentNode.insertBefore(p,ovr);LK.panel=p;LK.busy=true;document.body.classList.add('lk');
+  const ovr=document.getElementById('overlay');ovr.parentNode.insertBefore(p,ovr);LK.panel=p;LK.busy=true;_bnLive=1;document.body.classList.add('lk');
   {const t0=performance.now(),EV=['click','pointerdown','pointerup','mousedown','mouseup','touchstart','touchend']; // the game's rule for anything that appears under a digging thumb (T10)
     EV.forEach(t=>p.addEventListener(t,e=>{if(performance.now()-t0<GUARD.ms){e.stopImmediatePropagation();e.stopPropagation();if(e.cancelable)e.preventDefault()}},true))}
   const $=s=>p.querySelector(s),go=$('#bngo'),fast=$('#bnfast'),cap=$('#bncap'),note=$('#bnnote'),stage=$('#bnstage');

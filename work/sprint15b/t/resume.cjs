@@ -24,10 +24,10 @@ async function resume(o){const n=await H.relaunch(o,FILE);await H.resumeFromTitl
     for(let step=0;step<=3;step++){
       process.stdout.write('['+mode+' '+seed+' step '+step+'] ');const o=await setup(seed,mode);for(let k=0;k<step;k++)await H.boneStep(o.page,k===2?1800:750);
       const pre=await o.page.evaluate(()=>{const w=JSON.parse(localStorage.getItem('rw_resume')).w;return{sarc:w.sarcPend,jp:w.jpPend}});
-      const e0=o.errors.filter(e=>!/vibrate/.test(e));let q=await resume(o);await closeCards(q.page);
+      const e0=o.errors.slice();let q=await resume(o);await closeCards(q.page);
       const got=await snap(q.page);
       const same=JSON.stringify(got)===JSON.stringify(want),paid=!got.sarcPend&&!got.jpPend&&!await q.page.evaluate(()=>!!document.getElementById('lkp'));
-      const errs=e0.concat(q.errors.filter(e=>!/vibrate/.test(e)));
+      const errs=e0.concat(q.errors.slice());
       rows.push({mode,seed,result:saved.key,closedAt:['before any tap','after Heat','after the crack','tag showing'][step],sameAsFinished:same,paidOnce:paid,errors:errs.length});
       if(!same||!paid||errs.length){fail++;console.log('RESUME MISMATCH',mode,seed,step,'\n want',JSON.stringify(want).slice(0,400),'\n got ',JSON.stringify(got).slice(0,400),'\n pre',JSON.stringify(pre),errs)}
       // a second reload must not pay it again
@@ -48,7 +48,7 @@ async function resume(o){const n=await H.relaunch(o,FILE);await H.resumeFromTitl
     const want=await snap(page);const q=await resume(o);const got=await snap(q.page);
     const same=JSON.stringify(got)===JSON.stringify(want);console.log('mid-dig',seed,same?'same wall, crack and bank':'DIFFERENT',{banked:got.banked,crack:got.crack,rs:got.rs});
     if(!same){fail++;console.log(JSON.stringify(want).slice(0,300),'\n',JSON.stringify(got).slice(0,300))}
-    const errs=o.errors.concat(q.errors).filter(e=>!/vibrate/.test(e));if(errs.length){fail++;console.log(errs)}
+    const errs=o.errors.concat(q.errors).slice();if(errs.length){fail++;console.log(errs)}
     await q.ctx.close();
   }
   console.log(fail?'RESUME FAIL':'RESUME PASS: '+rows.length+' reloads mid-reading + 3 mid-dig, every one ends in the same state as the uninterrupted run');await H.close();process.exit(fail?1:0)})().catch(e=>{console.error(e);process.exit(1)});

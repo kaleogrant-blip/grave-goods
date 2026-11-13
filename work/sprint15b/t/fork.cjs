@@ -33,20 +33,20 @@ const N=+process.argv[2]||200000,READS=+process.argv[3]||40;
   const tally={n:0,sideOk:0,strikeOk:0,revOk:0,endOk:0,by:{}};
   for(let n=0;n<READS;n++){
     const fev=n%4===3;
-    if(fev)await H.startSeeded(page,'FORKUI-'+n);else await H.sarcSeed(page,'FORKUI-'+n+'-');await page.evaluate(()=>{Q.speed=12;try{luckSlipHide()}catch(e){}});
+    if(fev)await H.startSeeded(page,'FORKUI-'+n);else{await H.sarcSeed(page,'FORKUI-'+n+'-');await page.waitForTimeout(450)} /* the relaunch inside sarcSeed leaves the title closing; let it finish */ await page.evaluate(()=>{Q.speed=6;try{luckSlipHide()}catch(e){}});
     await page.evaluate(([fev,n])=>{if(fev){RS().fev=LUCK.jackpot.at-1;luckFever()}else{if(n%5===0)state.sulfur=true;const f=state.finds.find(f=>f.sarc);f.cells.forEach(([x,y])=>state.dirt[y][x]=0);openSarc(f)}},[fev,n]);
     await page.waitForSelector(fev?'#lkp.bn-fev':'#lkp.bn',{timeout:8000});
     const saved=await page.evaluate(fev=>{const w=JSON.parse(localStorage.getItem('rw_resume')).w;if(fev)return{mode:'fever',key:w.jpPend.k,sul:false};const r=w.sarcPend.r;return{mode:'sarc',key:LK_KINDS.find(k=>r<k[0])[1],sul:!!w.sarcPend.sul}},fev);
     const exp=await page.evaluate(s=>{const rows=boneTable(s.mode,{sul:s.sul}),side=boneSide(s.mode,s.key);return{side,rev:boneRevised(rows,side),rows:rows.map(r=>[r.k,r.side,r.w])}},saved);
-    const click=()=>page.evaluate(()=>{const g=document.querySelector('#bngo');if(g&&!g.disabled)g.onclick()});
-    await click();await page.waitForTimeout(80);await click();await page.waitForTimeout(120);
+    const click=async()=>{await page.waitForFunction(()=>{const g=document.querySelector('#bngo');return !!g&&!g.disabled},null,{timeout:4000});await page.evaluate(()=>document.querySelector('#bngo').onclick())}; // a tap is only taken when the button is live, as for a player
+    await click();await click();await page.waitForFunction(()=>document.getElementById('lkp').classList.contains('s2')&&document.querySelectorAll('#lkp .bn-c.bn-on').length>=2,null,{timeout:4000});
     const mid=await H.boneInfo(page);
     const capSide=/forks left/.test(mid.cap)?'L':/forks right/.test(mid.cap)?'R':'?';
     const drawn=await page.evaluate(()=>{const p=document.querySelectorAll('#lkp .bn-c')[1],d=p.getAttribute('d').split('L').pop().trim().split(' ');return +d[0]<180?'L':'R'}); // where the fork's last point really is on the bone
     tally.n++;if(capSide===exp.side&&drawn===exp.side)tally.sideOk++;else console.log('SIDE MISMATCH',n,saved,capSide,drawn);
     if(mid.rows.every(r=>(r.side!==exp.side)===r.out||(r.side===exp.side&&r.out&&exp.rev[r.k]===undefined)))tally.strikeOk++;else console.log('STRIKE MISMATCH',n,saved,mid.rows);
     if(mid.rows.filter(r=>r.side===exp.side&&exp.rev[r.k]!==undefined).every(r=>(r.rev||r.pct)===exp.rev[r.k]+'%'))tally.revOk++;else console.log('PENCIL MISMATCH',n,saved,mid.rows,exp.rev);
-    await click();await page.waitForTimeout(260);const end=await H.boneInfo(page);
+    await click();await page.waitForFunction(()=>{const t=document.getElementById('bntag');return !t||t.classList.contains('bn-show')},null,{timeout:4000});const end=await H.boneInfo(page); // the tag stays up 433 ms at this speed before it closes itself
     if(end.rows.filter(r=>r.hit).map(r=>r.k).join()===saved.key)tally.endOk++;else console.log('END MISMATCH',n,saved,end.rows);
     tally.by[saved.mode+':'+saved.key]=(tally.by[saved.mode+':'+saved.key]||0)+1;
     await page.evaluate(()=>{const g=document.querySelector('#bngo');if(g)g.onclick()});await page.waitForTimeout(60);
@@ -54,5 +54,5 @@ const N=+process.argv[2]||200000,READS=+process.argv[3]||40;
   }
   console.log('\nreal readings:',JSON.stringify(tally));
   if(tally.sideOk!==tally.n||tally.strikeOk!==tally.n||tally.revOk!==tally.n||tally.endOk!==tally.n)fail++;
-  const errs=errors.filter(e=>!/vibrate/.test(e));if(errs.length){fail++;console.log(errs)}
+  const errs=errors.slice();if(errs.length){fail++;console.log(errs)}
   console.log(fail?'FORK FAIL':'FORK PASS');await H.close();process.exit(fail?1:0)})().catch(e=>{console.error(e);process.exit(1)});

@@ -8,7 +8,7 @@ async function reading(name,r,w,h,steps,o={}){
   else{if(o.sul)await page.evaluate(()=>{state.sulfur=true});await H.forceSarc(page,r);await H.tapSarc(page)}
   await page.waitForTimeout(900);
   for(let i=0;i<4;i++){if(steps.includes(i))await shot(page,name+'-'+(i+1)+['-record','-heat','-fork','-read'][i]);if(i<3)await H.boneStep(page,i===2?1900:1000)}
-  const sc=await H.noScroll(page);console.log(name,w+'x'+h,'scroll ok',sc.ok,'errors',errors.filter(e=>!/vibrate/.test(e)).length);await ctx.close()}
+  const sc=await H.noScroll(page);console.log(name,w+'x'+h,'scroll ok',sc.ok,'errors',errors.slice().length);await ctx.close()}
 (async()=>{
   await reading('relic',.1,390,844,[0,1,2,3]);
   await reading('mimic',.8,390,844,[0,1,2,3]);

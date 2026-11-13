@@ -13,7 +13,7 @@ async function open(file,o={}){
   const ctx=o.ctx||await b.newContext({viewport:{width:o.w||390,height:o.h||844},deviceScaleFactor:1,isMobile:false,hasTouch:true,reducedMotion:o.rm?'reduce':'no-preference'});
   if(!o.ctx)await ctx.addInitScript(o.fresh?'':`try{if(!localStorage.getItem('rw_train'))localStorage.setItem('rw_train','1')}catch(e){}`);
   if(!o.ctx&&o.init)await ctx.addInitScript(o.init);
-  if(!o.ctx)await ctx.addInitScript(`window.__vib=[];try{navigator.vibrate=function(p){window.__vib.push([Math.round(performance.now()),p]);return true}}catch(e){}`); // headless Chromium refuses vibrate; record the calls instead
+  if(!o.ctx)await ctx.addInitScript(`window.__vib=[];window.__vibEarly=[];(()=>{let tapped=false;addEventListener('pointerdown',()=>{tapped=true},true);try{navigator.vibrate=function(p){if(!tapped)window.__vibEarly.push(p);window.__vib.push([Math.round(performance.now()),p]);return true}}catch(e){}})();`); // headless Chromium refuses vibrate, so the calls are recorded instead; __vibEarly holds any made before the first tap (a real browser logs an error for those)
   const page=await ctx.newPage(),errors=[];await page.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.fulfill({status:200,contentType:'text/css',body:''}));
   page.on('pageerror',e=>errors.push('pageerror: '+e.message+'\n'+(e.stack||'').split('\n').slice(0,4).join('\n')));
   page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
@@ -56,6 +56,7 @@ const _sarcSeeds={};
 async function sarcSeed(page,prefix,keep){ // probing starts throwaway runs, so the page is relaunched clean and the chosen seed is started once (unless keep: the caller starts it)
   let seed=_sarcSeeds[prefix];
   if(!seed){for(let k=0;k<80&&!seed;k++){const s=prefix+k;await startSeeded(page,s);if(await page.evaluate(()=>state.finds.some(f=>f.sarc)))seed=s}if(!seed)throw new Error('no sarcophagus seed found for '+prefix);_sarcSeeds[prefix]=seed;
+    await page.evaluate(()=>{try{S15.hold=true;S11.clear()}catch(e){}});await page.reload(); // hold: the page's own pagehide save must not write the throwaway run back
     await page.evaluate(()=>{try{S11.clear()}catch(e){}});await page.reload();await page.waitForFunction(()=>typeof newChamber==='function'&&typeof S11==='object');await page.waitForTimeout(300)}
   if(!keep)await startSeeded(page,seed);return seed}
 // "The app is closed and opened again." Headless Chromium on file:// sometimes drops ALL of localStorage across page.reload() (measured: 3 of 30 with rc9a, 6 of 30 with this build,

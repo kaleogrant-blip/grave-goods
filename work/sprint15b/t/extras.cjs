@@ -47,7 +47,7 @@ const H=require('./h.cjs');const FILE=process.argv[2]||H.BUILD;
         if(T==='chisel'||T==='mattock')seen.push(k+'/'+T+': '+line)}
       run.kit.tool='standard';return{bad,n:Object.keys(CLASSES).length*tools.length,seen:seen.slice(0,4),std:s12ClassLine('scholar')}});
     say(coach.bad.length===0,'coaching, Damp slip and the first tutorial card never name a tool the kit lacks ('+coach.n+' class x tool kits)',coach.bad.slice(0,3));console.log('     e.g.',coach.seen.join('\n          '));console.log('     standard kit, unchanged:',coach.std);
-    say(errors.filter(e=>!/vibrate/.test(e)).length===0,'no page errors in this pass',errors);await ctx.close()}
+    say(errors.slice().length===0,'no page errors in this pass',errors);await ctx.close()}
   // ---- Reduce Motion
   {const {page,ctx,errors}=await H.open(FILE,{rm:true});await page.waitForTimeout(500);await H.sarcSeed(page,'EXT-');await page.waitForTimeout(500);await H.tapSarc(page);await page.waitForTimeout(700);
     const rmOn=await page.evaluate(()=>rmEff()&&document.getElementById('lkp').classList.contains('bn-rm'));say(rmOn,'Reduce Motion: the reading opens in its still mode');
@@ -57,5 +57,5 @@ const H=require('./h.cjs');const FILE=process.argv[2]||H.BUILD;
     const tg=await page.evaluate(()=>{const t=document.getElementById('bntag'),cs=getComputedStyle(t);return{tr:cs.transitionProperty,dur:cs.transitionDuration}});
     say(dt<700&&/opacity/.test(tg.tr)&&!/transform/.test(tg.tr),'Reduce Motion: a short fade to the result ('+dt+' ms from tap to tag, opacity only)',tg);
     const three=await H.boneInfo(page);say(three.rows.some(r=>r.hit),'Reduce Motion: same three taps, same record');
-    say(errors.filter(e=>!/vibrate/.test(e)).length===0,'no page errors under Reduce Motion',errors);await ctx.close()}
+    say(errors.slice().length===0,'no page errors under Reduce Motion',errors);await ctx.close()}
   console.log(fail?'EXTRAS FAIL':'EXTRAS PASS');await H.close();process.exit(fail?1:0)})().catch(e=>{console.error(e);process.exit(1)});

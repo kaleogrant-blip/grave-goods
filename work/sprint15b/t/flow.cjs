@@ -9,7 +9,8 @@ for(const [w,h] of VPS){
   const stop=async n=>{const s=await H.noScroll(page);stops.push(n+':'+s.sw+'/'+s.iw);if(!s.ok){fail++;console.log('SCROLL',w,h,n,s)}};
   await page.waitForTimeout(600);const seed=await H.sarcSeed(page,'FLOW-'+w+'-',true); // a seed whose first wall has a real sarcophagus, then a clean launch
   await page.waitForTimeout(1300);await stop('title');
-  await page.locator('#title button.tl-dig').tap();await page.waitForSelector('#overlay:not([hidden]) #dig');await page.waitForTimeout(H.GUARD);await stop('kit');
+  await page.locator('#title button.tl-dig').tap();await page.waitForSelector('#overlay:not([hidden]) #dig, #mDig');await page.waitForTimeout(H.GUARD);
+  if(await page.locator('#mDig:visible').count()){await stop('camp');await page.locator('#mDig').tap();await page.waitForSelector('#overlay:not([hidden]) #dig');await page.waitForTimeout(H.GUARD)}await stop('kit'); // a profile that has dug before lands on the camp menu first
   await page.evaluate(s=>{run.seed=s},seed);
   await page.locator('#overlay:not([hidden]) #dig').tap();
   await page.waitForFunction(()=>state&&!state.train&&document.getElementById('overlay').hidden);await page.waitForTimeout(900);await stop('wall');
@@ -60,7 +61,8 @@ for(const [w,h] of VPS){
     const go=page.locator('#overlay:not([hidden]) #go:visible');const ch=page.locator('#overlay:not([hidden]) .chest:visible').first();
     if(await go.count())await go.tap();else if(await ch.count())await ch.tap()}
   assert(market,'reached the Market');await stop('market');
-  const real=errors.filter(e=>!/vibrate/.test(e));
+  const early=await page.evaluate(()=>__vibEarly.length);assert.strictEqual(early,0,'no vibrate() call before the first tap of this launch');
+  const real=errors.slice();
   out.push({vp:w+'x'+h,errors:real.length,taps_dug:dug,res,stops:stops.join(' ')});if(real.length){fail++;console.log(real)}
   await ctx.close();
 }

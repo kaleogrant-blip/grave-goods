@@ -31,7 +31,7 @@ async function start(mode){const o=await H.open(process.argv[2]||H.BUILD,{init:I
       const c=await st(page);say(c.live===0&&c.game===0,'['+mode+'] 3.6 s after the reading: nothing still sounding',{live:c.live,game:c.game});say(c.timers===0,'['+mode+'] no luck timer left pending',c.timers);
       const vib=await page.evaluate(()=>__vib.map(v=>v[1]));say(vib.length>=3,'['+mode+'] haptics fired: '+JSON.stringify(vib));
       const hs=vib[0];say(Array.isArray(hs)&&hs.filter((v,i)=>i%2===0).every((v,i,a)=>i===0||v>=a[i-1])&&hs[hs.length-1]>hs[0],'['+mode+'] the heating haptic rises',hs);
-      const errs=q.errors.filter(e=>!/vibrate/.test(e));say(errs.length===0,'['+mode+'] no page errors',errs);if(q!==o)await q.ctx.close()}
+      const errs=q.errors.slice();say(errs.length===0,'['+mode+'] no page errors',errs);if(q!==o)await q.ctx.close()}
     await o.ctx.close()}
   // quit mid-reading, at each step
   for(const step of [1,2,3]){const o=await start('sarc');const page=o.page;
@@ -47,5 +47,5 @@ async function start(mode){const o=await H.open(process.argv[2]||H.BUILD,{init:I
     await page.waitForTimeout(1500);
     await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>false});Object.defineProperty(document,'visibilityState',{configurable:true,get:()=>'visible'});document.dispatchEvent(new Event('visibilitychange'))});
     await page.locator('#bngo').tap().catch(()=>{});await page.waitForTimeout(3800);const c=await st(page);say(c.live===0&&c.game===0,'app hidden mid-hiss, shown again: nothing left sounding 3.8 s later',c);
-    const errs=o.errors.filter(e=>!/vibrate/.test(e));say(errs.length===0,'  no page errors',errs);await o.ctx.close()}
+    const errs=o.errors.slice();say(errs.length===0,'  no page errors',errs);await o.ctx.close()}
   console.log(fail?'AUDIO FAIL':'AUDIO PASS');await H.close();process.exit(fail?1:0)})().catch(e=>{console.error(e);process.exit(1)});

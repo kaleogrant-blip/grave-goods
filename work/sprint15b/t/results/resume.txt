@@ -1,0 +1,36 @@
+[sarc RES-11 step 0] [sarc RES-11 step 1] [sarc RES-11 step 2] [sarc RES-11 step 3] [sarc RES-12 step 0] [sarc RES-12 step 1] [sarc RES-12 step 2] [sarc RES-12 step 3] [sarc RES-15 step 0] [sarc RES-15 step 1] [sarc RES-15 step 2] [sarc RES-15 step 3] [sarc RES-19 step 0] [sarc RES-19 step 1] [sarc RES-19 step 2] [sarc RES-19 step 3] [fever RES-21 step 0] [fever RES-21 step 1] [fever RES-21 step 2] [fever RES-21 step 3] [fever RES-22 step 0] [fever RES-22 step 1] [fever RES-22 step 2] [fever RES-22 step 3] [fever RES-23 step 0] [fever RES-23 step 1] [fever RES-23 step 2] [fever RES-23 step 3] ┌─────────┬─────────┬──────────┬─────────┬───────────────────┬────────────────┬──────────┬────────┐
+│ (index) │ mode    │ seed     │ result  │ closedAt          │ sameAsFinished │ paidOnce │ errors │
+├─────────┼─────────┼──────────┼─────────┼───────────────────┼────────────────┼──────────┼────────┤
+│ 0       │ 'sarc'  │ 'RES-11' │ 'bones' │ 'before any tap'  │ true           │ true     │ 0      │
+│ 1       │ 'sarc'  │ 'RES-11' │ 'bones' │ 'after Heat'      │ true           │ true     │ 0      │
+│ 2       │ 'sarc'  │ 'RES-11' │ 'bones' │ 'after the crack' │ true           │ true     │ 0      │
+│ 3       │ 'sarc'  │ 'RES-11' │ 'bones' │ 'tag showing'     │ true           │ true     │ 0      │
+│ 4       │ 'sarc'  │ 'RES-12' │ 'relic' │ 'before any tap'  │ true           │ true     │ 0      │
+│ 5       │ 'sarc'  │ 'RES-12' │ 'relic' │ 'after Heat'      │ true           │ true     │ 0      │
+│ 6       │ 'sarc'  │ 'RES-12' │ 'relic' │ 'after the crack' │ true           │ true     │ 0      │
+│ 7       │ 'sarc'  │ 'RES-12' │ 'relic' │ 'tag showing'     │ true           │ true     │ 0      │
+│ 8       │ 'sarc'  │ 'RES-15' │ 'relic' │ 'before any tap'  │ true           │ true     │ 0      │
+│ 9       │ 'sarc'  │ 'RES-15' │ 'relic' │ 'after Heat'      │ true           │ true     │ 0      │
+│ 10      │ 'sarc'  │ 'RES-15' │ 'relic' │ 'after the crack' │ true           │ true     │ 0      │
+│ 11      │ 'sarc'  │ 'RES-15' │ 'relic' │ 'tag showing'     │ true           │ true     │ 0      │
+│ 12      │ 'sarc'  │ 'RES-19' │ 'mimic' │ 'before any tap'  │ true           │ true     │ 0      │
+│ 13      │ 'sarc'  │ 'RES-19' │ 'mimic' │ 'after Heat'      │ true           │ true     │ 0      │
+│ 14      │ 'sarc'  │ 'RES-19' │ 'mimic' │ 'after the crack' │ true           │ true     │ 0      │
+│ 15      │ 'sarc'  │ 'RES-19' │ 'mimic' │ 'tag showing'     │ true           │ true     │ 0      │
+│ 16      │ 'fever' │ 'RES-21' │ 'relic' │ 'before any tap'  │ true           │ true     │ 0      │
+│ 17      │ 'fever' │ 'RES-21' │ 'relic' │ 'after Heat'      │ true           │ true     │ 0      │
+│ 18      │ 'fever' │ 'RES-21' │ 'relic' │ 'after the crack' │ true           │ true     │ 0      │
+│ 19      │ 'fever' │ 'RES-21' │ 'relic' │ 'tag showing'     │ true           │ true     │ 0      │
+│ 20      │ 'fever' │ 'RES-22' │ 'gold'  │ 'before any tap'  │ true           │ true     │ 0      │
+│ 21      │ 'fever' │ 'RES-22' │ 'gold'  │ 'after Heat'      │ true           │ true     │ 0      │
+│ 22      │ 'fever' │ 'RES-22' │ 'gold'  │ 'after the crack' │ true           │ true     │ 0      │
+│ 23      │ 'fever' │ 'RES-22' │ 'gold'  │ 'tag showing'     │ true           │ true     │ 0      │
+│ 24      │ 'fever' │ 'RES-23' │ 'ore'   │ 'before any tap'  │ true           │ true     │ 0      │
+│ 25      │ 'fever' │ 'RES-23' │ 'ore'   │ 'after Heat'      │ true           │ true     │ 0      │
+│ 26      │ 'fever' │ 'RES-23' │ 'ore'   │ 'after the crack' │ true           │ true     │ 0      │
+│ 27      │ 'fever' │ 'RES-23' │ 'ore'   │ 'tag showing'     │ true           │ true     │ 0      │
+└─────────┴─────────┴──────────┴─────────┴───────────────────┴────────────────┴──────────┴────────┘
+mid-dig DIG-1 same wall, crack and bank { banked: 5, crack: 12, rs: 1853770582 }
+mid-dig DIG-2 same wall, crack and bank { banked: 9, crack: 12, rs: 1701568950 }
+mid-dig DIG-3 same wall, crack and bank { banked: 11, crack: 15, rs: 2680967594 }
+RESUME PASS: 28 reloads mid-reading + 3 mid-dig, every one ends in the same state as the uninterrupted run

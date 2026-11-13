@@ -16,7 +16,7 @@ const med=a=>{if(!a.length)return null;const s=a.slice().sort((x,y)=>x-y);return
     await page.evaluate(()=>{__perf.ph='tag'});await page.waitForTimeout(900);await page.evaluate(()=>{__perf.ph=''});
     const direct=await page.evaluate(()=>{const a=[];for(let i=0;i<200;i++){const t=performance.now();draw();a.push(performance.now()-t)}return a});
     const P=await page.evaluate(()=>__perf);const bone=[].concat(P.d.heat||[],P.d.crack||[],P.d.creep||[],P.d.tag||[]),bf=[].concat(P.f.heat||[],P.f.crack||[],P.f.creep||[],P.f.tag||[]);
-    const row={vp:w+'x'+h,mode,wall_draw_med:med(P.d.wall||[]),wall_n:(P.d.wall||[]).length,bone_draw_calls:bone.length,bone_draw_med:med(bone),bone_draw_p95:p95(bone),creep_draw_med:med(P.d.creep||[]),direct_draw_med:med(direct),direct_draw_p95:p95(direct),frame_gap_wall_med:med(P.f.wall||[]),frame_gap_bone_med:med(bf),frame_gap_creep_p95:p95(P.f.creep||[]),errors:errors.filter(e=>!/vibrate/.test(e)).length};
+    const row={vp:w+'x'+h,mode,wall_draw_med:med(P.d.wall||[]),wall_n:(P.d.wall||[]).length,bone_draw_calls:bone.length,bone_draw_med:med(bone),bone_draw_p95:p95(bone),creep_draw_med:med(P.d.creep||[]),direct_draw_med:med(direct),direct_draw_p95:p95(direct),frame_gap_wall_med:med(P.f.wall||[]),frame_gap_bone_med:med(bf),frame_gap_creep_p95:p95(P.f.creep||[]),errors:errors.slice().length};
     out.push(row);const m=row.bone_draw_calls?row.bone_draw_med:0;if(m>=2||row.direct_draw_med>=2&&row.bone_draw_calls>0||row.errors)fail++;
     await ctx.close()}
   console.table(out);console.log(fail?'PERF FAIL':'PERF PASS: draw() median under 2 ms during the bone animation at every size');await H.close();process.exit(fail?1:0)})().catch(e=>{console.error(e);process.exit(1)});

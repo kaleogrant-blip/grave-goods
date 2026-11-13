@@ -33,10 +33,14 @@ const fp=c=>[c.title,c.ov,c.panel,c.pause,c.over,c.i,c.crack,c.banked,c.lives,c.
         const probe=await page.evaluate(()=>{const o={};['#pick','#hammer','#seal','#pause','#c'].forEach(q=>{const e=document.querySelector(q),r=e.getBoundingClientRect(),t=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);o[q]={at:[Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)],top:t?(t.id||t.className||t.tagName)+'<'+(t.parentNode&&(t.parentNode.id||t.parentNode.className||t.parentNode.tagName)):'none',dis:!!e.disabled}});
           o.fixed=[...document.querySelectorAll('body *')].filter(e=>{const cs=getComputedStyle(e);return cs.position==='fixed'&&cs.display!=='none'&&cs.visibility!=='hidden'&&e.offsetWidth>50&&e.offsetHeight>50}).map(e=>(e.id||e.className)+':'+getComputedStyle(e).zIndex+':'+getComputedStyle(e).pointerEvents+':'+getComputedStyle(e).opacity).slice(0,12);
           o.pause=JSON.stringify(PAUSE).slice(0,120);o.tool=tool;o.aim=typeof aimGet==='function'&&aimGet()?[aimGet().x,aimGet().y]:null;o.body=document.body.className;o.pd=__pd.slice(-4);return o});
-        await page.locator('#pick').tap({timeout:800,force:true}).catch(e=>{probe.pickTapError=String(e).slice(0,120)});await page.waitForTimeout(150);
-        probe.toolAfterPickTap=await page.evaluate(()=>tool);probe.pdAfter=await page.evaluate(()=>__pd.slice(-1));
-        const recovered=probe.toolAfterPickTap!==c.tool;
-        report.stuck.push({run:r,action:a,ctx:c,buttons:way,probe,verdict:recovered?'NOT STUCK: a tap on Pick changed the tool; the fuzz had simply not drawn a state-changing action':'STUCK'});
+        // proof of progress: do what a player would do. Tap one dirt tile twice with the pick (twice covers Confirm digs, where the first tap only aims).
+        await page.locator('#pick').tap({timeout:800,force:true}).catch(e=>{probe.pickTapError=String(e).slice(0,120)});await page.waitForTimeout(120);
+        const tile=await page.evaluate(()=>{for(let y=ROWS-1;y>=0;y--)for(let x=0;x<COLS;x++){const o=state.owner[y][x],f=o>=0?state.finds[o]:null;if(state.dirt[y][x]>0&&!(f&&f.sarc)){const r=document.getElementById('c').getBoundingClientRect();return{x,y,px:r.left+(x+.5)*cell,py:r.top+(y+TOP+.5)*cell,sum:state.dirt.reduce((a,r)=>a+r.reduce((b,v)=>b+v,0),0)}}}return null});
+        let recovered=false;
+        if(tile){await H.tapXY(page,tile.px,tile.py);await page.waitForTimeout(160);await H.tapXY(page,tile.px,tile.py);await page.waitForTimeout(250);
+          const now=await ctxOf(page);probe.afterDoubleTap={dirtSum:now.dirtSum,was:tile.sum,over:now.over,ov:now.ov,panel:now.panel};recovered=now.dirtSum<tile.sum||now.over||now.ov||!!now.panel||now.i!==c.i}
+        else{const now=await ctxOf(page);recovered=fp(now)!==f;probe.noDirt=true}
+        report.stuck.push({run:r,action:a,ctx:c,buttons:way,probe,verdict:recovered?'NOT STUCK: tapping a dirt tile twice dug it. The random taps had simply not hit the same tile twice (Confirm digs was on: '+c.confirm+')':'STUCK'});
         if(recovered){same=0;lastFp='';report.stuck[report.stuck.length-1].false=true;continue}
         stuckHit=true;break}
       const covered=c.title||c.ov||c.share||c.pause||c.panel;
@@ -70,7 +74,7 @@ const fp=c=>[c.title,c.ov,c.panel,c.pause,c.over,c.i,c.crack,c.banked,c.lives,c.
       if(should){stat.digTaps++;
         const after=await page.evaluate(([x,y,px,py])=>{const cv=document.getElementById('c'),r=cv.getBoundingClientRect(),el=document.elementFromPoint(px,py),ut=document.getElementById('uitoast'),ur=ut?ut.getBoundingClientRect():null;
           return{dirt:state.dirt[y]?state.dirt[y][x]:-1,taps:RS().taps,strikes:state.strikes|0,dirtSum:state.dirt.reduce((a,r)=>a+r.reduce((b,v)=>b+v,0),0),i:state.i,over:state.over,log:document.getElementById('log').textContent,t:performance.now(),
-            pd:__pd.slice(-2),rect:[Math.round(r.left),Math.round(r.top),Math.round(r.width),Math.round(r.height)],cell:Math.round(cell*100)/100,elNow:el?(el.id||el.className||el.tagName):'none',
+            toolNow:typeof tool==='string'?tool:'',pd:__pd.slice(-2),rect:[Math.round(r.left),Math.round(r.top),Math.round(r.width),Math.round(r.height)],cell:Math.round(cell*100)/100,elNow:el?(el.id||el.className||el.tagName):'none',
             mapsTo:[Math.floor((px-r.left)/cell),Math.floor((py-r.top)/cell)-TOP],holdOpen:typeof hold!=='undefined'&&!!hold,toast:ur&&ur.width?[Math.round(ur.left),Math.round(ur.top),Math.round(ur.width),Math.round(ur.height),getComputedStyle(ut).pointerEvents,getComputedStyle(ut).opacity]:null,sealing:!!state.sealing,lk:LK.busy,pause:PAUSE.on}},[t.x,t.y,t.px,t.py]);
         const dug=after.dirtSum<t.dirtSum||after.i!==c.i||(after.over&&!c.over);
         if(dug)stat.dug++;else{stat.nodig++;
@@ -83,12 +87,13 @@ const fp=c=>[c.title,c.ov,c.panel,c.pause,c.over,c.i,c.crack,c.banked,c.lives,c.
             :!reached&&(after.pause||after.lk)?'a pause sheet or luck panel opened in the same instant'
             :!reached?'REACHED THE CANVAS BUT NOT act(): UNEXPLAINED'
             :c.sealing||after.sealing?'a seal was being counted (strike() ignores taps while state.sealing)'
-            :after.log!==t.log&&/out of|spent|only tool|retires|fuse|charge|left to dig|Dig the rest/i.test(after.log)?'the tool or the tile refused, and said so: '+after.log
+            :/out of rope|out of bit|is spent|only tool|retires|left to dig|Dig the rest/i.test(after.log)?'the tool or the tile refused, and said so: '+after.log
+            :(after.toolNow!==c.tool||/X-ray|Lodestone|blast/i.test(after.log))&&after.log!==t.log?'the tap before it had armed a one-shot tool (its click landed after this tap was aimed), so this tap used that tool instead: '+after.log
             :c.clearing||c.qbusy?'the chamber was ending (queue busy)':'UNEXPLAINED';
           report.nodig.push({run:r,action:a,why,reachedHandler:reached,tile:[t.x,t.y],tapAt:[Math.round(t.px),Math.round(t.py)],dirtBefore:t.dirt,dirtAfter:after.dirt,ms:Math.round(after.t-t.t),toast:after.log.slice(0,90),toastBefore:t.log.slice(0,60),pointerdowns:after.pd,canvasBefore:t.rect,canvasAfter:after.rect,cellBefore:t.cell,cellAfter:after.cell,elementNow:after.elNow,tapMapsToTile:after.mapsTo,holdOpen:after.holdOpen,uitoast:after.toast,ctx:{tool:c.tool,kit:c.kit,sealing:c.sealing,clearing:c.clearing,falling:c.falling,qbusy:c.qbusy,lk:c.lk,lkmode:c.lkmode,pause:c.pause,confirm:c.confirm,feed:c.feed,guardLeft:c.guard,crack:c.crack,i:c.i,train:c.train,ore:c.ore,glass:c.glass,drill:c.drill}})}}
       if(a%7===0)await page.waitForTimeout(30);
     }
-    const end=await ctxOf(page);const errs=errors.filter(e=>!/vibrate/.test(e));errs.forEach(e=>report.errors.push({run:r,e}));
+    const end=await ctxOf(page);const errs=errors.slice();errs.forEach(e=>report.errors.push({run:r,e}));
     const sc=await H.noScroll(page);
     report.runs.push({run:r,vp:w+'x'+h,actions:ACTS,kinds,digTaps:stat.digTaps,dug:stat.dug,noDig:stat.nodig,boneActions:stat.bones,deepestChamber:stat.maxI+1,pageErrors:errs.length,scrollOk:sc.ok,endState:{title:end.title,card:end.card.slice(0,40),over:end.over,i:end.i}});
     console.log(JSON.stringify(report.runs[report.runs.length-1]));

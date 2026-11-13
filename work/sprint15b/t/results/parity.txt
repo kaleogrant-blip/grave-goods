@@ -1,0 +1,24 @@
+same OWL-1000 walls 3 rolls 16 sarc relic fever4 relic
+same BOAR-1137 walls 3 rolls 25 sarc bones fever4 relic
+same CAT-1274 walls 3 rolls 20 sarc ore fever4 nothing
+same TOMB-1411 walls 3 rolls 22 sarc relic fever4 relic
+same JADE-1548 walls 3 rolls 18 sarc ore fever4 relic
+same GOLD-1685 walls 3 rolls 20 sarc - fever4 nothing
+same BONE-1822 walls 3 rolls 24 sarc relic,bones fever4 nothing
+same DUST-1959 walls 3 rolls 14 sarc ore fever4 gold
+same HORN-2096 walls 3 rolls 18 sarc mimic fever4 relic
+same RING-2233 walls 3 rolls 27 sarc - fever4 memory
+PARITY PASS: 10 seeds, 30 walls, 9 sarcophagus results, 10 fourth-Fever results, 179 red-line rolls compared; 0 seeds differ
+{"reels:relic":3,"jackpot:relic":5,"reels:bones":2,"reels:ore":3,"jackpot:nothing":3,"jackpot:gold":1,"reels:mimic":1,"jackpot:memory":1}
+same OWL-2370 walls 3 rolls 17 sarc - fever4 relic
+same BOAR-2507 walls 3 rolls 21 sarc ore,bones fever4 relic
+same CAT-2644 walls 3 rolls 19 sarc mimic,relic,relic fever4 ore
+same TOMB-2781 walls 3 rolls 21 sarc relic fever4 nothing
+same JADE-2918 walls 3 rolls 22 sarc - fever4 nothing
+same GOLD-3055 walls 3 rolls 20 sarc - fever4 memory
+same BONE-3192 walls 3 rolls 20 sarc mimic,ore fever4 relic
+same DUST-3329 walls 3 rolls 22 sarc ore,relic fever4 nothing
+same HORN-3466 walls 3 rolls 18 sarc relic,relic fever4 nothing
+same RING-3603 walls 3 rolls 14 sarc relic,bones fever4 gold
+PARITY PASS: 10 seeds, 30 walls, 14 sarcophagus results, 10 fourth-Fever results, 167 red-line rolls compared; 0 seeds differ
+{"jackpot:relic":3,"reels:ore":3,"reels:bones":2,"reels:mimic":2,"reels:relic":7,"jackpot:ore":1,"jackpot:nothing":4,"jackpot:memory":1,"jackpot:gold":1}

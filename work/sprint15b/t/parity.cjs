@@ -51,7 +51,7 @@ async function play(file,seed){
     rec.ends.push(await page.evaluate(()=>({rs:rngState>>>0,banked:run.banked,crack:Math.round(state.crack*10)/10,over:!!state.over,lives:run.lives})));
   }
   rec.log=await page.evaluate(()=>LK.log.map(e=>[e.k,e.r,e.o]));
-  rec.errors=errors.filter(e=>!/vibrate/.test(e));
+  rec.errors=errors.slice();
   await ctx.close();return rec;
 }
 (async()=>{let bad=0,sarc=0,jp=0,press=0,walls=0;const dist={};
