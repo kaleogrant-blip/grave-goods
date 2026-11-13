@@ -55,6 +55,7 @@ function settle(){ // run the clock and clear whatever is in the way, until the 
     if(!$('overlay').hidden){card();continue}
     if(!state)return false;
     if(state.sealing||Q.busy||state.clearing||LK.busy||state.over){__vt.flush(400);continue}
+    if(LK.timers.size){__vt.flush(200);continue} // a luck moment is on its way (the second bone comes out 0.7 s after the fourth Fever): the players here wait for it, as the replay with real taps does
     return true;
   }
   SIM.stuck.push({o:SIM.o,i:state&&state.i,over:state&&state.over,ov:!$('overlay').hidden,card:$('card').textContent.slice(0,80),lk:!!$('lkp'),q:Q.busy});

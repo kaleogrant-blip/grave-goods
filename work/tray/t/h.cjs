@@ -41,11 +41,13 @@ const wallSig=page=>page.evaluate(()=>JSON.stringify({i:state.i,d:state.dirt,f:s
 // screen coordinates of the centre of wall cell (x,y)
 const cellXY=(page,x,y)=>page.evaluate(([x,y])=>{const c=document.getElementById('c'),r=c.getBoundingClientRect();return{x:r.left+(x+.5)*cell,y:r.top+(y+TOP+.5)*cell}},[x,y]);
 module.exports={chromium,browser,close,open,tap,tapXY,startSeeded,wallSig,cellXY,BUILD,RC9A,MAIN,DIR,GUARD};
+// the score sheet opens over the top rows of the wall for a moment after a seal: if it covers the tile about to be tapped, shut it the way a player does (tap the strip)
+const clearWay=async(page,p)=>{for(let k=0;k<3;k++){const el=await page.evaluate(p=>{const e=document.elementFromPoint(p.x,p.y);return e?e.id||e.className||e.tagName:''},p);if(el==='c')return true;if(await page.locator('#strip:visible').count()&&await page.evaluate(()=>document.getElementById('strip').getAttribute('aria-expanded')==='true'))await page.locator('#strip').tap().catch(()=>{});await page.waitForTimeout(600)}return false};
 // ---- reading helpers
 // uncover the first unopened sarcophagus (setup, direct), return a cell of it
 const bareSarc=page=>page.evaluate(()=>{try{luckSlipHide()}catch(e){}const f=state.finds.find(f=>f.sarc&&!f.banked);if(!f)return null;f.cells.forEach(([x,y])=>state.dirt[y][x]=0);ui();draw();return f.cells[0]});
 // open it with a real tap on the wall
-async function tapSarc(page){const c=await bareSarc(page);if(!c)return false;await page.evaluate(()=>{if(typeof setTool==='function')setTool('pick')});const p=await cellXY(page,c[0],c[1]);await page.waitForTimeout(80);await tapXY(page,p.x,p.y);await page.waitForSelector('#lkp.bn',{timeout:3000});return true}
+async function tapSarc(page){const c=await bareSarc(page);if(!c)return false;await page.evaluate(()=>{if(typeof setTool==='function')setTool('pick')});const p=await cellXY(page,c[0],c[1]);await page.waitForTimeout(80);await clearWay(page,p);await tapXY(page,p.x,p.y);await page.waitForSelector('#lkp.bn',{timeout:3000});return true}
 // force the next sarcophagus roll (screenshots only; never used by the parity or fairness tests)
 const forceSarc=(page,r)=>page.evaluate(r=>{const o=s9SarcRoll;s9SarcRoll=function(){const R=o();s9SarcRoll=o;return{r,hit:false,sul:R.sul}}},r);
 const boneStep=async(page,wait)=>{await page.locator('#bngo').tap();await page.waitForTimeout(wait==null?700:wait)};
@@ -70,4 +72,4 @@ async function relaunch(o,file,opt){
 // after a relaunch the title is up; the Dig button resumes the saved run (the game's S11.take)
 async function resumeFromTitle(page){await page.waitForTimeout(GUARD+300);await page.locator('#title button.tl-dig').tap();
   await page.waitForFunction(()=>typeof _title!=='undefined'&&_title===null&&!!state&&!!run&&!!run.tid&&document.getElementById('overlay')!==null,null,{timeout:8000});await page.waitForTimeout(900)}
-Object.assign(module.exports,{relaunch,resumeFromTitle,sarcSeed,bareSarc,tapSarc,forceSarc,boneStep,boneInfo,noScroll});
+Object.assign(module.exports,{clearWay,relaunch,resumeFromTitle,sarcSeed,bareSarc,tapSarc,forceSarc,boneStep,boneInfo,noScroll});

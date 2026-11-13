@@ -1,0 +1,60 @@
+[
+ {
+  "vp": "390x844",
+  "errors": 0,
+  "taps_dug": 7,
+  "tray": [
+   2,
+   3,
+   4,
+   5,
+   6,
+   7
+  ],
+  "sealed": 972,
+  "res": {
+   "sarc": "ore",
+   "fever": "nothing"
+  },
+  "stops": "title:390/390 kit:390/390 wall:390/390 dug:390/390 tray8:390/390 picked:390/390 sealed:390/390 bone0:390/390 bone1:390/390 bone2:390/390 bone3:390/390 fev0:390/390 fev2:390/390 fev3:390/390 market:390/390"
+ },
+ {
+  "vp": "360x640",
+  "errors": 0,
+  "taps_dug": 10,
+  "tray": [
+   2,
+   3,
+   5,
+   6,
+   7,
+   8
+  ],
+  "sealed": 990,
+  "res": {
+   "sarc": "relic",
+   "fever": "ore"
+  },
+  "stops": "title:360/360 kit:360/360 wall:360/360 dug:360/360 tray8:360/360 picked:360/360 sealed:360/360 bone0:360/360 bone1:360/360 bone2:360/360 bone3:360/360 fev0:360/360 fev2:360/360 fev3:360/360 market:360/360"
+ },
+ {
+  "vp": "844x390",
+  "errors": 0,
+  "taps_dug": 17,
+  "tray": [
+   2,
+   3,
+   4,
+   5,
+   6,
+   8
+  ],
+  "sealed": 600,
+  "res": {
+   "sarc": "bones",
+   "fever": "nothing"
+  },
+  "stops": "title:844/844 kit:844/844 wall:844/844 dug:844/844 tray8:844/844 picked:844/844 sealed:844/844 bone0:844/844 bone1:844/844 bone2:844/844 bone3:844/844 fev0:844/844 fev2:844/844 fev3:844/844 market:844/844"
+ }
+]
+FLOW PASS: 3 viewports, 0 page errors, no horizontal scroll

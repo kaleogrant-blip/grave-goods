@@ -9,7 +9,7 @@ module.exports = async function (openSim, chromium, BUILD) {
   const CASES = [{ tomb: 1, stake: 1, pol: 'early', cls: 'scholar', seed: 'V-1' }, { tomb: 1, stake: 1, pol: 'pick9', cls: 'medium', seed: 'V-2' }, { tomb: 1, stake: 1, pol: 'hammer', cls: 'brute', seed: 'V-3' }, { tomb: 3, stake: 3, pol: 'hold', cls: 'fence', seed: 'V-4' }];
   const MAX = +process.env.VERIFY_ACTIONS || 220;
   const browser = await chromium.launch(); let fail = 0; const rows = [];
-  for (const o of CASES) {
+  for (const o of (process.env.VERIFY_ONLY ? [CASES[+process.env.VERIFY_ONLY]] : CASES)) {
     // 1. the simulated run, recorded
     const s = await openSim(browser);
     const tr = await s.page.evaluate(o => { SIM.rec = true; const r = SIM.run(o); SIM.rec = false; return { r, trace: SIM.trace }; }, o);
@@ -26,7 +26,7 @@ module.exports = async function (openSim, chromium, BUILD) {
     await page.waitForTimeout(600);
     await page.evaluate(o => { SIM.start(o); Q.speed = 4; }, o); // Q.speed is the game's own animation-speed button
     const cellXY = (x, y) => page.evaluate(([x, y]) => { const r = document.getElementById('c').getBoundingClientRect(); return { x: r.left + (x + .5) * cell, y: r.top + (y + TOP + .5) * cell }; }, [x, y]);
-    const idle = () => page.waitForFunction(() => !document.getElementById('lkp') && document.getElementById('overlay').hidden && state && !state.sealing && !Q.busy && !state.clearing && !LK.busy && !state.over, null, { timeout: 30000 });
+    const idle = () => page.waitForFunction(() => !document.getElementById('lkp') && document.getElementById('overlay').hidden && state && !state.sealing && !Q.busy && !state.clearing && !LK.busy && !LK.timers.size && !state.over, null, { timeout: 30000 });
     let n = 0, cps = 0, bad = null, taps = 0;
     try {
       for (const e of trace) {
@@ -43,13 +43,14 @@ module.exports = async function (openSim, chromium, BUILD) {
         }
         else if (e.a === 'l') { // a bone reading or the knucklebone: the panel may also close by itself (2.6 s after the result), so a recorded tap that has nothing left to tap is skipped
           await page.waitForTimeout(950);
-          for (let k = 0; k < 40; k++) { if (!await page.locator('#lkp').count()) break; const b = page.locator('#lkp ' + e.sel + ':visible:not([disabled])').first(); if (await b.count()) { await b.tap({ timeout: 3000 }).catch(() => { }); taps++; break; } await page.waitForTimeout(200); }
+          const bone = e.sel === '#bnfast' || e.sel === '#bngo'; // a reading is decided before its first tap, and a profile with three readings behind it gets a one-tap button: so a reading is simply tapped through to its end
+          for (let k = 0; k < 60; k++) { if (!await page.locator('#lkp').count()) break; const b = page.locator(bone ? '#lkp #bnfast:visible:not([disabled]), #lkp #bngo:visible:not([disabled])' : '#lkp ' + e.sel + ':visible:not([disabled])').first(); if (await b.count()) { await b.tap({ timeout: 3000 }).catch(() => { }); taps++; if (!bone) break; await page.waitForTimeout(500); } else await page.waitForTimeout(200); }
           await page.waitForTimeout(300);
         }
       }
-    } catch (x) { bad = { at: n, error: String(x).slice(0, 300), entry: trace[n - 1] }; }
+    } catch (x) { bad = { at: n, error: String(x).slice(0, 120), entry: trace[n - 1], before: trace.slice(Math.max(0, n - 6), n - 1), screen: await page.evaluate(() => ({ ov: !document.getElementById('overlay').hidden, card: document.getElementById('card').textContent.slice(0, 140), lkp: !!document.getElementById('lkp'), lk: LK.busy, q: Q.busy, sealing: state.sealing, over: state.over, clearing: state.clearing, sig: SIM.sig() })).catch(() => null) }; }
     const ok = !bad && !errors.length; if (!ok) fail++;
-    rows.push(`| ${o.pol} / ${o.cls} / Tomb ${o.tomb} Stake ${o.stake} / ${o.seed} | ${n} of ${tr.trace.length} recorded steps, ${taps} real taps | ${cps} | ${ok ? 'PASS' : 'FAIL ' + JSON.stringify(bad || errors).slice(0, 400)} |`);
+    rows.push(`| ${o.pol} / ${o.cls} / Tomb ${o.tomb} Stake ${o.stake} / ${o.seed} | ${n} of ${tr.trace.length} recorded steps, ${taps} real taps | ${cps} | ${ok ? 'PASS' : 'FAIL ' + JSON.stringify(bad || errors).slice(0, 1400)} |`);
     console.log(rows[rows.length - 1]);
     await ctx.close();
   }

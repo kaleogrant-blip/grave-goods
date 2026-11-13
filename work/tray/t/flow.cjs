@@ -25,10 +25,13 @@ for(const [w,h] of VPS){
   const t0=await page.evaluate(()=>({ex:exposedFinds().map(f=>f.id),tray:trayList().map(f=>f.id),seal:document.getElementById('seal').textContent,tag:document.getElementById('trayTag').getBoundingClientRect().width>40}));
   assert.strictEqual(t0.ex.length,8,'eight loose finds');assert.strictEqual(t0.tray.length,6,'six on the tray');assert(/Tray 6\/6/.test(t0.seal),t0.seal);assert(t0.tag,'TRAY TEST tag');await stop('tray8');
   const offId=t0.ex.find(i=>t0.tray.indexOf(i)<0),onId=t0.tray[0];
-  for(const id of [onId,offId]){const c=await page.evaluate(id=>state.finds[id].cells[0],id);const p=await H.cellXY(page,c[0],c[1]);await H.tapXY(page,p.x,p.y);await page.waitForTimeout(120)}
+  for(const id of [offId,onId]){ // put a left-out find on (the least valuable default drops out), then take one of the six off (the next most valuable steps in)
+  const c=await page.evaluate(id=>state.finds[id].cells[0],id);const p=await H.cellXY(page,c[0],c[1]);
+    if(await page.evaluate(p=>{const e=document.elementFromPoint(p.x,p.y);return !e||e.id!=='c'},p)){await page.locator('#strip').tap();await page.waitForTimeout(500)} // the score sheet is open over the top rows: shut it as a player would
+    await H.tapXY(page,p.x,p.y);await page.waitForTimeout(120)}
   const t1=await page.evaluate(()=>({tray:trayList().map(f=>f.id),pick:state.finds.map(f=>f.tray==null?null:f.tray),tot:score(trayList()).total,b:run.banked}));
   assert(t1.tray.indexOf(onId)<0&&t1.tray.indexOf(offId)>=0&&t1.tray.length===6,'picked by tap: '+JSON.stringify(t1.tray));await stop('picked');
-  await page.evaluate(()=>{Q.speed=4});
+  await page.evaluate(()=>{Q.speed=4;TARGETS[state.i]=999999;document.getElementById('target').textContent=TARGETS[state.i]}); // setup: a six-find tray would clear this first wall, and the flow still has a sarcophagus and a second bone to read on it
   await page.locator('#seal').tap();await page.waitForFunction(()=>!state.sealing&&!Q.busy,null,{timeout:15000});await page.waitForTimeout(600);
   // a knucklebone offer or a relic card may be up: decline / close
   for(let k=0;k<4;k++){const no=page.locator('#lkno');if(await no.count()){await page.waitForTimeout(1300);await no.tap();await page.waitForTimeout(400)}const go=page.locator('#overlay:not([hidden]) #go:visible');if(await go.count()){await page.waitForTimeout(H.GUARD);await go.tap();await page.waitForTimeout(500)}}

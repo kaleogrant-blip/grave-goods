@@ -16,9 +16,10 @@ const digSome=async(page,n)=>{await page.locator('#pick').tap();const cells=awai
   await digSome(page,14);
   const mainVer=await page.evaluate(()=>GAME_VERSION),sig0=await H.wallSig(page),bank0=await page.evaluate(()=>({crack:state.crack,banked:run.banked,seed:run.seed,taps:RS().taps}));
   await page.evaluate(()=>window.dispatchEvent(new Event('pagehide')));await page.waitForTimeout(200);
-  const A=await dumpAll(page);const mainKeys=Object.keys(A).filter(k=>!/^__/.test(k));
+  await page.close(); // the main game saves once more as it closes, so its storage is read after that, from a page with no game in it
+  const probe=await ctx.newPage();await probe.goto('file://'+require('path').join(__dirname,'blank.html'));
+  const A=await dumpAll(probe);const mainKeys=Object.keys(A).filter(k=>!/^__/.test(k));await probe.close();
   assert(A.rw_resume&&JSON.parse(A.rw_resume).w,'the main game wrote a resume record with a wall');
-  await page.close();
   // ---- 2. tray build, same context
   const t=await H.open(H.BUILD,{ctx});page=t.page;await page.waitForTimeout(1300);
   const shared=await page.evaluate(()=>!!localStorage.getItem('rw_resume')); // can this page even see the main game's storage? (file:// pages share one store in Chromium)
@@ -35,12 +36,12 @@ const digSome=async(page,n)=>{await page.locator('#pick').tap();const cells=awai
   const trayBank=await page.evaluate(()=>run.banked);assert(trayBank>0,'the tray build sealed something');
   // settings and stats writes too
   await page.evaluate(()=>{try{setSet('rm',true)}catch(e){}try{stSave&&stSave()}catch(e){}window.dispatchEvent(new Event('pagehide'))});await page.waitForTimeout(1300);
-  const B=await dumpAll(page);
+  const tErr=t.errors.slice();await page.close();
+  const probe2=await ctx.newPage();await probe2.goto('file://'+require('path').join(__dirname,'blank.html'));const B=await dumpAll(probe2);await probe2.close(); // read after the tray build has closed too
   const diff=[];mainKeys.forEach(k=>{if(B[k]!==A[k])diff.push(k+(k in B?' changed':' removed'))});
   const added=Object.keys(B).filter(k=>!(k in A)&&!/^__/.test(k)),foreign=added.filter(k=>!/^S15T_/.test(k));
   assert.deepStrictEqual(diff,[],'main-game keys changed: '+diff.join(', '));assert.deepStrictEqual(foreign,[],'keys outside S15T_ written: '+foreign.join(', '));
   assert(added.indexOf('S15T_resume')>=0,'the tray build keeps its own resume record');
-  const tErr=t.errors.slice();await page.close();
   // ---- 4. main game again
   const m2=await H.open(H.MAIN,{ctx});page=m2.page;await page.waitForTimeout(600);
   const C=await dumpAll(page);const diff2=mainKeys.filter(k=>k!=='rw_tel'&&k!=='rw_tel_open'&&k!=='rw_ua'&&C[k]!==A[k]); // the main game itself may add a launch line to its own play log on boot

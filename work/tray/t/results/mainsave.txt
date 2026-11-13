@@ -1,0 +1,26 @@
+{
+ "main": "v1.0-rc9b",
+ "tray": "v1.0-tray1",
+ "storageSharedBetweenTheTwoFiles": true,
+ "mainKeys": 12,
+ "mainKeysChangedByTray": 0,
+ "trayKeysAdded": 12,
+ "trayKeys": [
+  "S15T_disc",
+  "S15T_kit",
+  "S15T_kit2",
+  "S15T_resume",
+  "S15T_s12",
+  "S15T_settings",
+  "S15T_stats",
+  "S15T_tel",
+  "S15T_tel_open",
+  "S15T_tel_tut",
+  "S15T_traycoach",
+  "S15T_ua"
+ ],
+ "mainKeysDifferentAtRelaunch": [],
+ "resumedSameWall": true,
+ "pageErrors": 0
+}
+MAINSAVE PASS
