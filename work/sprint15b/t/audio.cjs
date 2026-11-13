@@ -5,7 +5,8 @@
 const H=require('./h.cjs');const assert=require('assert');
 const INIT=`(()=>{const A=window.AudioScheduledSourceNode;if(!A)return;const T=window.__bn={all:[],live:new Set()};
   const st=A.prototype.start,sp=A.prototype.stop;
-  A.prototype.start=function(){let tag=0;try{tag=_bnAu}catch(e){}if(tag){const rec={type:this.constructor.name,loop:!!this.loop,t0:performance.now(),stop:null,ended:null};this.__bn=rec;T.all.push(rec);T.live.add(this);this.addEventListener('ended',()=>{rec.ended=performance.now();T.live.delete(this)})}return st.apply(this,arguments)};
+  const wrap=(P,orig)=>{P.start=function(){let tag=0;try{tag=_bnAu}catch(e){}if(tag){const rec={type:this.constructor.name,loop:!!this.loop,t0:performance.now(),stop:null,ended:null};this.__bn=rec;T.all.push(rec);T.live.add(this);this.addEventListener('ended',()=>{rec.ended=performance.now();T.live.delete(this)})}return orig.apply(this,arguments)}};
+  wrap(A.prototype,st);if(window.AudioBufferSourceNode&&Object.prototype.hasOwnProperty.call(AudioBufferSourceNode.prototype,'start'))wrap(AudioBufferSourceNode.prototype,AudioBufferSourceNode.prototype.start); // buffer sources have their own start()
   A.prototype.stop=function(t){if(this.__bn&&this.__bn.stop===null)this.__bn.stop=(t===undefined?this.context.currentTime:t)-this.context.currentTime;return sp.apply(this,arguments)};})();`;
 const st=page=>page.evaluate(()=>({all:__bn.all.length,noStop:__bn.all.filter(r=>r.stop===null).length,maxStop:Math.max(0,...__bn.all.map(r=>r.stop||0)),live:__bn.live.size,game:BONE_AU.size,timers:LK.timers.size,ctx:typeof ac==='object'&&ac?ac.state:'none',loops:__bn.all.filter(r=>r.loop).length,loopsNoStop:__bn.all.filter(r=>r.loop&&r.stop===null).length}));
 async function start(mode){const o=await H.open(process.argv[2]||H.BUILD,{init:INIT});const {page}=o;await page.waitForTimeout(400);if(mode==='sarc')await H.sarcSeed(page,'AUD-');else await H.startSeeded(page,'AUD-'+mode);await page.waitForTimeout(400);

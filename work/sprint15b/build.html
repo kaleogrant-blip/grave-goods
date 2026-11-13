@@ -992,13 +992,13 @@ body.rm .lkp,body.rm .lkslip{animation:none}
 .bn-tag.bn-show .bn-stamp{opacity:.85;transform:rotate(-9deg) scale(1);transition:transform .16s .45s cubic-bezier(.3,1.6,.5,1),opacity .05s .45s}
 /* Reduce Motion: no travel, no shake, no drop. Each step is a short fade to its result. */
 .bn.bn-rm{animation:none}
-.bn.bn-rm .bn-rod,.bn.bn-rm .bn-heat{transition:opacity .2s}
+body.rm .bn.bn-rm .bn-rod,body.rm .bn.bn-rm .bn-heat,.bn.bn-rm .bn-rod,.bn.bn-rm .bn-heat{transition:opacity .2s!important}
 .bn.bn-rm .bn-c{transition:none}
 .bn.bn-rm .bn-col li s{transition:none}
 .bn.bn-rm .bn-tag{transform:translate(-50%,0) rotate(-2deg)}
-.bn.bn-rm .bn-tag.bn-show{transition:opacity .25s}
+body.rm .bn.bn-rm .bn-tag.bn-show,.bn.bn-rm .bn-tag.bn-show{transition:opacity .25s!important} /* the one allowed movement under Reduce Motion: a short fade to the result (the game's blanket rule switches every other transition off) */
 .bn.bn-rm .bn-tag .bn-stamp{transform:rotate(-9deg) scale(1)}
-.bn.bn-rm .bn-tag.bn-show .bn-stamp{transition:opacity .2s .1s}
+body.rm .bn.bn-rm .bn-tag.bn-show .bn-stamp,.bn.bn-rm .bn-tag.bn-show .bn-stamp{transition:opacity .2s .1s!important}
 .bn.bn-rm .bn-stage.bn-shk{animation:none}
 @media (max-height:700px) and (orientation:portrait){
   .bn-in{padding:6px;gap:4px}.bn-sheet{padding:5px 9px 4px}.bn-sheet h3{font-size:15px;margin:2px 0 1px}.bn-col li{height:19px;font-size:13.5px}.bn-col li s{top:10px}.bn-col li em{font-size:13px}
@@ -6276,8 +6276,8 @@ function showStats(back){
     <div class="rsg">
       ${cell1('Loose stone',fmtN(S.lk||0),(S.tr||0)+((S.tr||0)===1?' tremor':' tremors')+' past the red line')}
       ${cell1('Bones thrown',fmtN(S.cf||0),(S.cw||0)+' landed on Pranes')}
-      ${cell1('Close shaves',fmtN(S.nm||0),'sealed with under '+Math.round(LUCK.near.pct*100)+'% of the wall to spare')}
-      ${cell1('Bones read',fmtN(S.br||0),'the Quartermaster’s ox blades')}
+      ${cell1('Close shaves',fmtN(S.nm||0),'under '+Math.round(LUCK.near.pct*100)+'% of wall to spare')}
+      ${cell1('Bones read',fmtN(S.br||0),'his ox shoulder blades')}
     </div>
     <div class="sec">Best banked · last 20 runs</div>
     <canvas class="chart" id="chart" role="img" aria-label="Bar chart of best banked per run for the last ${S.hist.length} runs"></canvas>
@@ -6445,7 +6445,7 @@ function luckCoinOffer(s,tries){
   if(!document.getElementById('overlay').hidden){if((tries||0)<12)lkAfter(()=>luckCoinOffer(s,(tries||0)+1),400);return}
   state.coinUsed=1;LK.mode='offer';
   const pc=kbPct();
-  const pn=lkPanel('lkcoin',`<canvas width="72" height="84" aria-label="A knucklebone: a sheep's ankle bone with four faces"></canvas><div class="lkt"><b>${lkCoinName()} or nothing?</b><span>This is a wager on the seal you just banked: ${fmtN(s.total)}. Throw the knucklebone and it pays ${LUCK.coin.mult} times over (+${fmtN(s.total*(LUCK.coin.mult-1))}) only if it lands on its back: Pranes, ${pc.pranes}%. Hyption ${pc.hyption}%, Chios ${pc.chios}% and Kos ${pc.kos}% take the seal back (−${fmtN(s.total)}). Four faces, and none of them are fair.</span><div class="lkb"><button type="button" id="lkyes">Wager it · throw</button><button type="button" id="lkno">Keep ${fmtN(s.total)}</button></div></div>`);
+  const pn=lkPanel('lkcoin',`<canvas width="72" height="84" aria-label="A knucklebone: a sheep's ankle bone with four faces"></canvas><div class="lkt"><b>${lkCoinName()} or nothing?</b><span>This is a wager on the seal you just banked: ${fmtN(s.total)}. Throw the knucklebone and it pays ${LUCK.coin.mult} times over (+${fmtN(s.total*(LUCK.coin.mult-1))}) only if it lands on its back: Pranes, ${pc.pranes}%. Hyption ${pc.hyption}%, Chios ${pc.chios}% and Kos ${pc.kos}% take the seal back (−${fmtN(s.total)}). Four faces, and none of them are fair.</span><div class="lkb"><button type="button" id="lkyes">Wager it</button><button type="button" id="lkno">Keep ${fmtN(s.total)}</button></div></div>`);
   const cvs=pn.querySelector('canvas'),g=cvs.getContext('2d');g.imageSmoothingEnabled=false;
   // the bone sits on a shadow; lift raises it, rot turns it, sq squashes it flat against the stone (the settle)
   const paint=(cv,lift,rot,sq)=>{sq=sq||1;g.clearRect(0,0,72,84);g.fillStyle='rgba(0,0,0,.28)';g.beginPath();g.ellipse(36,78,22-(lift||0)*.5,4,0,0,6.283);g.fill();
@@ -6647,6 +6647,7 @@ function luckJackpot(){ // internal name kept (the app shell hooks it)
 }
 function jpPay(key,quiet){ // pays a decided second bone, once: from the reading, or on resume when the app was closed mid-reading
   state.jpPend=null;const out=jpApply(key);
+  if(!quiet)try{const sg={relic:['relic'],memory:['memGain'],gold:['ore',{t:'gold'}]}[key];if(sg)sfx(sg[0],sg[1])}catch(e){} // the game's own result stings (ore plays its own when it is picked up); nothing is silent
   try{log((quiet?'The second bone had already answered. ':'')+out.t)}catch(e){}
   lkClose();LK.busy=false;LK.mode='';document.body.classList.remove('lk');
   if(out.after)out.after();else{ui();draw();checkClear()}
@@ -6725,7 +6726,7 @@ function luckChamberStart(){
 }
 function luckSlipHide(){const s=document.getElementById('lkslip');if(s)s.remove();if(state)state.strikes=(state.strikes|0)+1}
 // ================= HOW TO PLAY: the Chances card =================
-function bonePrinted(mode){const rows=boneTable(mode),f=s=>rows.filter(r=>r.side===s).map(r=>boneName(r.k).replace(/^A (relic|mimic)/,(m,w)=>w).replace(/^(Ore|Bones)/,m=>m.toLowerCase())+' '+r.pct+'%').join(', ');return f('L')+' left of the pit; '+f('R')+' right of it'} // the How to Play text reads the same table the roll uses
+function bonePrinted(mode){const rows=boneTable(mode),f=s=>rows.filter(r=>r.side===s).map(r=>boneName(r.k).replace(/^A (relic|mimic)/,(m,w)=>w).replace(/^(Ore|Bones|Nothing|A Memory)/,m=>m[0].toLowerCase()+m.slice(1))+' '+r.pct+'%').join(', ');return f('L')+' left of the pit; '+f('R')+' right of it'} // the How to Play text reads the same table the roll uses
 HOW.push({h:'Chances',
   get t(){const P=LUCK.press,w=P.w,C=LUCK,w2={normal:w.normal,lucky:w.lucky+SKILL.press2.lucky,tremor:w.tremor+SKILL.press2.tremor};return`Past ${Math.round(P.at*100)}% crack the wall is talking and every strike rolls: ${lkPct(w,'normal')} in 100 steady, ${lkPct(w,'lucky')} in 100 loose stone (the finds it touches are worth ×${P.luckyMult}), ${lkPct(w,'tremor')} in 100 a tremor (+${Math.round(P.tremorCrack*100)}% crack). Stake 2 and up tilt the red: ${lkPct(w2,'normal')} steady, ${lkPct(w2,'lucky')} loose, ${lkPct(w2,'tremor')} tremor. Before a sarcophagus lid the Quartermaster asks an ox shoulder blade. It is his own habit, and he brings it to every tomb. Heat the pit, the crack forks, read where it ends. The lid was decided first and nothing is staked. The chances are printed before you start: ${bonePrinted('sarc')}. The fork rules one side out, and the record is revised in pencil to the real chances of what is left. The ${lkOrd(C.jackpot.at)} Fever of a run brings out his second bone: ${bonePrinted('fever')}. Every empty strike drains ${Math.round(SKILL.fever.decay*100)}% of the Fever bar, so read before you swing. The knucklebone is different: it is a wager, and says so. A seal of ${C.coin.min}+ that leaves the chamber open may offer it, once a chamber: ${lkCoinName().toLowerCase()} or nothing. It pays ${C.coin.mult} times over only if it lands on its back (Pranes, ${kbPct().pranes}%); Hyption ${kbPct().hyption}%, Chios ${kbPct().chios}% and Kos ${kbPct().kos}% take the seal back. A knucklebone has four faces, and none of them are fair. Sheep ankle bones were the dice of ancient Greece and Rome, and bones like them turn up in digs from about 5000 BCE. About one chamber in ${Math.round(1/C.tell.chance)} has a tell on a slip: Unstable, Gilded, Quiet or Hollow.${s9TellNote()}${kitLuckNote()}`},
   d(g){
