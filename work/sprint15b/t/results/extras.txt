@@ -1,0 +1,32 @@
+ok   version string on the title {"c":"v1.0-rc9b","shown":"v1.0-rc9b"}
+ok   first reading: the Quartermaster's-habit line "The Quartermaster carries ox shoulder blades from dig to dig and asks one before every lid. His habit, not the tomb’s. Heat the pit."
+ok   a tap in the first 600 ms is ignored (thumb still digging) ["bn","bn"]
+ok   no fast path on the first reading 
+ok   "Bones read" counted once 1
+ok   after 1+ readings: ordinary line and a "Read it at once" button "The Quartermaster hands you an ox shoulder blade, a bronze rod and a look. Heat the pit."
+ok   fast path: the printed chances are on screen before the tap 
+ok   fast path: one tap shows the fork revision and ends at the saved result (relic), 843 ms from tap to tag 
+ok   the tag closes by itself if it is not tapped (2600 ms) 
+ok   red line: field note carries the live chances "Wall is talking. Loose 30 in 100. Tremor 10 in 100."
+ok   red line: pencil note on the tools, no percent chip "×2 if loose"
+ok   below the red line: note and pencil tags are gone 
+ok   knucklebone: still triple or nothing, says it is a wager, same chances "Triple or nothing?This is a wager on the seal you just banked: 3,000. Throw the knucklebone and it pays 3 times over (+6"
+ok   Stats: Field conditions / Close shaves / Bones thrown; no Near misses, Jackpots or Luck heading 
+ok   rendered howto (5807 chars): none of the retired words 
+ok   rendered stats (1175 chars): none of the retired words 
+ok   rendered settings (2193 chars): none of the retired words 
+ok   rendered ledger (10867 chars): none of the retired words 
+ok   rendered codex (285 chars): none of the retired words 
+ok   coaching, Damp slip and the first tutorial card never name a tool the kit lacks (60 class x tool kits) []
+     e.g. scholar/chisel: This kit carries one tool: the chisel digs a 5-wide line, 2 deep, and cracks only 0.5. X-ray a 3×3 patch once a chamber, then dig where it shows.
+          scholar/mattock: Your mattock does the heavy work: it clears 3×3 through all 3 depths for 12 crack. X-ray a 3×3 patch once a chamber, then dig where it shows.
+          brute/chisel: This kit carries one tool: the chisel digs a 5-wide line, 2 deep, and cracks only 0.5. Take the big finds first.
+          brute/mattock: Your mattock does the heavy work: it clears 3×3 through all 3 depths for 12 crack. Take the big finds first.
+     standard kit, unchanged: Your hammer is modest (9 crack). X-ray a 3×3 patch once a chamber, then dig where it shows.
+ok   no page errors in this pass []
+ok   Reduce Motion: the reading opens in its still mode 
+ok   Reduce Motion: no shake at the crack {"shake":false,"dur":["0s/none","0s/none","0s/none"]}
+ok   Reduce Motion: a short fade to the result (240 ms from tap to tag, opacity only) {"tr":"opacity","dur":"0.25s"}
+ok   Reduce Motion: same three taps, same record 
+ok   no page errors under Reduce Motion []
+EXTRAS PASS

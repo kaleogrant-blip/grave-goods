@@ -1,0 +1,1813 @@
+{
+ "note": "Compact summary of the final fuzz on build md5 6fd8da9d (5 runs x 1500 actions at mixed sizes, 2 x 1500 at 844x390). Raw reports are not committed.",
+ "files": {
+  "fuzz-report.json": {
+   "runs": [
+    {
+     "run": 0,
+     "vp": "390x844",
+     "actions": 1500,
+     "kinds": {
+      "title": 1,
+      "card-button": 358,
+      "seal": 78,
+      "wall": 880,
+      "walk/pause": 27,
+      "anywhere": 45,
+      "hud": 79,
+      "ore": 24,
+      "bone-button": 6,
+      "card-anywhere": 2
+     },
+     "digTaps": 826,
+     "dug": 217,
+     "noDig": 609,
+     "boneActions": 9,
+     "deepestChamber": 1,
+     "pageErrors": 0,
+     "scrollOk": true,
+     "endState": {
+      "title": false,
+      "card": "The wall collapsed2 Memories left",
+      "over": true,
+      "i": 0
+     }
+    },
+    {
+     "run": 1,
+     "vp": "360x640",
+     "actions": 1500,
+     "kinds": {
+      "title": 1,
+      "card-button": 145,
+      "wall": 1075,
+      "seal": 84,
+      "ore": 40,
+      "hud": 80,
+      "walk/pause": 21,
+      "anywhere": 54
+     },
+     "digTaps": 1007,
+     "dug": 234,
+     "noDig": 773,
+     "boneActions": 0,
+     "deepestChamber": 1,
+     "pageErrors": 0,
+     "scrollOk": true,
+     "endState": {
+      "title": false,
+      "card": "PausedThe tomb will wait. It has the tim",
+      "over": false,
+      "i": 0
+     }
+    },
+    {
+     "run": 2,
+     "vp": "844x390",
+     "actions": 1500,
+     "kinds": {
+      "title": 1,
+      "card-button": 417,
+      "anywhere": 53,
+      "wall": 784,
+      "hud": 65,
+      "ore": 29,
+      "seal": 82,
+      "walk/pause": 24,
+      "card-anywhere": 16,
+      "bone-button": 8,
+      "bare": 21
+     },
+     "digTaps": 687,
+     "dug": 478,
+     "noDig": 209,
+     "boneActions": 17,
+     "deepestChamber": 2,
+     "pageErrors": 0,
+     "scrollOk": true,
+     "endState": {
+      "title": false,
+      "card": "The wall collapsed3 Memories left · a ba",
+      "over": false,
+      "i": 1
+     }
+    },
+    {
+     "run": 3,
+     "vp": "390x844",
+     "actions": 1500,
+     "kinds": {
+      "title": 1,
+      "card-button": 274,
+      "wall": 435,
+      "seal": 88,
+      "ore": 37,
+      "hud": 85,
+      "walk/pause": 24,
+      "anywhere": 49,
+      "card-anywhere": 9,
+      "bare": 487,
+      "bone-button": 11
+     },
+     "digTaps": 348,
+     "dug": 294,
+     "noDig": 54,
+     "boneActions": 18,
+     "deepestChamber": 2,
+     "pageErrors": 0,
+     "scrollOk": true,
+     "endState": {
+      "title": false,
+      "card": "Pack your kitOne creature, one tool, one",
+      "over": false,
+      "i": 0
+     }
+    },
+    {
+     "run": 4,
+     "vp": "412x915",
+     "actions": 1500,
+     "kinds": {
+      "title": 1,
+      "card-button": 246,
+      "anywhere": 69,
+      "seal": 80,
+      "wall": 911,
+      "hud": 91,
+      "ore": 35,
+      "card-anywhere": 29,
+      "walk/pause": 21,
+      "bare": 12,
+      "bone-button": 5
+     },
+     "digTaps": 820,
+     "dug": 595,
+     "noDig": 225,
+     "boneActions": 23,
+     "deepestChamber": 2,
+     "pageErrors": 0,
+     "scrollOk": true,
+     "endState": {
+      "title": false,
+      "card": "The wall collapsed3 Memories left · a ba",
+      "over": false,
+      "i": 1
+     }
+    }
+   ],
+   "pageErrors": 0,
+   "stuck": 0,
+   "stuckFalseAlarms": 0,
+   "noDigByCause": {
+    "Confirm digs is on (first tap only aims)": 1331,
+    "a seal was being counted (strike() ignores taps while state.sealing)": 522,
+    "the tap landed on another element": 15,
+    "the tool or the tile refused, and said so": 2
+   },
+   "examples": {
+    "Confirm digs is on (first tap only aims)": [
+     {
+      "run": 0,
+      "action": 37,
+      "why": "Confirm digs is on (first tap only aims)",
+      "reachedHandler": false,
+      "tile": [
+       3,
+       4
+      ],
+      "tapAt": [
+       143,
+       443
+      ],
+      "dirtBefore": 3,
+      "dirtAfter": 3,
+      "ms": 104,
+      "toast": "Aimed. Tap the same square again to dig it.",
+      "toastBefore": "Nothing uncovered yet. Dig first.",
+      "pointerdowns": [
+       {
+        "t": 19690,
+        "id": "pKeep",
+        "x": 195,
+        "y": 476,
+        "pt": "touch"
+       },
+       {
+        "t": 20372,
+        "id": "c",
+        "x": 143,
+        "y": 443,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       6,
+       169,
+       378,
+       504
+      ],
+      "canvasAfter": [
+       6,
+       169,
+       378,
+       504
+      ],
+      "cellBefore": 42,
+      "cellAfter": 42,
+      "elementNow": "c",
+      "tapMapsToTile": [
+       3,
+       4
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "pick",
+       "kit": "standard",
+       "sealing": false,
+       "clearing": false,
+       "falling": false,
+       "qbusy": false,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": true,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 4,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     },
+     {
+      "run": 0,
+      "action": 38,
+      "why": "Confirm digs is on (first tap only aims)",
+      "reachedHandler": false,
+      "tile": [
+       3,
+       3
+      ],
+      "tapAt": [
+       157,
+       405
+      ],
+      "dirtBefore": 3,
+      "dirtAfter": 3,
+      "ms": 272,
+      "toast": "Aimed. Tap the same square again to dig it.",
+      "toastBefore": "Aimed. Tap the same square again to dig it.",
+      "pointerdowns": [
+       {
+        "t": 20372,
+        "id": "c",
+        "x": 143,
+        "y": 443,
+        "pt": "touch"
+       },
+       {
+        "t": 20644,
+        "id": "c",
+        "x": 157,
+        "y": 405,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       6,
+       169,
+       378,
+       504
+      ],
+      "canvasAfter": [
+       6,
+       169,
+       378,
+       504
+      ],
+      "cellBefore": 42,
+      "cellAfter": 42,
+      "elementNow": "c",
+      "tapMapsToTile": [
+       3,
+       3
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "pick",
+       "kit": "standard",
+       "sealing": false,
+       "clearing": false,
+       "falling": false,
+       "qbusy": false,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": true,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 4,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     },
+     {
+      "run": 0,
+      "action": 45,
+      "why": "Confirm digs is on (first tap only aims)",
+      "reachedHandler": false,
+      "tile": [
+       4,
+       3
+      ],
+      "tapAt": [
+       202,
+       391
+      ],
+      "dirtBefore": 1,
+      "dirtAfter": 1,
+      "ms": 364,
+      "toast": "Tap the wall to X-ray a patch.",
+      "toastBefore": "Tap the wall to X-ray a patch.",
+      "pointerdowns": [
+       {
+        "t": 22980,
+        "id": "c",
+        "x": 19,
+        "y": 580,
+        "pt": "touch"
+       },
+       {
+        "t": 23898,
+        "id": "c",
+        "x": 202,
+        "y": 391,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       6,
+       169,
+       378,
+       504
+      ],
+      "canvasAfter": [
+       6,
+       169,
+       378,
+       504
+      ],
+      "cellBefore": 42,
+      "cellAfter": 42,
+      "elementNow": "c",
+      "tapMapsToTile": [
+       4,
+       3
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "pick",
+       "kit": "standard",
+       "sealing": false,
+       "clearing": false,
+       "falling": false,
+       "qbusy": false,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": true,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 5,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     }
+    ],
+    "a seal was being counted (strike() ignores taps while state.sealing)": [
+     {
+      "run": 0,
+      "action": 345,
+      "why": "a seal was being counted (strike() ignores taps while state.sealing)",
+      "reachedHandler": true,
+      "tile": [
+       1,
+       0
+      ],
+      "tapAt": [
+       77,
+       282
+      ],
+      "dirtBefore": 1,
+      "dirtAfter": 1,
+      "ms": 95,
+      "toast": "Nothing left to dig there. Try elsewhere.",
+      "toastBefore": "Nothing left to dig there. Try elsewhere.",
+      "pointerdowns": [
+       {
+        "t": 128380,
+        "id": "seal",
+        "x": 117,
+        "y": 796,
+        "pt": "touch"
+       },
+       {
+        "t": 128628,
+        "id": "c",
+        "x": 77,
+        "y": 282,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       6,
+       169,
+       378,
+       504
+      ],
+      "canvasAfter": [
+       6,
+       169,
+       378,
+       504
+      ],
+      "cellBefore": 42,
+      "cellAfter": 42,
+      "elementNow": "c",
+      "tapMapsToTile": [
+       1,
+       0
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "pick",
+       "kit": "standard",
+       "sealing": true,
+       "clearing": false,
+       "falling": false,
+       "qbusy": true,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": false,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 71,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     },
+     {
+      "run": 0,
+      "action": 346,
+      "why": "a seal was being counted (strike() ignores taps while state.sealing)",
+      "reachedHandler": true,
+      "tile": [
+       3,
+       2
+      ],
+      "tapAt": [
+       144,
+       358
+      ],
+      "dirtBefore": 1,
+      "dirtAfter": 1,
+      "ms": 358,
+      "toast": "Nothing left to dig there. Try elsewhere.",
+      "toastBefore": "Nothing left to dig there. Try elsewhere.",
+      "pointerdowns": [
+       {
+        "t": 128628,
+        "id": "c",
+        "x": 77,
+        "y": 282,
+        "pt": "touch"
+       },
+       {
+        "t": 129069,
+        "id": "c",
+        "x": 144,
+        "y": 358,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       6,
+       169,
+       378,
+       504
+      ],
+      "canvasAfter": [
+       6,
+       169,
+       378,
+       504
+      ],
+      "cellBefore": 42,
+      "cellAfter": 42,
+      "elementNow": "c",
+      "tapMapsToTile": [
+       3,
+       2
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "pick",
+       "kit": "standard",
+       "sealing": true,
+       "clearing": false,
+       "falling": false,
+       "qbusy": true,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": false,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 71,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     },
+     {
+      "run": 0,
+      "action": 348,
+      "why": "a seal was being counted (strike() ignores taps while state.sealing)",
+      "reachedHandler": true,
+      "tile": [
+       6,
+       8
+      ],
+      "tapAt": [
+       281,
+       606
+      ],
+      "dirtBefore": 1,
+      "dirtAfter": 1,
+      "ms": 50,
+      "toast": "Nothing left to dig there. Try elsewhere.",
+      "toastBefore": "Nothing left to dig there. Try elsewhere.",
+      "pointerdowns": [
+       {
+        "t": 129192,
+        "id": "c",
+        "x": 328,
+        "y": 481,
+        "pt": "touch"
+       },
+       {
+        "t": 129239,
+        "id": "c",
+        "x": 281,
+        "y": 606,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       6,
+       169,
+       378,
+       504
+      ],
+      "canvasAfter": [
+       6,
+       169,
+       378,
+       504
+      ],
+      "cellBefore": 42,
+      "cellAfter": 42,
+      "elementNow": "c",
+      "tapMapsToTile": [
+       6,
+       8
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "pick",
+       "kit": "standard",
+       "sealing": true,
+       "clearing": false,
+       "falling": false,
+       "qbusy": true,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": false,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 71,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     }
+    ],
+    "the tap landed on another element": [
+     {
+      "run": 0,
+      "action": 1329,
+      "why": "the tap landed on another element: [object Object]",
+      "reachedHandler": false,
+      "tile": [
+       5,
+       6
+      ],
+      "tapAt": [
+       227,
+       517
+      ],
+      "dirtBefore": 2,
+      "dirtAfter": 2,
+      "ms": 486,
+      "toast": "✦ Jade — Restores a Memory. 25 points if you have all three.",
+      "toastBefore": "✦ Jade — Restores a Memory. 25 points if you have all three.",
+      "pointerdowns": [
+       {
+        "t": 386391,
+        "id": "c",
+        "x": 16,
+        "y": 394,
+        "pt": "touch"
+       },
+       {
+        "t": 387129,
+        "id": {},
+        "x": 227,
+        "y": 517,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       6,
+       169,
+       378,
+       504
+      ],
+      "canvasAfter": [
+       6,
+       169,
+       378,
+       504
+      ],
+      "cellBefore": 42,
+      "cellAfter": 42,
+      "elementNow": {},
+      "tapMapsToTile": [
+       5,
+       6
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "hammer",
+       "kit": "standard",
+       "sealing": false,
+       "clearing": false,
+       "falling": false,
+       "qbusy": false,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": false,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 104,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     },
+     {
+      "run": 1,
+      "action": 203,
+      "why": "the tap landed on another element: ore0",
+      "reachedHandler": false,
+      "tile": [
+       2,
+       8
+      ],
+      "tapAt": [
+       103,
+       497
+      ],
+      "dirtBefore": 1,
+      "dirtAfter": 1,
+      "ms": 371,
+      "toast": "♥ thump-thump  Uncovered: Spear (age 13, worth 13)",
+      "toastBefore": "♥ thump-thump  Uncovered: Spear (age 13, worth 13)",
+      "pointerdowns": [
+       {
+        "t": 79688,
+        "id": "pouchBtn",
+        "x": 323,
+        "y": 596,
+        "pt": "touch"
+       },
+       {
+        "t": 80057,
+        "id": "ore0",
+        "x": 103,
+        "y": 497,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       18,
+       119,
+       324,
+       432
+      ],
+      "canvasAfter": [
+       18,
+       119,
+       324,
+       432
+      ],
+      "cellBefore": 36,
+      "cellAfter": 36,
+      "elementNow": "pouch",
+      "tapMapsToTile": [
+       2,
+       8
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "pick",
+       "kit": "standard",
+       "sealing": false,
+       "clearing": false,
+       "falling": false,
+       "qbusy": false,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": false,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 87,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     },
+     {
+      "run": 1,
+      "action": 421,
+      "why": "the tap landed on another element: pHow",
+      "reachedHandler": false,
+      "tile": [
+       1,
+       5
+      ],
+      "tapAt": [
+       80,
+       387
+      ],
+      "dirtBefore": 2,
+      "dirtAfter": 2,
+      "ms": 308,
+      "toast": "Sealed 3 × 1.5 = 4 · Sack ×1.5",
+      "toastBefore": "Sealed 3 × 1.5 = 4 · Sack ×1.5",
+      "pointerdowns": [
+       {
+        "t": 156061,
+        "id": "c",
+        "x": 30,
+        "y": 313,
+        "pt": "touch"
+       },
+       {
+        "t": 156673,
+        "id": "pHow",
+        "x": 80,
+        "y": 387,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       18,
+       119,
+       324,
+       432
+      ],
+      "canvasAfter": [
+       18,
+       119,
+       324,
+       432
+      ],
+      "cellBefore": 36,
+      "cellAfter": 36,
+      "elementNow": "camp-actions",
+      "tapMapsToTile": [
+       1,
+       5
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "hammer",
+       "kit": "standard",
+       "sealing": true,
+       "clearing": false,
+       "falling": false,
+       "qbusy": true,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": false,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 32,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     }
+    ],
+    "the tool or the tile refused, and said so": [
+     {
+      "run": 2,
+      "action": 303,
+      "why": "the tool or the tile refused, and said so: The Glass Hammer is spent. Back to the pick.",
+      "reachedHandler": true,
+      "tile": [
+       5,
+       8
+      ],
+      "tapAt": [
+       303,
+       322
+      ],
+      "dirtBefore": 1,
+      "dirtAfter": 1,
+      "ms": 107,
+      "toast": "The Glass Hammer is spent. Back to the pick.",
+      "toastBefore": "Uncovered: Coin (age 13, worth 7), Bone (age 13, worth 8), S",
+      "pointerdowns": [
+       {
+        "t": 126859,
+        "id": "c",
+        "x": 253,
+        "y": 235,
+        "pt": "touch"
+       },
+       {
+        "t": 127095,
+        "id": "c",
+        "x": 303,
+        "y": 322,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "canvasAfter": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "cellBefore": 28,
+      "cellAfter": 28,
+      "elementNow": "c",
+      "tapMapsToTile": [
+       5,
+       8
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "hammer",
+       "kit": "standard",
+       "sealing": false,
+       "clearing": false,
+       "falling": false,
+       "qbusy": false,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": false,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 96,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 3,
+       "drill": 4
+      }
+     },
+     {
+      "run": 2,
+      "action": 435,
+      "why": "the tool or the tile refused, and said so: The Glass Hammer retires. Violently.",
+      "reachedHandler": true,
+      "tile": [
+       4,
+       2
+      ],
+      "tapAt": [
+       269,
+       161
+      ],
+      "dirtBefore": 1,
+      "dirtAfter": 1,
+      "ms": 352,
+      "toast": "The Glass Hammer retires. Violently.",
+      "toastBefore": "Uncovered: ★ Crystal Skull (age 13, worth 17), Spear (age 3,",
+      "pointerdowns": [
+       {
+        "t": 153607,
+        "id": "c",
+        "x": 363,
+        "y": 148,
+        "pt": "touch"
+       },
+       {
+        "t": 154021,
+        "id": "c",
+        "x": 269,
+        "y": 161,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "canvasAfter": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "cellBefore": 28,
+      "cellAfter": 28,
+      "elementNow": "c",
+      "tapMapsToTile": [
+       4,
+       2
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "hammer",
+       "kit": "standard",
+       "sealing": false,
+       "clearing": false,
+       "falling": false,
+       "qbusy": false,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": false,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 96,
+       "i": 1,
+       "train": false,
+       "ore": -1,
+       "glass": 3,
+       "drill": 4
+      }
+     }
+    ]
+   }
+  },
+  "fuzz-landscape.json": {
+   "runs": [
+    {
+     "run": 0,
+     "vp": "844x390",
+     "actions": 1500,
+     "kinds": {
+      "title": 1,
+      "card-button": 151,
+      "wall": 625,
+      "hud": 91,
+      "ore": 42,
+      "walk/pause": 19,
+      "anywhere": 46,
+      "seal": 93,
+      "card-anywhere": 40,
+      "bone-button": 18,
+      "bare": 374
+     },
+     "digTaps": 457,
+     "dug": 195,
+     "noDig": 262,
+     "boneActions": 53,
+     "deepestChamber": 3,
+     "pageErrors": 0,
+     "scrollOk": true,
+     "endState": {
+      "title": false,
+      "card": "PausedThe tomb will wait. It has the tim",
+      "over": false,
+      "i": 0
+     }
+    },
+    {
+     "run": 1,
+     "vp": "844x390",
+     "actions": 1500,
+     "kinds": {
+      "title": 1,
+      "card-button": 277,
+      "wall": 898,
+      "hud": 85,
+      "ore": 35,
+      "walk/pause": 19,
+      "anywhere": 59,
+      "seal": 66,
+      "bone-button": 16,
+      "card-anywhere": 20,
+      "bare": 24
+     },
+     "digTaps": 743,
+     "dug": 409,
+     "noDig": 334,
+     "boneActions": 28,
+     "deepestChamber": 3,
+     "pageErrors": 0,
+     "scrollOk": true,
+     "endState": {
+      "title": false,
+      "card": "PausedThe tomb will wait. It has the tim",
+      "over": false,
+      "i": 0
+     }
+    }
+   ],
+   "pageErrors": 0,
+   "stuck": 0,
+   "stuckFalseAlarms": 0,
+   "noDigByCause": {
+    "a seal was being counted (strike() ignores taps while state.sealing)": 387,
+    "the tap landed on another element": 7,
+    "Confirm digs is on (first tap only aims)": 202
+   },
+   "examples": {
+    "a seal was being counted (strike() ignores taps while state.sealing)": [
+     {
+      "run": 0,
+      "action": 41,
+      "why": "a seal was being counted (strike() ignores taps while state.sealing)",
+      "reachedHandler": true,
+      "tile": [
+       0,
+       8
+      ],
+      "tapAt": [
+       171,
+       313
+      ],
+      "dirtBefore": 2,
+      "dirtAfter": 2,
+      "ms": 79,
+      "toast": "Uncovered: ★ Cacao Vessel (age 1, worth 12), Coin (age 7, worth 4), Coin (age 10, worth 6)",
+      "toastBefore": "Uncovered: ★ Cacao Vessel (age 1, worth 12), Coin (age 7, wo",
+      "pointerdowns": [
+       {
+        "t": 14074,
+        "id": "seal",
+        "x": 786,
+        "y": 336,
+        "pt": "touch"
+       },
+       {
+        "t": 14221,
+        "id": "c",
+        "x": 171,
+        "y": 313,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "canvasAfter": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "cellBefore": 28,
+      "cellAfter": 28,
+      "elementNow": "c",
+      "tapMapsToTile": [
+       0,
+       8
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "hammer",
+       "kit": "standard",
+       "sealing": true,
+       "clearing": false,
+       "falling": false,
+       "qbusy": true,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": false,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 63,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     },
+     {
+      "run": 0,
+      "action": 42,
+      "why": "a seal was being counted (strike() ignores taps while state.sealing)",
+      "reachedHandler": true,
+      "tile": [
+       5,
+       9
+      ],
+      "tapAt": [
+       308,
+       341
+      ],
+      "dirtBefore": 1,
+      "dirtAfter": 1,
+      "ms": 65,
+      "toast": "Uncovered: ★ Cacao Vessel (age 1, worth 12), Coin (age 7, worth 4), Coin (age 10, worth 6)",
+      "toastBefore": "Uncovered: ★ Cacao Vessel (age 1, worth 12), Coin (age 7, wo",
+      "pointerdowns": [
+       {
+        "t": 14221,
+        "id": "c",
+        "x": 171,
+        "y": 313,
+        "pt": "touch"
+       },
+       {
+        "t": 14463,
+        "id": "c",
+        "x": 308,
+        "y": 341,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "canvasAfter": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "cellBefore": 28,
+      "cellAfter": 28,
+      "elementNow": "c",
+      "tapMapsToTile": [
+       5,
+       9
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "hammer",
+       "kit": "standard",
+       "sealing": true,
+       "clearing": false,
+       "falling": false,
+       "qbusy": true,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": false,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 63,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     },
+     {
+      "run": 0,
+      "action": 43,
+      "why": "a seal was being counted (strike() ignores taps while state.sealing)",
+      "reachedHandler": true,
+      "tile": [
+       1,
+       2
+      ],
+      "tapAt": [
+       194,
+       145
+      ],
+      "dirtBefore": 2,
+      "dirtAfter": 2,
+      "ms": 94,
+      "toast": "Uncovered: ★ Cacao Vessel (age 1, worth 12), Coin (age 7, worth 4), Coin (age 10, worth 6)",
+      "toastBefore": "Uncovered: ★ Cacao Vessel (age 1, worth 12), Coin (age 7, wo",
+      "pointerdowns": [
+       {
+        "t": 14463,
+        "id": "c",
+        "x": 308,
+        "y": 341,
+        "pt": "touch"
+       },
+       {
+        "t": 14635,
+        "id": "c",
+        "x": 194,
+        "y": 145,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "canvasAfter": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "cellBefore": 28,
+      "cellAfter": 28,
+      "elementNow": "c",
+      "tapMapsToTile": [
+       1,
+       2
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "hammer",
+       "kit": "standard",
+       "sealing": true,
+       "clearing": false,
+       "falling": false,
+       "qbusy": true,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": false,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 63,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     }
+    ],
+    "the tap landed on another element": [
+     {
+      "run": 0,
+      "action": 77,
+      "why": "the tap landed on another element: body entry",
+      "reachedHandler": false,
+      "tile": [
+       6,
+       3
+      ],
+      "tapAt": [
+       332,
+       177
+      ],
+      "dirtBefore": 1,
+      "dirtAfter": 1,
+      "ms": 172,
+      "toast": "Sealed 41 × 12 = 492 · ★ Cacao Vessel entered in the Vault · Timeline 3 (ordered) ×2, Reli",
+      "toastBefore": "Quicksilver steadies the wall. 40% of the cracks close, and ",
+      "pointerdowns": [
+       {
+        "t": 17430,
+        "id": "c",
+        "x": 305,
+        "y": 186,
+        "pt": "touch"
+       },
+       {
+        "t": 17640,
+        "id": "body entry",
+        "x": 332,
+        "y": 177,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "canvasAfter": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "cellBefore": 28,
+      "cellAfter": 28,
+      "elementNow": "body entry",
+      "tapMapsToTile": [
+       6,
+       3
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "pick",
+       "kit": "standard",
+       "sealing": true,
+       "clearing": false,
+       "falling": false,
+       "qbusy": true,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": false,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 3,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     },
+     {
+      "run": 0,
+      "action": 245,
+      "why": "the tap landed on another element: BUTTON",
+      "reachedHandler": false,
+      "tile": [
+       3,
+       0
+      ],
+      "tapAt": [
+       242,
+       97
+      ],
+      "dirtBefore": 1,
+      "dirtAfter": 1,
+      "ms": 70,
+      "toast": "Sealed 31 × 3 = 93 · ★ Obsidian Blade entered in the Vault · Relic ×2, Sack ×1.5",
+      "toastBefore": "Tap the wall to X-ray a patch.",
+      "pointerdowns": [
+       {
+        "t": 37937,
+        "id": "c",
+        "x": 306,
+        "y": 155,
+        "pt": "touch"
+       },
+       {
+        "t": 37975,
+        "id": "BUTTON",
+        "x": 242,
+        "y": 97,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "canvasAfter": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "cellBefore": 28,
+      "cellAfter": 28,
+      "elementNow": "BUTTON",
+      "tapMapsToTile": [
+       3,
+       0
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "pick",
+       "kit": "standard",
+       "sealing": true,
+       "clearing": false,
+       "falling": false,
+       "qbusy": true,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": false,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 54,
+       "i": 1,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     },
+     {
+      "run": 1,
+      "action": 182,
+      "why": "the tap landed on another element: body entry",
+      "reachedHandler": false,
+      "tile": [
+       7,
+       1
+      ],
+      "tapAt": [
+       363,
+       119
+      ],
+      "dirtBefore": 1,
+      "dirtAfter": 1,
+      "ms": 43,
+      "toast": "Sealed 22 × 2 = 44 · ★ Ankh entered in the Vault · Relic ×2",
+      "toastBefore": "Uncovered: ★ Ankh (age 13, worth 17), Coin (age 8, worth 5)",
+      "pointerdowns": [
+       {
+        "t": 25972,
+        "id": "c",
+        "x": 296,
+        "y": 101,
+        "pt": "touch"
+       },
+       {
+        "t": 26021,
+        "id": "body entry",
+        "x": 363,
+        "y": 119,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "canvasAfter": [
+       149,
+       27,
+       252,
+       336
+      ],
+      "cellBefore": 28,
+      "cellAfter": 28,
+      "elementNow": "body entry",
+      "tapMapsToTile": [
+       7,
+       1
+      ],
+      "holdOpen": false,
+      "uitoast": null,
+      "ctx": {
+       "tool": "hammer",
+       "kit": "standard",
+       "sealing": true,
+       "clearing": false,
+       "falling": false,
+       "qbusy": true,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": false,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 27,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     }
+    ],
+    "Confirm digs is on (first tap only aims)": [
+     {
+      "run": 0,
+      "action": 1396,
+      "why": "Confirm digs is on (first tap only aims)",
+      "reachedHandler": false,
+      "tile": [
+       2,
+       5
+      ],
+      "tapAt": [
+       507,
+       251
+      ],
+      "dirtBefore": 3,
+      "dirtAfter": 3,
+      "ms": 66,
+      "toast": "Aimed. Tap the same square again to dig it.",
+      "toastBefore": "Tikal Understory. Chamber 1 of 3.",
+      "pointerdowns": [
+       {
+        "t": 126995,
+        "id": "dig",
+        "x": 422,
+        "y": 368,
+        "pt": "touch"
+       },
+       {
+        "t": 127237,
+        "id": "c",
+        "x": 507,
+        "y": 251,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       438,
+       26,
+       261,
+       348
+      ],
+      "canvasAfter": [
+       438,
+       26,
+       261,
+       348
+      ],
+      "cellBefore": 29,
+      "cellAfter": 29,
+      "elementNow": "c",
+      "tapMapsToTile": [
+       2,
+       5
+      ],
+      "holdOpen": false,
+      "uitoast": [
+       378,
+       326,
+       88,
+       38,
+       "none",
+       "1"
+      ],
+      "ctx": {
+       "tool": "hammer",
+       "kit": "pulley",
+       "sealing": false,
+       "clearing": false,
+       "falling": false,
+       "qbusy": false,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": true,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 0,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     },
+     {
+      "run": 0,
+      "action": 1397,
+      "why": "Confirm digs is on (first tap only aims)",
+      "reachedHandler": false,
+      "tile": [
+       5,
+       0
+      ],
+      "tapAt": [
+       593,
+       97
+      ],
+      "dirtBefore": 1,
+      "dirtAfter": 1,
+      "ms": 59,
+      "toast": "Aimed. Tap the same square again to dig it.",
+      "toastBefore": "Aimed. Tap the same square again to dig it.",
+      "pointerdowns": [
+       {
+        "t": 127237,
+        "id": "c",
+        "x": 507,
+        "y": 251,
+        "pt": "touch"
+       },
+       {
+        "t": 127324,
+        "id": "c",
+        "x": 593,
+        "y": 97,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       438,
+       26,
+       261,
+       348
+      ],
+      "canvasAfter": [
+       438,
+       26,
+       261,
+       348
+      ],
+      "cellBefore": 29,
+      "cellAfter": 29,
+      "elementNow": "c",
+      "tapMapsToTile": [
+       5,
+       0
+      ],
+      "holdOpen": false,
+      "uitoast": [
+       378,
+       326,
+       88,
+       38,
+       "none",
+       "1"
+      ],
+      "ctx": {
+       "tool": "hammer",
+       "kit": "pulley",
+       "sealing": false,
+       "clearing": false,
+       "falling": false,
+       "qbusy": false,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": true,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 0,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     },
+     {
+      "run": 0,
+      "action": 1398,
+      "why": "Confirm digs is on (first tap only aims)",
+      "reachedHandler": false,
+      "tile": [
+       7,
+       6
+      ],
+      "tapAt": [
+       650,
+       269
+      ],
+      "dirtBefore": 3,
+      "dirtAfter": 3,
+      "ms": 80,
+      "toast": "Aimed. Tap the same square again to dig it.",
+      "toastBefore": "Aimed. Tap the same square again to dig it.",
+      "pointerdowns": [
+       {
+        "t": 127324,
+        "id": "c",
+        "x": 593,
+        "y": 97,
+        "pt": "touch"
+       },
+       {
+        "t": 127382,
+        "id": "c",
+        "x": 650,
+        "y": 269,
+        "pt": "touch"
+       }
+      ],
+      "canvasBefore": [
+       438,
+       26,
+       261,
+       348
+      ],
+      "canvasAfter": [
+       438,
+       26,
+       261,
+       348
+      ],
+      "cellBefore": 29,
+      "cellAfter": 29,
+      "elementNow": "c",
+      "tapMapsToTile": [
+       7,
+       6
+      ],
+      "holdOpen": false,
+      "uitoast": [
+       378,
+       326,
+       88,
+       38,
+       "none",
+       "1"
+      ],
+      "ctx": {
+       "tool": "hammer",
+       "kit": "pulley",
+       "sealing": false,
+       "clearing": false,
+       "falling": false,
+       "qbusy": false,
+       "lk": false,
+       "lkmode": "",
+       "pause": false,
+       "confirm": true,
+       "feed": false,
+       "guardLeft": 0,
+       "crack": 0,
+       "i": 0,
+       "train": false,
+       "ore": -1,
+       "glass": 0,
+       "drill": 4
+      }
+     }
+    ]
+   }
+  }
+ },
+ "total": {
+  "wallTapsThatShouldDig": 4888,
+  "dug": 2422,
+  "didNot": 2466,
+  "byCause": {
+   "Confirm digs is on (first tap only aims)": 1533,
+   "a seal was being counted (strike() ignores taps while state.sealing)": 909,
+   "the tap landed on another element": 22,
+   "the tool or the tile refused, and said so": 2
+  }
+ }
+}

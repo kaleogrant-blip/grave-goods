@@ -1,0 +1,40 @@
+from ed import run
+run([
+# ---- item 4: past the red line (was "Press Your Luck")
+("// ================= 1. PRESS YOUR LUCK =================","// ================= 1. PAST THE RED LINE: the wall is talking (internal names keep 'press' and 'lucky') ================="),
+("fl('LUCKY STRIKE','#ffd44a',1.15,.3);fl(n?`${n} find${n>1?'s':''} worth ×${LUCK.press.luckyMult}`:'nothing in reach. Pity.','#fff0a8',.5,.3+.12,1.2);",
+ "fl('LOOSE STONE','#f1e6cf',1.15,.3);fl(n?`${n} find${n>1?'s':''} worth ×${LUCK.press.luckyMult}`:'nothing in reach. Pity.','#e2d1a8',.5,.3+.12,1.2);"),
+("luckGold(cx,cy);luckSfx('lucky');shake(14);wrapKick(2);hap([15,30,15,30,45]);statsLucky();log(n?`Lucky strike. What it touched is worth double.`:'Lucky strike, with nothing in reach. The luck is noted.');",
+ "luckGold(cx,cy,1);luckSfx('lucky');shake(14);wrapKick(2);hap([15,30,15,30,45]);statsLucky();log(n?`Loose stone. What it touched is worth double.`:'Loose stone, with nothing in reach. Noted.');"),
+("function luckGold(cx,cy){ // a shower of gold: rain from the cave roof plus a burst at the strike\n  const rm=rmEff(),W=cell*COLS,C=['#ffd44a','#fff0a8','#f0c23c','#b9851a'];",
+ "function luckGold(cx,cy,stone){ // a shower from the cave roof plus a burst at the strike: gold for a knucklebone that lands on its back, grit and chips (stone=1) for loose stone\n  const rm=rmEff(),W=cell*COLS,C=stone?['#cbbd9c','#e9dfc6','#a89878','#7d6f55']:['#ffd44a','#fff0a8','#f0c23c','#b9851a'];"),
+("state.bursts.push({x:(cx+.5)*cell,y:(cy+.5)*cell,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1,t:1,c:'#ffd44a',star:true})}\n}",
+ "state.bursts.push({x:(cx+.5)*cell,y:(cy+.5)*cell,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1,t:1,c:stone?'#e9dfc6':'#ffd44a',star:!stone})}\n}"),
+# quartz and friends
+('log("Quartz. The next roll in the red is lucky. Guaranteed.")','log("Quartz. The next strike in the red finds loose stone. Guaranteed.")'),
+('quartz:{n:"Quartz",s:"lucky roll",d:"The next Press Your Luck roll in the red is lucky. Guaranteed. Spent with the chamber."}','quartz:{n:"Quartz",s:"loose stone",d:"The next strike in the red finds loose stone: what it touches is worth double. Guaranteed. Spent with the chamber."}'),
+("' Quartz turns the next roll in the red into a lucky one, and Bitumen","' Quartz makes the next roll in the red loose stone, and Bitumen"),
+("line:'Your next Press Your Luck strike is guaranteed lucky.'","line:'Your next strike in the red is guaranteed loose stone.'"),
+("'ore:quartz':\"Your next roll in the red is lucky, guaranteed. The one honest thing in the whole Press Your Luck.\"","'ore:quartz':\"Your next roll in the red is loose stone, guaranteed. The one sure thing past the red line.\""),
+("rule:`In the red, Press Your Luck odds are ${LUCK.press.w.normal} / ${LUCK.press.w.lucky+SKILL.press2.lucky} / ${LUCK.press.w.tremor+SKILL.press2.tremor} (steady, lucky, tremor).`",
+ "rule:`In the red, the chances are ${LUCK.press.w.normal} / ${LUCK.press.w.lucky+SKILL.press2.lucky} / ${LUCK.press.w.tremor+SKILL.press2.tremor} in 100 (steady, loose stone, tremor).`"),
+("d:`In the red, lucky strikes are ${R.charioteer.lucky} points likelier, taken from the steady rolls.`","d:`In the red, loose stone is ${R.charioteer.lucky} points likelier, taken from the steady rolls.`"),
+("function pressW(){ // Press Your Luck odds as they stand now","function pressW(){ // the red-line chances as they stand now"),
+# ---- item 5: words
+('d:"Fool\'s gold. Worth 1, and not a coin more."','d:"Fool\'s gold. Worth 1, and not a grain more."'),
+("sw('coin','Offer the knucklebone','Triple or nothing, at long odds, after a big seal. Off, and the Quartermaster keeps it in his pocket.')",
+ "sw('coin','Offer the knucklebone','A wager, and it says so: triple or nothing on a big seal, with the chances against you. Off, and the Quartermaster keeps it in his pocket.')"),
+("every odds table is printed on the kit screen.","every table of chances is printed on the kit screen."),
+("relic odds: ","relic chances: ",2),
+("The odds are fair. It is the tomb that cheats.","The chances are fair. It is the tomb that cheats."),
+("Offered once a run. The odds are printed before you answer, not after.","Offered once a run. The terms are printed before you answer, not after."),
+("from Egypt, the Maya and China. The odds are printed before you answer.","from Egypt, the Maya and China. The terms are printed before you answer."),
+("hText(g,'ODDS PRINTED BEFORE YOU ANSWER'","hText(g,'TERMS PRINTED BEFORE YOU ANSWER'"),
+# ---- stats
+("    <div class=\"sec\">Luck</div>\n    <div class=\"rsg\">\n      ${cell1('Lucky strikes',fmtN(S.lk||0),(S.tr||0)+((S.tr||0)===1?' tremor':' tremors'))}\n      ${cell1('Coins flipped',fmtN(S.cf||0),(S.cw||0)+' won')}\n      ${cell1('Near misses',fmtN(S.nm||0),'margins on the record')}\n      ${cell1('Jackpots',fmtN(S.jp||0),lkOrd(LUCK.jackpot.at)+' Fever of a run')}\n    </div>",
+ "    <div class=\"sec\">Field conditions</div>\n    <div class=\"rsg\">\n      ${cell1('Loose stone',fmtN(S.lk||0),(S.tr||0)+((S.tr||0)===1?' tremor':' tremors')+' past the red line')}\n      ${cell1('Bones thrown',fmtN(S.cf||0),(S.cw||0)+' landed on Pranes')}\n      ${cell1('Close shaves',fmtN(S.nm||0),'sealed with under '+Math.round(LUCK.near.pct*100)+'% of the wall to spare')}\n      ${cell1('Bones read',fmtN(S.br||0),'the Quartermaster’s ox blades')}\n    </div>"),
+("// ---- stats hooks (rw_stats): near misses, coins flipped / won, lucky strikes, tremors, jackpots","// ---- stats hooks (rw_stats): close shaves (nm), knucklebones thrown / landed on Pranes (cf, cw), loose stone (lk), tremors (tr), bones read (br). The stored keys are unchanged."),
+("// ================= 2. NEAR-MISS HONESTY =================\nfunction nearSay(msg){statsNear();state.nearTxt=msg;uiToast(msg);log(msg+' '+diaryLine('near'))}",
+ "// ================= 2. CLOSE SHAVES: true margins only =================\nfunction nearSay(msg,count){if(count)statsNear();state.nearTxt=msg;uiToast(msg);log(msg+' '+diaryLine('near'))} // Stats counts only the seal kind: sealed with under 5% of the wall to spare"),
+("nearSay(`You sealed with ${lkN(sp)} crack to spare.`);","nearSay(`You sealed with ${lkN(sp)} crack to spare.`,1);"),
+])

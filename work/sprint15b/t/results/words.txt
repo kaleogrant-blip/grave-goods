@@ -1,0 +1,2 @@
+lower-case whole-token strings treated as code keys (telemetry, state, sprite ids): {'odds': 2, 'lucky': 8, 'coin': 6, 'heads': 3, 'tails': 3, 'spin': 1, 'flip': 1, 'reels': 3, 'jackpot': 2, 'wheel': 1}
+33 candidate uses outside comments and code names; 33 allowed (real coins, gears, a fox, a gear name); 0 left
