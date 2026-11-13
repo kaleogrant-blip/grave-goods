@@ -210,7 +210,7 @@ Tomb clear rate. Rows marked (300) are a first pass of 300 runs a player (±5 po
 | | Early sealer | Holder | Holder who chooses | Chooser at nine | Hammer bot |
 |---|---|---|---|---|---|
 | Tomb I, Stake 1 (1,500) | 56.3% | 24.1% | 45.2% | 77.2% | 41.7% |
-| Tomb I, Stake 3 (300) | 27.7% | 9.0% | 23.7% | 52.7% | 15.3% |
+| Tomb I, Stake 3 (1,500) | 26.9% | 8.9% | 23.7% | 55.3% | 13.2% |
 | Tomb III, Stake 1 (300) | 14.7% | 10.0% | 29.7% | 40.3% | 9.3% |
 | Tomb V, Stake 1 (300) | 3.0% | 1.7% | 4.0% | 13.7% | 2.0% |
 | Tomb V, Stake 6 (300) | 0.0% | 0.0% | 0.0% | 0.7% | 0.0% |
