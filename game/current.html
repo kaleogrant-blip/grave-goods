@@ -898,12 +898,12 @@ body.lefty .tools>*,body.lefty .pouch>*{direction:ltr}
 .cdx .cdx-civ .ft button{flex:none;min-height:40px;padding:6px 12px;font-size:11px;letter-spacing:.05em;white-space:nowrap;overflow:visible}
 .cdx .cdx-civ-note{margin-top:10px!important;font-size:12.5px!important;font-style:italic;color:var(--ink2)}
 /* ===== sprint 6: the luck layer ===== */
-/* -- odds line under Pick and Hammer, only while the wall is in the red -- */
-button small.odds span{display:block}
-@media(min-width:480px){button small.odds span{display:inline}}
-button small.odds{white-space:normal;overflow:visible;line-height:1.05;font-size:10.5px;color:#ffd27a;margin-top:1px;letter-spacing:0}
-body.lkhot #pick,body.lkhot #hammer{box-shadow:inset 0 0 0 1px #ffd44a,inset 0 1px 0 rgba(255,255,255,.12),0 2px 0 #000}
-/* -- panels that sit on the wall: the coin and the reels -- */
+/* -- past the red line: a pencil note on Pick and Hammer, and one line of field notes hanging from the clipboard (Sprint 15b; the ids keep their old names) -- */
+button small.odds{display:inline-block;align-self:center;white-space:nowrap;overflow:visible;line-height:1.15;font:italic 700 11px var(--body);color:#33506b;background:#efe2c2;border:1px solid #8c7748;border-radius:1px;padding:0 4px;margin-top:2px;letter-spacing:0;text-transform:none;text-shadow:none;transform:rotate(-2deg)}
+.lknote{position:absolute;z-index:4;right:6px;top:0;max-width:calc(100% - 84px);box-sizing:border-box;padding:3px 9px 4px;font:italic 700 12.5px/1.15 var(--body);color:#33506b;background:linear-gradient(180deg,#e9d9b2,#f3e7c8);border:1px solid #8c7748;border-top:0;border-radius:0 0 3px 3px;box-shadow:0 3px 6px rgba(0,0,0,.55);pointer-events:none;transform:rotate(-.6deg);transform-origin:top right;text-align:center;border-bottom:2px solid #b3261e;white-space:nowrap}
+body.lkhot #wrap:not(.logbelow) #log{margin-top:25px} /* compact layouts float the toast at the top of the wall: it steps down to leave the field note readable */
+@media(max-width:379px){.lknote{font-size:11px;padding:2px 7px 3px;max-width:calc(100% - 70px)}}
+/* -- the panel that sits on the wall: the knucklebone -- */
 .lkp{position:absolute;z-index:6;left:8px;right:8px;margin:0 auto;max-width:330px;top:50%;transform:translateY(-50%);box-sizing:border-box;display:flex;align-items:center;gap:12px;padding:10px 12px;background:linear-gradient(180deg,#34240f,#1c130a);border:2px solid #000;box-shadow:inset 0 0 0 1px var(--brass2),inset 0 0 0 3px #120c05,0 10px 28px rgba(0,0,0,.75);color:var(--fg);animation:lkin .22s ease-out}
 @keyframes lkin{from{opacity:0;transform:translateY(-44%)}to{opacity:1;transform:translateY(-50%)}}
 body.rm .lkp,body.rm .lkslip{animation:none}
@@ -915,10 +915,6 @@ body.rm .lkp,body.rm .lkslip{animation:none}
 .lkb{display:flex;gap:6px;margin-top:2px}
 .lkb button{flex:1;min-height:44px;font-size:13px;padding:6px 4px}
 #lkyes{background:linear-gradient(180deg,#a23535,#6b1b1b);color:#ffe9a8}
-.lkreels{flex-direction:column;align-items:stretch;gap:8px}
-.lkreels .lkt{text-align:center;align-items:center}
-.lkr{display:flex;gap:8px;justify-content:center}
-.lkr canvas{width:48px;height:48px;border:2px solid #000;box-shadow:0 0 0 2px var(--brass),inset 0 0 8px #000;background:#120d08}
 /* -- the tell: a torn parchment slip pinned over the wall until the first strike, and a small badge that stays -- */
 .lkslip{position:absolute;z-index:5;left:50%;top:15%;width:min(88%,300px);box-sizing:border-box;transform:translateX(-50%) rotate(-1.3deg);padding:10px 14px 11px 34px;pointer-events:none;isolation:isolate;color:var(--ink);font-family:var(--body);filter:drop-shadow(0 6px 10px rgba(0,0,0,.7));animation:lkdrop .45s cubic-bezier(.2,1.4,.4,1)}
 @keyframes lkdrop{from{opacity:0;transform:translateX(-50%) translateY(-30px) rotate(-6deg)}to{opacity:1;transform:translateX(-50%) rotate(-1.3deg)}}
@@ -929,13 +925,94 @@ body.rm .lkp,body.rm .lkslip{animation:none}
 .lkslip em{display:block;font-size:12.5px;color:var(--ink2);margin-top:4px}
 .lkbadge{position:absolute;left:5px;top:5px;z-index:4;display:flex;align-items:center;gap:5px;padding:2px 8px 2px 4px;font:700 10px var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--brass2);background:rgba(18,13,8,.88);border:1px solid var(--brass3);pointer-events:none}
 .lkbadge canvas{width:16px;height:16px;image-rendering:pixelated}
-/* -- the jackpot card -- */
-.card .jp canvas#jpw{display:block;margin:8px auto 4px;image-rendering:auto;max-width:100%}
-.jpt{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:3px}
-.jpt li{display:flex;align-items:center;gap:8px}
-.jpt li i{width:12px;height:12px;border:1px solid #000;flex:none}
-.jpt li b{flex:1;font:700 13px var(--display);color:var(--ink);display:block}
-.jpt li span{font:900 13px var(--display);color:#8a2b2b;display:block;margin:0}
+/* -- Sprint 15b: the Quartermaster's bone (sarcophagus reading and the fourth-Fever second bone). Oak frame, clipboard record, pencil figures, finds tag. -- */
+.bn{position:fixed;inset:0;z-index:5;box-sizing:border-box;padding:calc(6px + env(safe-area-inset-top)) calc(6px + env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) calc(6px + env(safe-area-inset-left));background:#0b0a0d;color:var(--fg);font-family:var(--body);animation:bnin .22s ease-out;overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+@keyframes bnin{from{opacity:0}to{opacity:1}}
+.bn-in{height:100%;max-width:430px;margin:0 auto;box-sizing:border-box;display:flex;flex-direction:column;gap:5px;padding:9px;border:3px solid #000;border-radius:6px;background:linear-gradient(180deg,#6e4d2c,#4f3822 32%,#35261a);box-shadow:inset 0 0 0 1px var(--brass3),inset 0 2px 0 rgba(255,255,255,.14),0 0 0 1px #000;min-height:0}
+.bn-clip{flex:none;position:relative;border:2px solid #000;border-radius:5px;background:linear-gradient(180deg,#3a2a1b,#2a1d12);box-shadow:inset 0 0 0 1px var(--brass3);padding:18px 7px 7px}
+.bn-clip:before{content:"";position:absolute;left:50%;top:-5px;width:112px;height:24px;margin-left:-56px;border-radius:5px;border:2px solid #000;background:linear-gradient(180deg,#f0d27a,#c9a24a 55%,#7d5f22);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 2px 0 rgba(0,0,0,.6);z-index:2}
+.bn-clip:after{content:"";position:absolute;left:50%;top:4px;width:74px;height:6px;margin-left:-37px;border-radius:3px;background:#2b1d10;z-index:3}
+.bn-site{position:absolute;top:2px;left:10px;right:10px;display:flex;justify-content:space-between;font:700 9.5px var(--display);letter-spacing:.1em;color:#c9b07a;text-transform:uppercase;white-space:nowrap}
+.bn-site span{max-width:calc(50% - 62px);overflow:hidden;text-overflow:ellipsis}
+.bn-sheet{color:var(--ink);border:1px solid #8c7748;padding:7px 10px 6px;position:relative;background:linear-gradient(180deg,#f3e7c8,#e9d9b2)}
+.bn-sheet h2{margin:0;font:700 10px var(--display);letter-spacing:.14em;color:var(--ink2);text-transform:uppercase;border-bottom:1px solid #8c7748;padding-bottom:3px;display:flex;justify-content:space-between;gap:8px}
+.bn-sheet h3{margin:4px 0 2px;font:italic 700 16.5px/1.1 var(--body);color:#33506b}
+.bn-reg{display:grid;grid-template-columns:1fr 1fr;column-gap:14px}
+.bn-col{min-width:0}
+.bn-col+.bn-col{border-left:1px dashed #8c7748;padding-left:9px;margin-left:-5px}
+.bn-col h4{margin:1px 0 0;font:700 8.5px var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
+.bn-col ul{list-style:none;margin:0;padding:0}
+.bn-col li{display:flex;align-items:baseline;gap:5px;height:21px;font:italic 500 14.5px var(--body);color:#3a3a40;position:relative;white-space:nowrap;transition:opacity .3s}
+.bn-col li i{width:9px;height:9px;flex:none;border:1px solid #2b1d10;align-self:center;border-radius:1px}
+.bn-col li span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.bn-col li b{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums;color:#33506b}
+.bn-col li em{font-style:italic;font-weight:700;color:#b3261e;font-size:14px;display:none}
+.bn-col li.bn-rev b{text-decoration:line-through;opacity:.55}
+.bn-col li.bn-rev em{display:inline}
+.bn-col li s{position:absolute;left:0;right:0;top:11px;height:2px;background:#b3261e;transform:scaleX(0);transform-origin:left;border-radius:2px;text-decoration:none;transition:transform .35s ease-out}
+.bn-col li.bn-out{opacity:.5}.bn-col li.bn-out s{transform:scaleX(1) rotate(-1.2deg)}
+.bn-col li.bn-nil s{background:#33506b}
+.bn-col li.bn-hit{color:#1d5a2a;opacity:1}.bn-col li.bn-hit b,.bn-col li.bn-hit em{color:#1d5a2a}
+.bn-note{margin:3px 0 0;font:italic 11.5px/1.25 var(--body);color:var(--ink2);min-height:29px}
+.bn-stage{flex:1;min-height:0;position:relative;border:2px solid #000;box-shadow:inset 0 0 0 1px var(--brass3);overflow:hidden;background:#17110c;background-image:repeating-linear-gradient(0deg,transparent 0 54px,rgba(36,26,18,.9) 54px 56px)}
+.bn-stage svg{position:absolute;inset:0;width:100%;height:100%}
+.bn-stage image{image-rendering:pixelated}
+.bn-heat{opacity:0;transform:scale(.15);transform-origin:180px 358px;transition:transform 1s ease-in,opacity .3s}
+.bn.s1 .bn-heat{opacity:1;transform:scale(1)}
+.bn.s3 .bn-heat{opacity:.3}
+.bn-rod{transform:translate(120px,90px);transition:transform .5s cubic-bezier(.3,1.3,.5,1)}
+.bn.s1 .bn-rod{transform:none}
+.bn.s3 .bn-rod{transform:translate(120px,90px)}
+.bn-c{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 0s cubic-bezier(.2,.7,.3,1)}
+.bn-c.bn-on{stroke-dashoffset:0}
+.bn-m .ring,.bn-m .colr{opacity:0;transition:opacity .4s}
+.bn-m .carv{transition:opacity .4s}
+.bn-m{transition:opacity .4s}
+.bn-m.bn-off,.bn-m.bn-gone{opacity:.38}
+.bn-m.bn-hit{opacity:1}.bn-m.bn-hit .ring,.bn-m.bn-hit .colr{opacity:1}.bn-m.bn-hit .carv{opacity:0}
+@keyframes bnflick{0%,100%{opacity:.92}40%{opacity:1}55%{opacity:.84}70%{opacity:.97}}
+.bn:not(.bn-rm) .bn-lamp{animation:bnflick 1.7s 6}
+@keyframes bnshake{0%,100%{transform:translate(0,0)}25%{transform:translate(-2px,1px)}50%{transform:translate(2px,-1px)}75%{transform:translate(-1px,-1px)}}
+.bn-stage.bn-shk{animation:bnshake .22s 2}
+.bn-cap{flex:none;min-height:42px;box-sizing:border-box;display:grid;place-items:center;text-align:center;padding:5px 10px;background:#0c0906;border:2px solid #000;box-shadow:inset 0 0 0 1px #4a3521;font:italic 14.5px/1.2 var(--body);color:#eadfc4}
+.bn-tray{flex:none;display:flex;gap:6px;padding:8px 7px;border:2px solid #000;border-radius:5px;background:#b9a274;background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.05) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 1px,transparent 1px 3px);box-shadow:inset 0 0 0 1px #6b5634,inset 0 0 12px rgba(60,40,10,.5)}
+.bn-tray button{flex:1;min-height:56px;margin:0;border-radius:4px;border:1.5px dashed #f0d27a;background:rgba(120,52,44,.92);color:#f6ecd2;font:700 14px var(--display);letter-spacing:.05em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-shadow:0 0 0 2px rgba(240,210,122,.35),0 2px 0 rgba(0,0,0,.45);padding:4px 6px;text-shadow:none}
+.bn-tray button small{display:block;font:italic 500 12px var(--body);letter-spacing:0;text-transform:none;color:#e8d9b0}
+.bn-tray button:active{transform:translateY(2px)}
+.bn-tray button:disabled{filter:saturate(.3) brightness(.75)}
+.bn-tray button.bn-sm{flex:0 0 104px;font-size:10.5px;background:rgba(60,46,24,.86);border-color:#5a4526;box-shadow:0 2px 0 rgba(0,0,0,.45)}
+.bn-tag{position:absolute;left:50%;bottom:4%;width:230px;max-width:86%;box-sizing:border-box;transform:translate(-50%,-140%) rotate(-7deg);background:linear-gradient(180deg,#f6ecd0,#e6d5ab);color:var(--ink);border:1.5px solid #5a4526;border-top:7px solid var(--tc,#c9a24a);padding:15px 12px 9px;text-align:center;box-shadow:0 6px 0 rgba(0,0,0,.45),0 14px 30px rgba(0,0,0,.6);opacity:0;z-index:5;clip-path:polygon(12% 0,88% 0,100% 12%,100% 100%,0 100%,0 12%);pointer-events:none}
+.bn-tag:before{content:"";position:absolute;left:50%;top:3px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:#1b120a;box-shadow:0 0 0 2px #c9a24a}
+.bn-tag.bn-show{opacity:1;transform:translate(-50%,0) rotate(-2deg);transition:transform .42s cubic-bezier(.2,1.5,.4,1),opacity .15s}
+.bn-tag u{display:block;text-align:left;padding-left:2px;text-decoration:none;font:700 10px var(--display);letter-spacing:.14em;color:var(--ink2);text-transform:uppercase}
+.bn-tag b{display:block;font:900 23px/1.1 var(--display);margin:3px 0 2px;color:var(--ink)}
+.bn-tag span{display:block;font:italic 13.5px/1.25 var(--body);color:#4a3a22}
+.bn-tag .ico{width:48px;height:48px;margin:3px auto 0;display:block;image-rendering:pixelated}
+.bn-stamp{position:absolute;right:7px;top:14px;font:900 10px var(--display);font-style:normal;letter-spacing:.1em;text-transform:uppercase;color:#b3261e;border:2px solid #b3261e;padding:1px 5px;border-radius:3px;transform:rotate(-9deg) scale(2.2);opacity:0}
+.bn-tag.bn-show .bn-stamp{opacity:.85;transform:rotate(-9deg) scale(1);transition:transform .16s .45s cubic-bezier(.3,1.6,.5,1),opacity .05s .45s}
+/* Reduce Motion: no travel, no shake, no drop. Each step is a short fade to its result. */
+.bn.bn-rm{animation:none}
+body.rm .bn.bn-rm .bn-rod,body.rm .bn.bn-rm .bn-heat,.bn.bn-rm .bn-rod,.bn.bn-rm .bn-heat{transition:opacity .2s!important}
+.bn.bn-rm .bn-c{transition:none}
+.bn.bn-rm .bn-col li s{transition:none}
+.bn.bn-rm .bn-tag{transform:translate(-50%,0) rotate(-2deg)}
+body.rm .bn.bn-rm .bn-tag.bn-show,.bn.bn-rm .bn-tag.bn-show{transition:opacity .25s!important} /* the one allowed movement under Reduce Motion: a short fade to the result (the game's blanket rule switches every other transition off) */
+.bn.bn-rm .bn-tag .bn-stamp{transform:rotate(-9deg) scale(1)}
+body.rm .bn.bn-rm .bn-tag.bn-show .bn-stamp,.bn.bn-rm .bn-tag.bn-show .bn-stamp{transition:opacity .2s .1s!important}
+.bn.bn-rm .bn-stage.bn-shk{animation:none}
+@media (max-height:700px) and (orientation:portrait){
+  .bn-in{padding:6px;gap:4px}.bn-sheet{padding:5px 9px 4px}.bn-sheet h3{font-size:15px;margin:2px 0 1px}.bn-col li{height:19px;font-size:13.5px}.bn-col li s{top:10px}.bn-col li em{font-size:13px}
+  .bn-note{font-size:11px;min-height:27px;margin-top:2px}.bn-cap{font-size:13.5px;min-height:38px;padding:4px 8px}.bn-tray{padding:6px}.bn-tray button{min-height:50px}
+  .bn-tag{padding:13px 10px 7px}.bn-tag b{font-size:20px}.bn-tag .ico{width:40px;height:40px}.bn-tag span{font-size:12.5px}
+}
+@media (orientation:landscape) and (max-height:560px){
+  .bn-in{max-width:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);grid-template-rows:auto minmax(0,1fr) auto;column-gap:7px;padding:7px}
+  .bn-clip{grid-column:1;grid-row:1}.bn-cap{grid-column:1;grid-row:2;align-self:stretch}.bn-tray{grid-column:1;grid-row:3;padding:6px}
+  .bn-stage{grid-column:2;grid-row:1/4}
+  .bn-sheet{padding:5px 9px 4px}.bn-sheet h3{font-size:15px;margin:2px 0 1px}.bn-col li{height:19px;font-size:13.5px}.bn-col li s{top:10px}
+  .bn-note{font-size:11px;min-height:27px;margin-top:2px}.bn-tray button{min-height:48px}
+  .bn-tag{padding:12px 10px 7px;bottom:3%}.bn-tag b{font-size:20px}.bn-tag .ico{width:36px;height:36px}
+}
 @media (orientation:landscape) and (max-height:560px){.lkslip{top:6%}.lkp{padding:6px 10px}.lkcoin canvas{width:54px;height:63px}}
 
 /* ===== sprint 7: content pass (Fence swap button, tool and hat rows, Cartographer card) ===== */
@@ -1585,7 +1662,8 @@ body:not(.rm) .hx .tk-hot{animation:none}
   transition:transform .06s,box-shadow .1s}
 .hx .tools :is(#pick,#hammer,#special,#seal) small{display:block;max-width:100%;overflow:visible;white-space:normal;text-overflow:clip;text-align:center;
   font:italic 500 10.5px/11px var(--body);color:#cdbf98;letter-spacing:0;text-shadow:none}
-.hx .tools :is(#pick,#hammer,#special,#seal) small.odds{font-size:10px;line-height:10px;color:#ffb9a8}
+.hx .tools :is(#pick,#hammer,#special,#seal) small.odds{font-size:10.5px;line-height:13px;color:#33506b!important;opacity:1;white-space:nowrap!important;max-width:none}
+@media(max-width:379px){.hx .tools :is(#pick,#hammer) small.odds{font-size:9.5px;padding:0 2px}}
 .hx .tools :is(#pick,#hammer,#special,#seal) small[hidden]{display:none}
 .hx .tools :is(#pick,#hammer,#special,#seal):focus-visible{outline:2px solid var(--brass2);outline-offset:2px}
 .hx .tools :is(#pick,#hammer,#special,#seal):active:not(:disabled){transform:translateY(2px) scale(.96);box-shadow:inset 0 5px 8px rgba(0,0,0,.9),inset 0 0 0 1px rgba(0,0,0,.65),0 1px 0 rgba(255,255,255,.18)}
@@ -3174,7 +3252,7 @@ function useOre(k){
   if(t==="lapis"){state.gapOre=true;log("Lapis. The next seal's Timelines may skip an age.")}
   if(t==="skyiron"){state.skyIron=true;state.finds.forEach(f=>{if(!f.banked&&!f.relic&&!f.sarc){f.outlined=true;f.sky=true}});log("Sky Iron. Every ore and relic glints, and every find shows its outline.")}
   if(t==="jade")log(memGift("Jade. A lost Memory returns.","Jade. You already remember everything."));
-  if(t==="quartz"){state.quartz=true;log("Quartz. The next roll in the red is lucky. Guaranteed.")}
+  if(t==="quartz"){state.quartz=true;log("Quartz. The next strike in the red finds loose stone. Guaranteed.")}
   if(t==="bitumen"){state.bit=PROG_DATA.ores.bitumen.strikes;log(`Bitumen. The wall is tarred: the next ${state.bit} strikes add no crack.`)}
   telOre(t);s9OreUse(t);
   sfx('oreUse',{t});ui();draw();checkClear();
@@ -3235,7 +3313,7 @@ function strike(cx,cy){
   let r,dmg,crack,big=false,line=false,glass=false;
   if(tool==="pick"){r=0;dmg=gear&&gear.id==="knuckle"?2:cls.pickDmg;if(pw("Obsidian Blade"))dmg=Math.max(dmg,2);crack=gear&&gear.id==="knuckle"?1.5:cls.pickCrack;if(pw("Obsidian Blade"))crack=Math.max(crack,1.5);if(pw("Shield of Achilles"))crack*=.75;if(pw("Ulfberht Sword")){dmg=3;crack=Math.max(crack,1.5)}if(state.flint>0){line=true;dmg=Math.max(dmg,2)}}
   else{
-    if(gear&&gear.id==="glass"){if(state.glassUses>=3){log("The Glass Hammer is spent. Back to the pick.");setTool("pick");ui();return}r=2;dmg=3;crack=32;glass=true}
+    if(gear&&gear.id==="glass"){if(state.glassUses>=3){log("The Glass Hammer is spent. Back to the "+kitNames().pick+".");setTool("pick");ui();return}r=2;dmg=3;crack=32;glass=true}
     else{r=cls.hamR;dmg=cls.hamDmg;crack=cls.hamCrack;big=!!cls.hamBig;if(pw("Shield of Achilles"))crack=Math.max(0,Math.round(crack*.75));if(pw("Mjölnir")){dmg=Math.min(3,dmg+1);crack*=.8;if(cls.hamBig){r=cls.hamR+1;big=false}else big=true}}
   }
   const bl=!!state.blast;if(bl){state.blast=false;r=2;dmg=3;crack=12;big=false;line=false} // Nitre: a 5x5 blast through the same code path
@@ -3289,8 +3367,8 @@ function openSarc(f){
     f.banked=true;state.crack=maxCrack();shake(10);sfx('sarc');log("The lid gives and so does the wall. Whatever was inside is lost.");collapse();return}
   state.crack+=cost;shake(8);sfx('sarc');
   const R9=s9SarcRoll(),r=R9.r;
-  f.banked=true;state.sarcPend={id:f.id,r:r,hit:!!R9.hit};try{S11.save()}catch(e){}
-  luckReels(r,()=>sarcPay(f,R9));
+  f.banked=true;state.sarcPend={id:f.id,r:r,hit:!!R9.hit,sul:!!R9.sul};try{S11.save()}catch(e){} // decided and saved before the bone is even handed over
+  luckBone(r,()=>sarcPay(f,R9),R9.sul);
 }
 function sarcPay(f,R9){const r=R9.r;state.sarcPend=null;{let msg;
   if(r<.2){const rr=rollRelic(),rl=[rr.n,rr.civ];const id=state.finds.length;const nf={id,cells:f.cells,banked:false,j:{s:1,sv:0,r:0,rv:0},civ:rl[1],age:1+rnd(13),name:rl[0],worth:20,relic:true};state.finds.push(nf);f.cells.forEach(([x,y])=>state.owner[y][x]=id);msg=`★ Inside: the ${rl[0]}. Seal it before the wall takes it back.`;sfx('relic')}
@@ -3485,7 +3563,7 @@ function gearPool(){if(!_gp||_gpSeed!==run.seed){let a=s15Daily()?kitGearList().
 
 // --- first-run tutorial (shown once, on the first chamber ever) ---
 const TUT_STEPS=[
- {el:'#wrap', at:'top',   h:'1 · Dig',   t:'Tap to dig. Hold a finger down to preview the crack first, then tap. The Pick takes a tile, the Hammer a patch.'},
+ {el:'#wrap', at:'top',   h:'1 · Dig',   get t(){const N=kitNames(),C=s=>s[0].toUpperCase()+s.slice(1);return'Tap to dig. Hold a finger down to preview the crack first, then tap. The '+C(N.pick)+(N.stdPick?' takes a tile':' is your small tool')+(N.ham?', the '+C(N.ham)+(N.stdHam?' a patch':' your heavy one'):'')+'.'}},
  {el:'#wrap', at:'top',   h:'2 · Finds', t:'A find glows once every tile of it is clear. Half a bone is just a rumour. The panel above prices whatever is glowing.'},
  {el:'#seal', at:'above', h:'3 · Seal',  t:'Seal banks everything that glows: Worth × Fame, straight into Banked. Unsealed finds are the wall\'s.'},
  {el:'#meter',at:'below', h:'4 · The Wall', t:'Each strike fills this. At 100% the wall collapses, takes everything unsealed, and costs you a Memory (♥). Seal early.'}
@@ -4091,7 +4169,7 @@ let shownBanked=0,feedMode=false;
 function toggleFeed(){if(PAUSE.on||LK.busy)return;if(!relic||relic.state==='sated')return;const P=POWERS[relic.name];if(P.wantOre){const k=run.pouch.findIndex(t=>t!=='pyrite');if(k<0){log('The Jar wants an ore. Your pouch has none.');return}const t=run.pouch.splice(k,1)[0];progSate();jingle([520,780,1040],.1);log(`${ORES[t].n} goes into the Jar. It is sated.`);ui();return}feedMode=!feedMode;log(feedMode?`Tap an uncovered find to feed the ${relic.name}. It wants ${P.hunger}.`:'Feeding called off.');ui()}
 function tryFeed(cx,cy){const o=state.owner[cy][cx];if(o<0)return false;const f=state.finds[o];if(f.banked||f.relic||f.sarc||!f.cells.every(([x,y])=>state.dirt[y][x]===0))return false;const P=POWERS[relic.name];if(!P.want(f)){log(`The ${relic.name} turns its nose up. It wants ${P.hunger}.`);return true}f.banked=true;f.lost=true;progSate();feedMode=false;juice(RJ,.4,.2);jingle([520,780,1040],.1);state.floats.push({t:1,txt:relic.blight?'FED':'SATED',x:cell*COLS/2,y:cell*ROWS/2});log(`The ${relic.name} devours the ${f.name}. Sated: Fame ×2 on every seal this chamber.`);ui();return true}
 let _cnt0=0; // rc5c: when the HUD counter started easing; the tick sound stops after 1.5 s even if the number is still moving
-(function loop(){if(state){const vis=document.getElementById('overlay').hidden;if(vis)draw();if(shownBanked!==chBank()){const d=chBank()-shownBanked;shownBanked+=Math.abs(d)<2?d:Math.sign(d)*Math.ceil(Math.abs(d)*.15);if(!_cnt0)_cnt0=performance.now();document.getElementById('banked').textContent=shownBanked;document.getElementById('banked').parentNode.style.setProperty('--p',Math.min(100,shownBanked/TARGETS[state.i]*100)+'%');if(vis&&Math.abs(d)>=2&&(frame%3===0)&&performance.now()-_cnt0<1500)sfx('count',{f:900+Math.min(600,Math.abs(d))})}else _cnt0=0}requestAnimationFrame(loop)})();
+(function loop(){if(state){const _lp=document.getElementById('lkp'),vis=document.getElementById('overlay').hidden&&!(_lp&&_lp.classList.contains('bn'));if(vis)draw(); /* Sprint 15b: a bone reading covers the wall completely, so the wall is not repainted under it (as under a card) */if(shownBanked!==chBank()){const d=chBank()-shownBanked;shownBanked+=Math.abs(d)<2?d:Math.sign(d)*Math.ceil(Math.abs(d)*.15);if(!_cnt0)_cnt0=performance.now();document.getElementById('banked').textContent=shownBanked;document.getElementById('banked').parentNode.style.setProperty('--p',Math.min(100,shownBanked/TARGETS[state.i]*100)+'%');if(vis&&Math.abs(d)>=2&&(frame%3===0)&&performance.now()-_cnt0<1500)sfx('count',{f:900+Math.min(600,Math.abs(d))})}else _cnt0=0}requestAnimationFrame(loop)})();
 let hover=null;
 function pos(e){const r=cv.getBoundingClientRect();return{x:Math.floor((e.clientX-r.left)/cell),y:Math.floor((e.clientY-r.top)/cell)-TOP}}
 // ---- crack-cost preview: hover with a mouse, press-and-hold (250 ms) with a finger. Read-only: it mirrors strike() and never changes state.
@@ -4199,7 +4277,8 @@ function auBufs(){ // white + brown noise (2 s) and a 1.4 s stereo "tomb air" im
   AU.ir=ir}
 function noiseBuf(){if(!AU.nz||AU.sr!==ac.sampleRate)auBufs();return AU.nz}
 function note(n){return 55*Math.pow(2,n/12)} // n = semitones above A1 (55 Hz)
-function aV(n,t0,t1,off){AU.vc++;MUSIC.voices=AU.vc;n.onended=()=>{AU.vc--;MUSIC.voices=AU.vc};n.start(t0,off||0);n.stop(Math.max(t0,Math.min(t1,t0+3,ac.currentTime+3)))} // hard rule: every one-shot is scheduled to stop within 3 s of now
+const BONE_AU=new Set();let _bnAu=0; // Sprint 15b: the nodes a bone reading started, so a reading that is cut short can stop them and a test can see that none is left
+function aV(n,t0,t1,off){AU.vc++;MUSIC.voices=AU.vc;const bn=_bnAu;if(bn)BONE_AU.add(n);n.onended=()=>{AU.vc--;MUSIC.voices=AU.vc;if(bn)BONE_AU.delete(n)};n.start(t0,off||0);n.stop(Math.max(t0,Math.min(t1,t0+3,ac.currentTime+3)))} // hard rule: every one-shot is scheduled to stop within 3 s of now
 function aPan(d,p){if(!p||!ac.createStereoPanner)return d;const s=ac.createStereoPanner();s.pan.value=p;s.connect(d);return s}
 function tn(t,type,f0,f1,dur,vol,d,att,pan,det){ // enveloped oscillator: optional exponential pitch glide f0 -> f1
   const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);if(f1&&f1!==f0)o.frequency.exponentialRampToValueAtTime(f1,t+dur);if(det)o.detune.value=det;
@@ -4432,8 +4511,8 @@ function auOn(){ // ready to sound? returns the output bus, or null (muted / no 
 function auGate(n,ms){const t=performance.now();if(t-(AU.tk[n]||0)<ms)return false;AU.tk[n]=t;return true}
 const SND={};
 // per-effect trim in dB (from test/level.js: chain bypassed, K-weighted momentary loudness per class; U = UI ticks peak -22, F = feedback, E = events, B = big moments). Keyed name or name:variant.
-const SND_LV={"dig:1":-4,"dig:2":-1.5,"dig:3":-3.5,"dig:big":-6,"warn:1":5,"warn:2":3.5,"warn:3":-0.5,"reveal":1,"relic":-3.5,"ore:gold":1,"ore:quick":9.5,"ore:lode":-0.5,"ore:flint":1.5,"ore:amber":3,"ore:nitre":5,"ore:malachite":2.5,"ore:lapis":-3,"ore:skyiron":3.5,"ore:jade":-2,"ore:pyrite":5,"ore:quartz":0.5,"ore:bitumen":-1,"ore:sulfur":11.5,"ore:silver":3,"oreUse:gold":0.5,"note":6,"tally:w":2.5,"tally:x":1.5,"tally:f":7,"tally:n":5,"tally:t":-1.5,"bank":1.5,"fly":2.5,"count":12,"st_fever":-2.5,"feverOff":2,"collapse":-5.5,"tremorBed":-5.5,"k_tremor":0,"st_seal":-1,"st_chest":7,"hear":-0.5,"memLost":2.5,"tap":2.5,"cardOpen":1,"cardClose":2,"walk":8.5,"rank":0,"sarc":0,"mimic":3,"clang":-1.5,"lode":-1,"xray":1,"blast":-4.5,"memGain":3,"memSpend":1,"buy":0.5,"charge":5.5,"sated":4.5,"k_tick":1.5,"k_throw":11,"k_land:1":2.5,"k_land:0":1,"k_lucky":0.5,"k_reeltick":9,"k_reelstop":-2,"k_win":2,"k_wheel":3,"k_jackpot":-2};
-const SND_HI=new Set(['relic','st_relic','bank','collapse','st_collapse','st_fever','feverOff','memLost','rank','k_jackpot','blast','hear','warn','walk','st_seal','mimic','k_land','k_win','k_lucky','k_tremor','tally','sarc','clang']); // moments that must never be dropped when the voice count is high
+const SND_LV={"dig:1":-4,"dig:2":-1.5,"dig:3":-3.5,"dig:big":-6,"warn:1":5,"warn:2":3.5,"warn:3":-0.5,"reveal":1,"relic":-3.5,"ore:gold":1,"ore:quick":9.5,"ore:lode":-0.5,"ore:flint":1.5,"ore:amber":3,"ore:nitre":5,"ore:malachite":2.5,"ore:lapis":-3,"ore:skyiron":3.5,"ore:jade":-2,"ore:pyrite":5,"ore:quartz":0.5,"ore:bitumen":-1,"ore:sulfur":11.5,"ore:silver":3,"oreUse:gold":0.5,"note":6,"tally:w":2.5,"tally:x":1.5,"tally:f":7,"tally:n":5,"tally:t":-1.5,"bank":1.5,"fly":2.5,"count":12,"st_fever":-2.5,"feverOff":2,"collapse":-5.5,"tremorBed":-5.5,"k_tremor":0,"st_seal":-1,"st_chest":7,"hear":-0.5,"memLost":2.5,"tap":2.5,"cardOpen":1,"cardClose":2,"walk":8.5,"rank":0,"sarc":0,"mimic":3,"clang":-1.5,"lode":-1,"xray":1,"blast":-4.5,"memGain":3,"memSpend":1,"buy":0.5,"charge":5.5,"sated":4.5,"k_tick":1.5,"k_throw":11,"k_land:1":2.5,"k_land:0":1,"k_lucky":0.5,"k_win":2,"k_hiss":4,"k_crack":2,"k_creep":3,"k_stop":2,"k_tag":2};
+const SND_HI=new Set(['relic','st_relic','bank','collapse','st_collapse','st_fever','feverOff','memLost','rank','k_crack','k_stop','blast','hear','warn','walk','st_seal','mimic','k_land','k_win','k_lucky','k_tremor','tally','sarc','clang']); // moments that must never be dropped when the voice count is high
 const SND_KEY={dig:o=>o.big?'big':(o.mat||1),warn:o=>o.lvl||1,ore:o=>o.t||'gold',oreUse:o=>o.t||'gold',k_land:o=>o.heads?1:0,tally:o=>{const p=o.p||520;return p<=560?'w':p<=700?'x':p<=800?'f':p<=950?'n':'t'}};
 function sfx(name,o){
   try{const O=auOn();if(!O)return;const f=SND[name];if(!f||AU.vc>(SND_HI.has(name)||(name==='dig'&&o&&o.big)?AU.max+24:AU.max-6))return;o=o||{};const t=ac.currentTime+.005,kf=SND_KEY[name],db=kf?SND_LV[name+':'+kf(o)]:SND_LV[name];
@@ -4560,7 +4639,7 @@ SND.memSpend=(t,o,d,O)=>{tn(t,'sine',330,220,.25,.18,d).connect(O.rvS);tn(t+.12,
 SND.buy=(t,o,d,O)=>{bellA(t,1568,.35,.09,d,O.rvS);bellA(t+.08,2093,.5,.09,d,O.rvS);for(let k=0;k<3;k++)aTick(t+k*.03,3000+k*400,d,.06)}
 SND.charge=(t,o,d)=>{tn(t,'triangle',220,330,.14,.14,d);nzz(t+.05,.2,'highpass',3500,1,0,.1,d,.01)} // a fuse is lit
 SND.sated=(t,o,d,O)=>{[0,1,2].forEach(k=>bellA(t+k*.1,pent(k*2,1),.7,.1,d,O.rvS))}
-// --- luck layer: coin, reels, wheel, jackpot
+// --- luck layer: the knucklebone throw, the Quartermaster's bone
 // knucklebone (astragalus) throw: hollow bone clacks while it tumbles, then a clatter and a settle. Win (lands on its back) ends warm and bright, loss ends dull.
 function bone(t,d,v,f,pan){tn(t,'sine',f*1.6,f,.045,v,d,.001,pan);tn(t,'triangle',f*3.1,f*2.4,.02,v*.4,d,.001,pan);nzz(t,.025,'bandpass',f*5,4,0,v*.5,d,.001,pan)}
 SND.k_tick=(t,o,d)=>{const f=o.f||600;bone(t,d,.11,300+(f-480)*.45+aRnd(-15,15),aRnd(-.4,.4))}
@@ -4570,14 +4649,15 @@ SND.k_land=(t,o,d,O)=>{let at=t,gap=.085;for(let k=0;k<6;k++){bone(at,d,.16*(1-k
   if(o.heads){bellA(at+.12,pent(5,1),.9,.1,d,O.rvS);bellA(at+.2,pent(7,1),.8,.08,d,O.rvS);nzz(at+.12,.4,'highpass',5000,1,0,.06,d,.02)}
   else{tn(at+.1,'sine',110,55,.5,.3,d).connect(O.rvS);nzz(at+.05,.25,'lowpass',500,.8,150,.2,d)}}
 SND.k_lucky=(t,o,d,O)=>{[1318,1568,1976,2637,3136].forEach((f,k)=>bellA(t+k*.05,f,.7,.09,d,O.rvS,(k-2)*.3));nzz(t+.05,.55,'highpass',4000,1,0,.1,d,.05);auDuck(.7,.5,.25)}
-SND.k_reeltick=(t,o,d)=>{if(!auGate('rt',30))return;nzz(t,.014,'bandpass',2200,3,0,.08,d,.001);tn(t,'triangle',300+(o.k||0)*20,260,.025,.05,d,.001)}
-SND.k_reelstop=(t,o,d,O)=>{const f=[523,659,880][o.i||0];tn(t,'sine',f/2,f/4,.16,.4,d,.002);nzz(t,.05,'lowpass',1200,.8,300,.2,d);bellA(t+.01,f,.5,.12,d,O.rvS,(o.i-1)*.3);tn(t,'square',f,f,.03,.05,d,.001)}
-
 SND.k_win=(t,o,d,O)=>{[880,1320,1760,2640].forEach((f,k)=>bellA(t+k*.07,f,.8,.1,d,O.rvS,(k-1.5)*.3));for(let k=0;k<5;k++)tn(t+.1+k*.05,'sine',aRnd(3500,7000),0,.4,.03,d,.003,aRnd(-.7,.7));auDuck(.7,.5,.25)}
-SND.k_wheel=(t,o,d)=>{if(!auGate('wh',30))return;tn(t,'triangle',1250,900,.03,.1,d,.001)}
-SND.k_jackpot=(t,o,d,O)=>{auDuck(.4,1.6,.4);let at=t;for(let k=0;k<16;k++){bellA(at,aRnd(2200,4200),.3,.07,d,O.rvS,aRnd(-.7,.7));tn(at,'triangle',aRnd(1800,2800),0,.03,.05,d,.001);at+=.07*Math.pow(.97,k)}
-  const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3000;lp.connect(d);lp.connect(O.rvS);[0,7,12,16,19].forEach(s=>tn(t+.1,'sawtooth',220*Math.pow(2,s/12),0,1.4,.055,lp,.02,0,5));
-  tn(t+.1,'sine',150,44,.4,.7,d,.002);nzz(t+.1,1.4,'highpass',6000,.8,0,.09,d,.002)}
+// The Quartermaster's bone (Sprint 15b). No bells, no chimes: a hiss, a crack, small bone ticks, a duller stop, a paper thunk. Every node is a one-shot that ends by itself
+// (aV stops everything within 3 s); bnAu() tags the nodes so boneQuiet() can stop them early and BONE_AU shows when none is left.
+function bnAu(fn){return function(){_bnAu=1;try{fn.apply(null,arguments)}finally{_bnAu=0}}}
+SND.k_hiss=bnAu((t,o,d)=>{nzz(t,1.05,'bandpass',3800,.7,6400,.07,d,.3);nzz(t,1.05,'highpass',7000,.7,0,.03,d,.5);for(let k=0;k<4;k++)nzz(t+.25+k*.17+aRnd(0,.05),.02,'bandpass',aRnd(1800,3200),6,0,.05,d,.001,aRnd(-.4,.4))}) // the rod in the pit: rising hiss, a few embers
+SND.k_crack=bnAu((t,o,d)=>{nzz(t,.05,'bandpass',3200,2,0,.5,d,.001);tn(t,'square',520,180,.06,.12,d,.001);tn(t,'sine',170,60,.13,.4,d,.002);nzz(t+.02,.09,'lowpass',900,.8,200,.2,d,.002)}) // one sharp crack
+SND.k_creep=bnAu((t,o,d)=>{if(!auGate('bc',40))return;bone(t,d,.09,aRnd(500,640)-(o.k||0)*25,aRnd(-.3,.3))}) // the crack creeping: a small dry tick
+SND.k_stop=bnAu((t,o,d)=>{nzz(t,.04,'bandpass',2300,2,0,.34,d,.001);tn(t,'sine',220,90,.15,.3,d,.002);tn(t,'triangle',440,300,.03,.08,d,.001)}) // it stops
+SND.k_tag=bnAu((t,o,d)=>{tn(t,'sine',74,42,.18,.4,d,.002);nzz(t,.07,'lowpass',340,.8,120,.22,d,.002);nzz(t+.45,.035,'lowpass',700,.8,200,.3,d,.001);tn(t+.45,'sine',96,60,.08,.3,d,.001)}) // the finds tag lands, then the stamp
 // ---- Hear's visual (readable with sound off): a pink wall-edge pulse in lub-dub rhythm, a heart on the cell; see fxThump
 SND.hearOff=null;
 
@@ -4656,7 +4736,7 @@ const STRINGS={
   quick:{s:"−40% crack",d:"Mends 40% of the wall. Nothing walks off."},
   lode:{s:"tap to pull",d:"Tap the wall; every find shuffles one tile toward it."},
   flint:{s:"3 line picks",d:"Next 3 picks dig a 5-wide line, 2 deep. No extra crack."},
-  pyrite:{s:"",d:"Fool's gold. Worth 1, and not a coin more."}
+  pyrite:{s:"",d:"Fool's gold. Worth 1, and not a grain more."}
  },
  powers:{ // only the .d line changes; hunger text and rules are untouched
   "Eye of Horus":"Relics glint through any depth of dirt. Each relic in a seal is ×3 Fame, not ×2.",
@@ -5103,7 +5183,7 @@ const ORE_COST={
  gold:"Spends itself on your very next seal, however small. Seal early and it buys you little.",
  quick:"Banks nothing and finds nothing. It buys time, and does nothing for a wall that is sound.",
  lode:"One tile of pull, and it moves every loose find, not only the one you wanted.",
- flint:"Picks only, three of them. Reach for the hammer and the Flint just waits.",
+ flint:"Picks only, three of them. Reach for anything heavier and the Flint just waits.",
  pyrite:"Not an ore. It banks 1 the moment you dig it up, never enters the pouch, and does nothing else. It is in the ordinary ore pool, and Pandora's Jar buries one on purpose.",
  amber:"Four strikes, then the wall resumes cracking. A wasted strike still counts.",
  nitre:"Cracks 12, and a 5×5 hole is a fine way to hit a find you wanted whole. It will not open a sarcophagus.",
@@ -5483,7 +5563,7 @@ function sumExtras(kind){
 // when they exist (and say "Coming next sprint" when they do not). Render into #card like every other screen and make your Back button call
 // showMenu(). showMenu() is pause-aware: while a run is paused it re-opens the pause card instead, so Settings and How to play opened from
 // Pause come back to Pause. uiToast(text) is a toast that shows above the overlay. window.onRunAbandon(stats) is called (if defined) when a run is abandoned.
-const GAME_VERSION='v1.0-rc9a';
+const GAME_VERSION='v1.0-rc9b';
 const PAUSE={on:false,mg:null,cLeft:0};
 function uiReduce(){try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}}
 let _toastT=0;
@@ -5984,7 +6064,7 @@ function showSettings(back){
     ${sw('haptics','Haptics',navigator.vibrate?'A small buzz when something happens.':'This device has no vibration motor. The switch is ready if it gets one.')}
     ${sw('shake','Screen shake','The wall trembles. So might you.')}
     ${sw('crt','CRT glass','A curved-glass finish on the wall: scanlines, a soft vignette and a little glow on relics. Off while Reduce motion is on, or if this device has no WebGL.')}
-    ${sw('coin','Offer the knucklebone','Triple or nothing, at long odds, after a big seal. Off, and the Quartermaster keeps it in his pocket.')}
+    ${sw('coin','Offer the knucklebone','A wager, and it says so: triple or nothing on a big seal, with the chances against you. Off, and the Quartermaster keeps it in his pocket.')}
     ${sw('rm','Reduce motion','Stills the animations. <span id="rmHint"></span>')}
     <div class="sec">Access</div>
     ${sw('cb','Color-blind assist','Stamps a small shape on every find so civilizations never rely on colour alone.')}
@@ -6192,12 +6272,12 @@ function showStats(back){
       ${cell1('Longest streak',fmtN(sk.best),'now '+sk.n+(sk.n===1?' tomb':' tombs')+' in a row')}
     </div>
     ${progStatsHtml()}${ecoStatsHtml()}
-    <div class="sec">Luck</div>
+    <div class="sec">Field conditions</div>
     <div class="rsg">
-      ${cell1('Lucky strikes',fmtN(S.lk||0),(S.tr||0)+((S.tr||0)===1?' tremor':' tremors'))}
-      ${cell1('Coins flipped',fmtN(S.cf||0),(S.cw||0)+' won')}
-      ${cell1('Near misses',fmtN(S.nm||0),'margins on the record')}
-      ${cell1('Jackpots',fmtN(S.jp||0),lkOrd(LUCK.jackpot.at)+' Fever of a run')}
+      ${cell1('Loose stone',fmtN(S.lk||0),(S.tr||0)+((S.tr||0)===1?' tremor':' tremors')+' past the red line')}
+      ${cell1('Bones thrown',fmtN(S.cf||0),(S.cw||0)+' landed on Pranes')}
+      ${cell1('Close shaves',fmtN(S.nm||0),'under '+Math.round(LUCK.near.pct*100)+'% of wall to spare')}
+      ${cell1('Bones read',fmtN(S.br||0),'his ox shoulder blades')}
     </div>
     <div class="sec">Best banked · last 20 runs</div>
     <canvas class="chart" id="chart" role="img" aria-label="Bar chart of best banked per run for the last ${S.hist.length} runs"></canvas>
@@ -6240,8 +6320,8 @@ const TARGETS_BASE=TARGETS.slice(0,3);
 const lkOrd=n=>({1:'first',2:'second',3:'third',4:'fourth',5:'fifth',6:'sixth'}[n]||n+'th');
 const lkCoinName=()=>({2:'Double',3:'Triple',4:'Quadruple'}[LUCK.coin.mult]||'x'+LUCK.coin.mult);
 const LUCK_ART={"coin":{"pal":{"k":"#2a1a06","d":"#8a7352","s":"#a58d68","b":"#d8c9a3","l":"#efe3c0","w":"#fffaf0","e":"#5a4426","g":"#d9a93a","G":"#ffe08a"},"heads":["........................","........................","........................","........................","........................",".......kkkkkkkkkk.......",".....kkwwwwllllllkk.....","...kkwwwwlllllllbbbkk...","..kwwwwlllllglbbbbbbbk..","..kwwllllllgGgbbbbbbbk..",".kwlllllllgGGggbbbbsssk.",".kllllllbgggGgggbsssssk.",".kllllbbbbgggggsssssssk.",".kllbbbbbbbgegssssssddk.","..kbbbbbbbbsgsssssdddk..","..kbbbbbbsssssssdddddk..","...kkbbsssssssdddddkk...",".....kksssssdddddkk.....",".......kkkkkkkkkk.......","........................","........................","........................","........................","........................"],"tails":["........................","........................","........................","........................","........................",".......kkkkkkkkkk.......",".....kkwwwwllllllkk.....","...kkwwwwlllllllbbbkk...","..kwwwwlllllllbbbbbbbk..","..kwwlllllssseebbbbbbk..",".kwlllleeseeeeeeeebsssk.",".kllllleedddddddeessssk.",".klllleedddddddddeesssk.",".kllbbbedddddddddessddk.","..kbbbbeeedddddeeedddk..","..kbbbbbbseeeeesdddddk..","...kkbbsssssssdddddkk...",".....kksssssdddddkk.....",".......kkkkkkkkkk.......","........................","........................","........................","........................","........................"],"faces":{"chios":["........................","........................","........................","........................","........................","........................",".........kkkkkk.........",".......kkwwllllkk.......",".......kwwllllbbk.......","......kwllllbbbbbk......","......kllllbbbbbsk......","......klllbeebbssk......","......klbbbeebsssk......","......kbbbbbssssdk......","......kbbbbssssddk......",".......kbbssssddk.......",".......kksssdddkk.......",".........kkkkkk.........","........................","........................","........................","........................","........................","........................"],"hyption":["........................","........................","........................","........................","........................",".......kkkkkkkkkk.......",".....kkwwwwllllllkk.....","...kkwwwwlllllllbbbkk...","..kwwwwlllllllbbbbbbbk..","..kwwlllllssseebbbbbbk..",".kwlllleeseeeeeeeebsssk.",".kllllleedddddddeessssk.",".klllleedddddddddeesssk.",".kllbbbedddddddddessddk.","..kbbbbeeedddddeeedddk..","..kbbbbbbseeeeesdddddk..","...kkbbsssssssdddddkk...",".....kksssssdddddkk.....",".......kkkkkkkkkk.......","........................","........................","........................","........................","........................"],"pranes":["........................","........................","........................","........................","........................",".......kkkkkkkkkk.......",".....kkwwwwllllllkk.....","...kkwwwwlllllllbbbkk...","..kwwwwlllllglbbbbbbbk..","..kwwllllllgGgbbbbbbbk..",".kwlllllllgGGggbbbbsssk.",".kllllllbgggGgggbsssssk.",".kllllbbbbgggggsssssssk.",".kllbbbbbbbgegssssssddk.","..kbbbbbbbbsgsssssdddk..","..kbbbbbbsssssssdddddk..","...kkbbsssssssdddddkk...",".....kksssssdddddkk.....",".......kkkkkkkkkk.......","........................","........................","........................","........................","........................"],"kos":["........................","........................","........................","........................","........................","..........kkkk..........","........kkwwllkk........",".......kwwwllllbk.......",".......kwlldddbbk.......","......kwlleddedbbk......","......klldddddddsk......","......klldddddddsk......","......klbdeddeddsk......","......kbbddddddddk......","......kbbddddddddk......",".......kbbeddeddk.......",".......kbssdddddk.......","........kksdddkk........","..........kkkk..........","........................","........................","........................","........................","........................"]},"spin":[["........................","........................","........................","........................","........................","........................","....kkkk........kkkk....","...kwwwwkk....kkbbbbk...","..kwwwllllkkkkbbbbbbbk..",".kwwllllllllbbbbbbbbbsk.",".kllllllllbbbbbbbbbsssk.",".kllllllbbbbbbbbbsssssk.",".kllllddddddddddddddddk.",".kllbbbbbbbbbsssssssddk.",".kbbbbbbbbbssssssssdddk.","..kbbbbbbbkkkksssddddk..","...kbbbbkk....kkddddk...","....kkkk........kkkk....","........................","........................","........................","........................","........................","........................"],["........................","........................","........................","......kkk...............","....kkwwwkk.............","...kllwwwwwk............","..kllllllllk............","..klllllllllk...........","..kblllllllllk..........","..kbbbbddbllllk.........","..kbbbbbbddbbbbkkkk.....","...kbbbbbbbdbbbbbbbkk...","...kkbbbbbbbdbbbbbbbk...",".....kkkksbbbddbbbbbbk..",".........ksssssddbbbbk..","..........ksssssddsssk..","...........kssssssdssk..","............kdddsssdsk..","............kdddddddk...",".............kkdddkk....","...............kkk......","........................","........................","........................"],["........................","........kkk.............",".......kllwkk...........",".......klllwk...........",".......kblllwk..........","......kbbbllwk..........","......kbbblllk..........",".......kbbdllk..........",".......kbbdblk..........","........kbbdllk.........","........kbbdblk.........",".........kbdbbk.........",".........ksbdbk.........",".........ksbdbbk........",".........kssdbbk........","..........kssdbbk.......","..........kssdbbk.......","..........kssdbbbk......","..........kdsdsbbk......","..........kddsdsk.......","...........kdsdsk.......","...........kkdssk.......",".............kkk........","........................"],["........................","........................",".............kkkkk......","............kbbbllk.....","...........kbbbblllk....","..........ksbbbblllwk...","..........kbbbbblllwk...","..........kbbbbllllwk...","..........kbbbdllllwk...",".........ksbbdblllwwk...","........ksbbbdblllwk....","......kkssbbdbllllkk....","....kkdsssbddbllkk......","....kddsssdbbblk........","...kddssssdbbbk.........","...kddssddbbbk..........","...kddssdbbbbk..........","...kddsdsbbbbk..........","...kdsdssbbbbk..........","....ksdsbbbbk...........",".....kssbbbk............","......kkkkk.............","........................","........................"]]},"syms":{"star":{"pal":{"k":"#2a1a06","y":"#f0c23c","l":"#fff0a8","d":"#b9851a","w":"#ffffff"},"px":["................",".......kk.......","......kldk......","......kldk......",".....klyydk.....",".....klwydk.....","kkkkkkwywydkkkkk","kdllllywyyyllldk",".kdyyyyyyyyyydk.","..kdyyyyyyyydk..","...klyyyyyydk...","...klyyddyydk...","..klyydkkddydk..","..klddkk.kkdydk.",".kddkk....kkddk.",".kkk........kkk."]},"ore":{"pal":{"k":"#0c2a2a","t":"#2fbfb2","l":"#9ffff5","d":"#1d7f77","w":"#ffffff"},"px":["................",".......kk.......",".......kk.......","......kltk......","....wkltttk.....","....kltttttk....","...kltttttttk...",".kkltttwwttttkk.",".kkttttwwtttdkk.","...ktttttttdk...","....ktttttdk....",".....ktttdk.....","......ktdk......",".......kk.......",".......kk.......","................"]},"heart":{"pal":{"k":"#2a0a0c","r":"#d8383f","l":"#ff9aa0","d":"#8a1c22","w":"#ffffff"},"px":["................","..kkkkk..kkkkk..",".klrrrrkklrrrrk.",".krrrrrrrrrrrrk.",".krrwwrrrrrrrrk.","klrrwrrrrrrrrrdk",".krrrrrrrrrrrrk.",".krrrrrrrrrrrrk.",".krrrrrrrrrrrdk.","..krrrrrrrrrdk..","...krrrrrrrdk...","....krrrrrdk....",".....krrrdk.....","......kkkk......","................","................"]},"bones":{"pal":{"k":"#2a2418","o":"#e9e1c8","l":"#ffffff","d":"#a89f80"},"px":["................","...kkk....kkk...","...kok....kok...",".kklok....kookk.",".kooook..kloook.",".kkkoookklodkkk.","....kooooodk....",".....kooook.....",".....kooook.....","....kloooook....",".kkklodkkoookkk.",".kooodk..kooook.",".kkook....kodkk.","...kok....kok...","...kkk....kkk...","................"]},"mimic":{"pal":{"k":"#1a0f06","b":"#8a5a2a","l":"#b8844a","d":"#5a3a1a","w":"#f4f1e8","r":"#d8383f","g":"#c9a24a"},"px":["................","..kkkkkkkkkkkk..",".kbbbbbbbbbbbbk.",".kblllllllllbbk.",".kbbbbbbbbbbbbk.",".kkkkkkkkkkkkkk.",".kwkwkwkwkwkwwk.",".kkwkwkwkwkwkkk.",".kbbbbbbbbbbbbk.",".kbrrbbbbbbrrbk.",".kbrwbbbbbbwrbk.",".kbbbbbbbbbbbbk.",".kddddgggddddk..",".kddddgkgddddk..","..kkkkkkkkkkkk..","................"]}},"tells":{"unstable":{"pal":{"k":"#2a1a06","r":"#b3342c","y":"#f0c23c"},"px":["...kk...","..krk...",".kkrk...","..krkk..","...krk..","..kkrk..","...krk..","....kk.."]},"gilded":{"pal":{"k":"#2a1a06","y":"#f0c23c","l":"#fff0a8","d":"#b9851a"},"px":["........",".kkkkkk.","kllyyydk","kyyyyydk","kddddddk",".kkkkkk.","........","........"]},"quiet":{"pal":{"k":"#1a1a2a","p":"#c9c4e8","d":"#7e78b0"},"px":["..kkk...",".kppk...","kppk....","kppk....","kppkk...",".kpppkk.","..kdddk.","...kkk.."]},"hollow":{"pal":{"k":"#2a1a06","d":"#6a4c35","h":"#120d08"},"px":["..kkkk..",".kddddk.","kddhhddk","kdhhhhdk","kdhhhhdk","kddhhddk",".kddddk.","..kkkk.."]}}};
-// ---- runtime state: LK.busy is true while any luck screen (coin, reels, wheel) owns the wall
-const LK={busy:false,mode:'',panel:null,timers:new Set(),log:[],jp:null,
+// ---- runtime state: LK.busy is true while the knucklebone panel or a bone reading owns the wall
+const LK={busy:false,mode:'',panel:null,timers:new Set(),log:[],
   note(kind,r,out){this.log.push({n:this.log.length,k:kind,r:Math.round(r*1e6)/1e6,o:out});if(this.log.length>600)this.log.shift()}};
 function luckOn(){return !!state&&!state.train}
 function lkAfter(fn,ms){const id=setTimeout(()=>{LK.timers.delete(id);fn()},ms);LK.timers.add(id);return id}
@@ -6255,13 +6335,12 @@ function lkCoin(i){return lkBone('pranes')} // old name for the sprite; nothing 
 function lkSym(k){return _lkc['s'+k]||(_lkc['s'+k]=artCanvas(LUCK_ART.syms[k].px,LUCK_ART.syms[k].pal,16,16,1))}
 function lkTellIcon(k){return _lkc['t'+k]||(_lkc['t'+k]=artCanvas(LUCK_ART.tells[k].px,LUCK_ART.tells[k].pal,8,8,1))}
 // ---- sounds: everything goes through sfxTone / sfxNoise, so it sits in the same master chain, volume and mute as the rest of the effects
-// ---- stats hooks (rw_stats): near misses, coins flipped / won, lucky strikes, tremors, jackpots
+// ---- stats hooks (rw_stats): close shaves (nm), knucklebones thrown / landed on Pranes (cf, cw), loose stone (lk), tremors (tr), bones read (br). The stored keys are unchanged.
 function statsNear(){ST.nm=(ST.nm||0)+1;stDirty()}
 function statsCoin(won){ST.cf=(ST.cf||0)+1;if(won)ST.cw=(ST.cw||0)+1;stDirty()}
 function statsLucky(){ST.lk=(ST.lk||0)+1;stDirty()}
 function statsTremor(){ST.tr=(ST.tr||0)+1;stDirty()}
-function statsJackpot(){ST.jp=(ST.jp||0)+1;stSave()}
-Object.assign(window,{statsNear,statsCoin,statsLucky,statsTremor,statsJackpot});
+Object.assign(window,{statsNear,statsCoin,statsLucky,statsTremor});
 DIARY.near=[
   "Close enough to count. Not close enough to brag about.",
   "The margin was thinner than the wall's patience.",
@@ -6272,7 +6351,7 @@ DIARY.near=[
   "Narrow margins build character. And bills.",
   "The wall and I agreed to disagree, narrowly."
 ];
-// ================= 1. PRESS YOUR LUCK =================
+// ================= 1. PAST THE RED LINE: the wall is talking (internal names keep 'press' and 'lucky') =================
 function luckPress(){ // rolled once per strike, before the strike's crack is added. Returns {k, extra}
   const none={k:null,extra:0};
   if(!luckOn()||state.crack/maxCrack()<LUCK.press.at)return none;
@@ -6281,10 +6360,10 @@ function luckPress(){ // rolled once per strike, before the strike's crack is ad
   LK.note('press',r/tot,k);
   return{k,extra:k==='tremor'?Math.round(maxCrack()*LUCK.press.tremorCrack*10)/10:0};
 }
-function luckGold(cx,cy){ // a shower of gold: rain from the cave roof plus a burst at the strike
-  const rm=rmEff(),W=cell*COLS,C=['#ffd44a','#fff0a8','#f0c23c','#b9851a'];
+function luckGold(cx,cy,stone){ // a shower from the cave roof plus a burst at the strike: gold for a knucklebone that lands on its back, grit and chips (stone=1) for loose stone
+  const rm=rmEff(),W=cell*COLS,C=stone?['#cbbd9c','#e9dfc6','#a89878','#7d6f55']:['#ffd44a','#fff0a8','#f0c23c','#b9851a'];
   for(let k=0;k<(rm?6:34);k++)state.parts.push({x:Math.random()*W,y:-cell*(.2+Math.random()*1.6),vx:(Math.random()-.5)*1.2,vy:1+Math.random()*2.5,t:1.2+Math.random()*.6,c:C[k%4]});
-  for(let k=0;k<(rm?4:22);k++){const a=Math.random()*6.283,sp=1.2+Math.random()*3;state.bursts.push({x:(cx+.5)*cell,y:(cy+.5)*cell,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1,t:1,c:'#ffd44a',star:true})}
+  for(let k=0;k<(rm?4:22);k++){const a=Math.random()*6.283,sp=1.2+Math.random()*3;state.bursts.push({x:(cx+.5)*cell,y:(cy+.5)*cell,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1,t:1,c:stone?'#e9dfc6':'#ffd44a',star:!stone})}
 }
 function luckPressFx(LR,cx,cy,x0,y0,x1,y1){ // after the strike has landed: apply the roll and show it on the wall
   if(!LR.k)return;
@@ -6292,34 +6371,38 @@ function luckPressFx(LR,cx,cy,x0,y0,x1,y1){ // after the strike has landed: appl
   if(LR.k==='normal'){state.floats.push({t:.8,txt:'steady',x:cx*cell+cell/2,y:cy*cell,col:'#cbbd9c',size:.42});return}
   if(LR.k==='lucky'){
     let n=0;state.finds.forEach(f=>{if(f.banked||f.sarc||f.lucky)return;if(f.cells.some(([x,y])=>x>=x0&&x<=x1&&y>=y0&&y<=y1)){f.lucky=true;n++;juice(f.j,.5,.3)}});
-    fl('LUCKY STRIKE','#ffd44a',1.15,.3);fl(n?`${n} find${n>1?'s':''} worth ×${LUCK.press.luckyMult}`:'nothing in reach. Pity.','#fff0a8',.5,.3+.12,1.2);
-    luckGold(cx,cy);luckSfx('lucky');shake(14);wrapKick(2);hap([15,30,15,30,45]);statsLucky();log(n?`Lucky strike. What it touched is worth double.`:'Lucky strike, with nothing in reach. The luck is noted.');
+    fl('LOOSE STONE','#f1e6cf',1.15,.3);fl(n?`${n} find${n>1?'s':''} worth ×${LUCK.press.luckyMult}`:'nothing in reach. Pity.','#e2d1a8',.5,.3+.12,1.2);
+    luckGold(cx,cy,1);luckSfx('lucky');shake(14);wrapKick(2);hap([15,30,15,30,45]);statsLucky();log(n?`Loose stone. What it touched is worth double.`:'Loose stone, with nothing in reach. Noted.');
   }else{
     fl('TREMOR','#ff6b5f',1.2,.3);fl('+'+fmtPct(LR.extra)+' crack','#ffb0a8',.5,.3+.12,1.2);
     luckSfx('tremor');shake(20);wrapKick(3);hap([70,40,110,40,160]);statsTremor();log('The wall shudders. '+fmtPct(LR.extra)+' more crack than you paid for.');
   }
 }
-function luckUi(){ // the odds print on the Pick and Hammer buttons only while the wall is in the red
+function luckFieldNote(w){return`Wall is talking. Loose ${lkPct(w,'lucky')} in 100. Tremor ${lkPct(w,'tremor')} in 100.`}
+function luckUi(){ // past the red line: one line of field notes hangs from the clipboard with the real chances, and the tools carry a pencil note of what loose stone is worth
   const hot=luckOn()&&!state.over&&state.crack/maxCrack()>=LUCK.press.at,w=state.quartz?{normal:0,lucky:1,tremor:0}:pressW();
-  const t=`${lkPct(w,'lucky')}% lucky · ${lkPct(w,'tremor')}% tremor`;
-  ['pickO','hamO'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.hidden=!hot;if(hot&&el.textContent!==t){el.textContent='';const a=document.createElement('span'),b=document.createElement('span');a.textContent=`${lkPct(w,'lucky')}% lucky ·`;b.textContent=`${lkPct(w,'tremor')}% tremor`;el.append(a,' ',b)}});
+  const t='×'+LUCK.press.luckyMult+' if loose';
+  ['pickO','hamO'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.hidden=!hot;if(hot&&el.textContent!==t)el.textContent=t});
+  let nt=document.getElementById('lknote');
+  if(hot){const tx=luckFieldNote(w);if(!nt){nt=document.createElement('div');nt.id='lknote';nt.className='lknote';nt.setAttribute('role','status');document.getElementById('wrap').appendChild(nt)}if(nt.textContent!==tx)nt.textContent=tx}
+  else if(nt)nt.remove();
   document.body.classList.toggle('lkhot',!!hot);document.body.classList.toggle('lkres',luckOn());
 }
-function luckDrawMarks(){ // a gold x2 tag on every lucky find that is lying open
+function luckDrawMarks(){ // a pencilled x2 note on every find that loose stone touched and that is lying open
   if(!state||state.falling)return;
   state.finds.forEach(f=>{
     if(!f.lucky||f.banked||!f.cells.every(([x,y])=>state.dirt[y][x]===0))return;
     const xs=f.cells.map(c=>c[0]),ys=f.cells.map(c=>c[1]),x1=(Math.max(...xs)+1)*cell,y0=Math.min(...ys)*cell,w=Math.round(cell*.62),h=Math.round(cell*.34);
-    ctx.fillStyle='rgba(30,20,4,.9)';ctx.fillRect(x1-w-2,y0+2,w,h);ctx.strokeStyle='#ffd44a';ctx.lineWidth=1;ctx.strokeRect(x1-w-1.5,y0+2.5,w-1,h-1);
-    ctx.fillStyle='#ffd44a';ctx.font=`900 ${Math.floor(cell*.26)}px Cinzel, serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('×'+LUCK.press.luckyMult,x1-w/2-2,y0+2+h/2+.5);
+    ctx.fillStyle='#efe2c2';ctx.fillRect(x1-w-2,y0+2,w,h);ctx.strokeStyle='#8c7748';ctx.lineWidth=1;ctx.strokeRect(x1-w-1.5,y0+2.5,w-1,h-1);
+    ctx.fillStyle='#33506b';ctx.font=`italic 700 ${Math.floor(cell*.3)}px Alegreya, Georgia, serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('×'+LUCK.press.luckyMult,x1-w/2-2,y0+2+h/2+.5);
   });
 }
-// ================= 2. NEAR-MISS HONESTY =================
-function nearSay(msg){statsNear();state.nearTxt=msg;uiToast(msg);log(msg+' '+diaryLine('near'))}
+// ================= 2. CLOSE SHAVES: true margins only =================
+function nearSay(msg,count){if(count)statsNear();state.nearTxt=msg;uiToast(msg);log(msg+' '+diaryLine('near'))} // Stats counts only the seal kind: sealed with under 5% of the wall to spare
 function luckSealDone(s,ex){ // runs when a seal lands: the margin it left, and any fake it just banked
   if(!luckOn())return;
   const mx=maxCrack(),sp=mx-state.crack;
-  if(sp>0&&sp<mx*LUCK.near.pct)nearSay(`You sealed with ${lkN(sp)} crack to spare.`);
+  if(sp>0&&sp<mx*LUCK.near.pct)nearSay(`You sealed with ${lkN(sp)} crack to spare.`,1);
   const fk=ex.filter(f=>f.fake);
   if(fk.length){setTimeout(()=>{if(state&&!state.over)log(`The ${fk[0].name} was Pyrite in a good coat. Worth exactly ${kitPyrite()}.`)},900);state.floats.push({t:1.3,txt:'FOOL\'S GOLD',x:cell*COLS/2,y:cell*ROWS*.5,col:'#bfae7a',size:.8,pop:true})}
 }
@@ -6339,7 +6422,7 @@ function lkDone(){ // hand the wall back
   if(state&&!state.over){ui();draw();checkClear()}
 }
 function luckReset(){
-  LK.timers.forEach(clearTimeout);LK.timers.clear();LK.busy=false;LK.mode='';LK.jp=null;lkClose();document.body.classList.remove('lk');
+  LK.timers.forEach(clearTimeout);LK.timers.clear();LK.busy=false;LK.mode='';boneQuiet();lkClose();document.body.classList.remove('lk');
   ['lkslip','lkbadge'].forEach(id=>{const e=document.getElementById(id);if(e)e.remove()});
 }
 document.addEventListener('click',e=>{ // while a luck screen owns the wall (or the run is paused) the HUD tools are asleep (also for synthetic clicks)
@@ -6362,7 +6445,7 @@ function luckCoinOffer(s,tries){
   if(!document.getElementById('overlay').hidden){if((tries||0)<12)lkAfter(()=>luckCoinOffer(s,(tries||0)+1),400);return}
   state.coinUsed=1;LK.mode='offer';
   const pc=kbPct();
-  const pn=lkPanel('lkcoin',`<canvas width="72" height="84" aria-label="A knucklebone: a sheep's ankle bone with four faces"></canvas><div class="lkt"><b>${lkCoinName()} or nothing?</b><span>A knucklebone has four faces, and none of them are fair. That seal banked ${fmtN(s.total)}. It pays ${LUCK.coin.mult} times over (+${fmtN(s.total*(LUCK.coin.mult-1))}) only if it lands on its back: Pranes, ${pc.pranes}%. Hyption ${pc.hyption}%, Chios ${pc.chios}% and Kos ${pc.kos}% take the seal back.</span><div class="lkb"><button type="button" id="lkyes">Yes · throw</button><button type="button" id="lkno">Keep</button></div></div>`);
+  const pn=lkPanel('lkcoin',`<canvas width="72" height="84" aria-label="A knucklebone: a sheep's ankle bone with four faces"></canvas><div class="lkt"><b>${lkCoinName()} or nothing?</b><span>This is a wager on the seal you just banked: ${fmtN(s.total)}. Throw the knucklebone and it pays ${LUCK.coin.mult} times over (+${fmtN(s.total*(LUCK.coin.mult-1))}) only if it lands on its back: Pranes, ${pc.pranes}%. Hyption ${pc.hyption}%, Chios ${pc.chios}% and Kos ${pc.kos}% take the seal back (−${fmtN(s.total)}). Four faces, and none of them are fair.</span><div class="lkb"><button type="button" id="lkyes">Wager it</button><button type="button" id="lkno">Keep ${fmtN(s.total)}</button></div></div>`);
   const cvs=pn.querySelector('canvas'),g=cvs.getContext('2d');g.imageSmoothingEnabled=false;
   // the bone sits on a shadow; lift raises it, rot turns it, sq squashes it flat against the stone (the settle)
   const paint=(cv,lift,rot,sq)=>{sq=sq||1;g.clearRect(0,0,72,84);g.fillStyle='rgba(0,0,0,.28)';g.beginPath();g.ellipse(36,78,22-(lift||0)*.5,4,0,0,6.283);g.fill();
@@ -6397,48 +6480,149 @@ function luckCoinOffer(s,tries){
     step();
   };
 }
-// ================= 4. SARCOPHAGUS REELS =================
-const LK_KINDS=[[.2,'relic','star'],[.45,'ore','ore'],[.75,'bones','bones'],[.9,'mimic','mimic'],[1.01,'memory','heart']]; // the existing odds table, unchanged
-function luckReels(r,apply){
+// ================= 4. THE QUARTERMASTER'S BONE (Sprint 15b: replaces the sarcophagus reels and the fourth-Fever wheel) =================
+// An ox shoulder blade with the possible answers carved along the top and a pit drilled at the bottom. Heat the pit, the crack forks, read where it ends.
+// It is the Quartermaster's own habit (he carries the bones from dig to dig), so it turns up in every tomb without claiming that tomb's people did it.
+// HONESTY RULES, all enforced here and tested in work/sprint15b/t:
+//  1. The result is rolled and written to the save BEFORE the panel opens (state.sarcPend / state.jpPend). The reading only shows it.
+//  2. Which answers sit left and right of the pit is fixed (BONE.side) and printed on the record before the first tap.
+//  3. The fork goes to the side that holds the decided answer: boneSide() is a pure function of the result. There is no staged near-miss.
+//  4. The figures pencilled in after the fork are the real conditional chances, computed from the same table the roll used (boneRevised()).
+const LK_KINDS=[[.2,'relic','star'],[.45,'ore','ore'],[.75,'bones','bones'],[.9,'mimic','mimic'],[1.01,'memory','heart']]; // the existing chances table, unchanged
+const JP_KEYS=['ore','memory','gold','relic','nothing']; // the order the fourth-Fever roll walks its weights in, unchanged
+const BONE={heatMs:1000,trunkMs:260,forkMs:380,creepMs:900,tagMs:600,holdMs:2600,lockMs:480,
+  fastAfter:3, // readings a player has done before the one-tap "Read it at once" is offered
+  side:{sarc:{relic:'L',ore:'L',bones:'R',mimic:'R',memory:'R'},fever:{relic:'L',ore:'L',gold:'L',memory:'R',nothing:'R'}},
+  col:{relic:'#ff9a1f',ore:'#4fe3d6',bones:'#cfcfcf',mimic:'#d8383f',memory:'#b24b9c',gold:'#f2c14e',nothing:'#8a8a8a'},
+  sym:{relic:'star',ore:'ore',bones:'bones',mimic:'mimic',memory:'heart'}};
+const boneName=k=>({relic:'A relic',ore:'Ore',bones:'Bones',mimic:'A mimic',memory:'A Memory',gold:LUCK.jackpot.gold+' points',nothing:'Nothing'}[k]);
+const jpName=boneName;
+function boneTable(mode,o){ // rows in printed order (left of the pit first), each with its weight out of the table's total. Built from the numbers the roll itself uses.
+  let rows;
+  if(mode==='fever'){const W=LUCK.jackpot.w;rows=['relic','ore','gold','memory','nothing'].map(k=>({k,w:W[k]}))}
+  else{rows=LK_KINDS.map((k,i)=>({k:k[1],w:Math.round((Math.min(1,k[0])-(i?LK_KINDS[i-1][0]:0))*1e6)/1e4}));
+    if(o&&o.sul){const b=rows.find(r=>r.k==='bones'),m=rows.find(r=>r.k==='mimic');b.w=Math.round((b.w+m.w)*1e4)/1e4;m.w=0;m.sul=true}} // Sulfur: the mimic's share reads as bones (s9SarcRoll)
+  let tot=0;rows.forEach(r=>tot+=r.w);
+  rows.forEach(r=>{r.side=BONE.side[mode][r.k];r.pct=Math.round(r.w/tot*100)});
+  return rows;
+}
+function boneSide(mode,key){return BONE.side[mode][key]} // rule 3: the fork is a function of the decided answer and nothing else
+function boneRevised(rows,side){ // rule 4: what is left after the fork, as whole percents of what is left
+  let tot=0;rows.forEach(r=>{if(r.side===side)tot+=r.w});const out={};
+  rows.forEach(r=>{if(r.side===side&&r.w>0)out[r.k]=Math.round(r.w/tot*100)});return out;
+}
+function statsBone(){ST.br=(ST.br||0)+1;stSave()}
+// ---- art: the carved signs are the game's own 16x16 symbols, once as a carving (flat umber) and once in colour
+function boneSign(k,carved){
+  const id='bs'+k+(carved?'c':'');if(_lkc[id])return _lkc[id];
+  const s=lkSym(BONE.sym[k]),c=document.createElement('canvas');c.width=c.height=16;const g=c.getContext('2d');g.drawImage(s,0,0);
+  if(carved){g.globalCompositeOperation='source-in';g.fillStyle='#5a4526';g.fillRect(0,0,16,16)}
+  return _lkc[id]=c.toDataURL();
+}
+function boneJag(pts){let d='';for(let i=0;i<pts.length-1;i++){const [x0,y0]=pts[i],[x1,y1]=pts[i+1];for(let k=(i?1:0);k<=6;k++){const t=k/6,x=x0+(x1-x0)*t+(k%6?(Math.random()-.5)*9:0),y=y0+(y1-y0)*t+(k%6?(Math.random()-.5)*5:0);d+=(d?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)}}return d} // looks only: never touches the seeded stream
+function boneSvg(rows,key){
+  const SLOT=[52,116,180,244,308],L=rows.filter(r=>r.side==='L'),R=rows.filter(r=>r.side==='R'),pos={};
+  L.forEach((r,i)=>pos[r.k]=SLOT[i]);R.forEach((r,i)=>pos[r.k]=SLOT[5-R.length+i]);
+  const side=rows.find(r=>r.k===key).side,fx=side==='L'?118:242,div=(SLOT[L.length-1]+SLOT[L.length])/2;
+  let med='';
+  rows.forEach(r=>{const x=pos[r.k],gone=r.w<=0;
+    let art;
+    if(BONE.sym[r.k])art=`<image class="carv" href="${boneSign(r.k,true)}" x="${x-18}" y="94" width="36" height="36"/><image class="colr" href="${boneSign(r.k,false)}" x="${x-18}" y="94" width="36" height="36"/>`;
+    else if(r.k==='gold')art=`<text class="carv" x="${x}" y="118" text-anchor="middle" font-family="Cinzel,Georgia,serif" font-weight="900" font-size="17" fill="#5a4526">${LUCK.jackpot.gold}</text><text class="colr" x="${x}" y="118" text-anchor="middle" font-family="Cinzel,Georgia,serif" font-weight="900" font-size="17" fill="#8a5a00">${LUCK.jackpot.gold}</text>`;
+    else art=`<path class="carv" d="M${x-10} 112h20" stroke="#5a4526" stroke-width="3.5" stroke-linecap="round"/><path class="colr" d="M${x-10} 112h20" stroke="#3d3c42" stroke-width="3.5" stroke-linecap="round"/>`;
+    med+=`<g class="bn-m${gone?' bn-gone':''}" data-k="${r.k}"><circle cx="${x}" cy="112" r="27" fill="#d9cba6" stroke="#8c7748" stroke-width="2"/><circle class="ring" cx="${x}" cy="112" r="27" fill="none" stroke="${BONE.col[r.k]}" stroke-width="4"/>${art}<text x="${x}" y="158" text-anchor="middle" font-family="Alegreya,Georgia,serif" font-style="italic" font-size="13" fill="#4a3a22">${boneName(r.k).replace(/^A /,'').replace(/ points$/,' pts').replace(/^./,c=>c.toUpperCase())}</text></g>`});
+  const trunk=boneJag([[180,356],[176,318],[183,286],[180,262]]),fork=boneJag([[180,262],[fx+(side==='L'?26:-26),236],[fx,214]]),end=boneJag([[fx,214],[(fx+pos[key])/2+(side==='L'?6:-6),186],[pos[key],142]]);
+  return `<svg viewBox="0 28 360 396" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><defs><radialGradient id="bnlg" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd66e" stop-opacity=".45"/><stop offset="1" stop-color="#e0a040" stop-opacity="0"/></radialGradient><radialGradient id="bnhot" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff2b0"/><stop offset=".4" stop-color="#ff7a2e"/><stop offset="1" stop-color="#ff3d1e" stop-opacity="0"/></radialGradient></defs>`
+   +`<circle class="bn-lamp" cx="60" cy="70" r="210" fill="url(#bnlg)"/>`
+   +`<path d="M22 70 Q180 30 338 70 Q346 150 300 250 Q262 330 232 398 Q180 420 128 398 Q98 330 60 250 Q14 150 22 70Z" fill="#e9dfc6" stroke="#8c7748" stroke-width="3"/><path d="M40 84 Q180 50 320 84" fill="none" stroke="#fff8e4" stroke-width="3" opacity=".7"/><path d="M300 250 Q262 330 232 398 Q180 420 128 398" fill="none" stroke="#b9a274" stroke-width="5" opacity=".6"/>`
+   +`<path d="M${div} 66V196" stroke="#8c7748" stroke-width="1.5" stroke-dasharray="3 5" opacity=".7"/><text x="${div-8}" y="62" text-anchor="end" font-family="Cinzel,Georgia,serif" font-weight="700" font-size="9" letter-spacing="1.5" fill="#6b5634">LEFT</text><text x="${div+8}" y="62" font-family="Cinzel,Georgia,serif" font-weight="700" font-size="9" letter-spacing="1.5" fill="#6b5634">RIGHT</text>`
+   +med
+   +`<circle cx="180" cy="358" r="12" fill="#3a2a1b"/><circle cx="180" cy="358" r="7" fill="#17110c"/><circle class="bn-heat" cx="180" cy="358" r="26" fill="url(#bnhot)"/>`
+   +`<g fill="none" stroke="#2b1d10" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path class="bn-c" data-c="1" d="${trunk}" pathLength="1"/><path class="bn-c" data-c="2" d="${fork}" pathLength="1"/><path class="bn-c" data-c="3" d="${end}" pathLength="1"/></g>`
+   +`<g class="bn-rod"><rect x="176" y="352" width="150" height="8" rx="2" fill="#7d5f22" transform="rotate(-32 180 358)"/><rect x="176" y="352" width="34" height="8" rx="2" fill="#ff9a1f" transform="rotate(-32 180 358)"/><rect x="290" y="349" width="40" height="14" rx="3" fill="#4a3521" transform="rotate(-32 180 358)"/></g></svg>`;
+}
+// ---- sound and touch: everything is a one-shot from the game's own engine; boneQuiet() stops whatever is still sounding (and any vibration) when a reading is cut short
+let _bnLive=0; // a reading is (or was just) on screen: only then is there a hiss or a vibration pattern of ours to cut short
+function boneQuiet(){if(!_bnLive)return;_bnLive=0;try{BONE_AU.forEach(n=>{try{n.stop()}catch(e){}});}catch(e){}try{navigator.vibrate&&SETTINGS.haptics&&navigator.vibrate(0)}catch(e){}} // never called at boot: a browser logs an error for vibrate() before the first tap
+// ---- the reading. mode 'sarc' | 'fever'; key = the answer already decided and saved; done() pays it (called once, when the panel closes)
+function luckBoneOpen(mode,rows,key,done){
+  const st0=state,fev=mode==='fever',side=boneSide(mode,key),rev=boneRevised(rows,side),nOff=rows.filter(r=>r.side!==side&&r.w>0).length;
+  const first=!(ST.br>0),fastOk=(ST.br|0)>=BONE.fastAfter,ctxN=(document.getElementById('hudCtx')||{}).textContent||'101';
+  const sp=()=>Math.max(1,Q.speed||1),rm=rmEff();
+  lkClose();
+  const p=document.createElement('div');p.id='lkp';p.className='bn'+(fev?' bn-fev':'')+(rm?' bn-rm':'');p.setAttribute('role','dialog');p.setAttribute('aria-label',fev?'The Quartermaster’s second bone':'Reading the bone before the lid');
+  const col=s=>`<div class="bn-col"><h4>${s==='L'?'Left of the pit':'Right of the pit'}</h4><ul>${rows.filter(r=>r.side===s).map(r=>`<li data-k="${r.k}"${r.w<=0?' class="bn-out bn-nil"':''}><i style="background:${BONE.col[r.k]}"></i><span>${boneName(r.k)}</span><b>${r.pct}%</b><em></em><s></s></li>`).join('')}</ul></div>`;
+  const LBL=[['Heat the pit','bronze rod, held steady'],['Wait for the crack','it comes with a sound'],['Read it','follow the crack to its end']];
+  p.innerHTML=`<div class="bn-in"><div class="bn-clip"><div class="bn-site"><span>Site GG-26</span><span>Ctx ${bnEsc(ctxN)}</span></div><div class="bn-sheet"><h2><span>${fev?lkOrd(LUCK.jackpot.at)+' Fever':'Burial record'}</span><span>${fev?'the second bone':'sarcophagus'}</span></h2><h3>${fev?'Fever again: he has kept a second bone back':'Before the lid: the bone is asked'}</h3><div class="bn-reg" role="group" aria-label="Chances, printed before you start">${col('L')}${col('R')}</div><p class="bn-note" id="bnnote">Chances as recorded${rows.some(r=>r.sul)?' (Sulfur has seen to the mimic)':''}. Nothing is staked. The answer is in the bone before the rod touches it.</p></div></div>`
+   +`<div class="bn-stage" id="bnstage">${boneSvg(rows,key)}<div class="bn-tag" id="bntag" role="status"></div></div>`
+   +`<div class="bn-cap" id="bncap" role="status" aria-live="polite"></div>`
+   +`<div class="bn-tray"><button type="button" class="bn-go" id="bngo"></button>${fastOk?'<button type="button" class="bn-sm" id="bnfast">Read it at once<small>one tap</small></button>':''}</div></div>`;
+  const ovr=document.getElementById('overlay');ovr.parentNode.insertBefore(p,ovr);LK.panel=p;LK.busy=true;_bnLive=1;document.body.classList.add('lk');
+  {const t0=performance.now(),EV=['click','pointerdown','pointerup','mousedown','mouseup','touchstart','touchend']; // the game's rule for anything that appears under a digging thumb (T10)
+    EV.forEach(t=>p.addEventListener(t,e=>{if(performance.now()-t0<GUARD.ms){e.stopImmediatePropagation();e.stopPropagation();if(e.cancelable)e.preventDefault()}},true))}
+  const $=s=>p.querySelector(s),go=$('#bngo'),fast=$('#bnfast'),cap=$('#bncap'),note=$('#bnnote'),stage=$('#bnstage');
+  const live=()=>LK.panel===p&&state===st0;
+  const say=t=>{cap.textContent=t};
+  const li=k=>p.querySelector('.bn-reg li[data-k="'+k+'"]'),med=k=>p.querySelector('.bn-m[data-k="'+k+'"]');
+  const crack=(n,ms)=>{const c=p.querySelector('.bn-c[data-c="'+n+'"]');c.style.transitionDuration=(rm?1:Math.round(ms))+'ms';c.getBoundingClientRect();c.classList.add('bn-on')};
+  let step=0,lock=false,closed=false;
+  const label=()=>{const L=LBL[step];if(L){go.innerHTML=`${L[0]}<small>${L[1]}</small>`}};
+  const hold=ms=>{lock=true;go.disabled=true;if(fast)fast.disabled=true;lkAfter(()=>{if(!live()||closed)return;lock=false;go.disabled=false;if(fast)fast.disabled=false},ms)};
+  const close=()=>{if(closed||!live())return;closed=true;done()};
+  const s0=quick=>{p.classList.add('s1');if(!quick){luckSfx('hiss');[8,12,18,28].forEach((ms,k)=>{if(!k)hap(ms);else lkAfter(()=>{if(live()&&step===1)hap(ms)},k*240/sp())})}say( /* the slow rising haptic is four separate pulses, each longer than the last: the iOS shell turns every hap() call into one impact, so a single pattern would be felt as one tick there */ 'The rod goes in. The bone smells of the kitchen. Nothing yet.')};
+  const s1=quick=>{p.classList.add('s2');luckSfx('crack');hap(100);if(!rm){stage.classList.add('bn-shk');lkAfter(()=>stage.classList.remove('bn-shk'),480)}
+    const tk=quick?90:BONE.trunkMs/sp(),fk=quick?140:BONE.forkMs/sp();crack(1,tk);lkAfter(()=>{if(!live())return;crack(2,fk);if(!quick)luckSfx('creep',{k:0})},rm?0:tk+40);
+    rows.forEach(r=>{const el=li(r.k);if(r.side!==side)el.classList.add('bn-out');else if(r.w>0&&rev[r.k]!==r.pct){el.classList.add('bn-rev');el.querySelector('em').textContent=rev[r.k]+'%'}});
+    rows.forEach(r=>{if(r.side!==side)med(r.k).classList.add('bn-off')});
+    say(`Pok. The crack forks ${side==='L'?'left':'right'}. ${nOff===1?'One answer is':lkNum(nOff)+' answers are'} off the bone; the record is revised.`);
+    note.textContent='Evidence so far: which way the crack forked. Red lines are what it cannot be. Red figures are the chances of what is left.'};
+  const s2=quick=>{p.classList.add('s3');const T=quick?260:BONE.creepMs/sp();crack(3,T);
+    if(!rm&&!quick){luckSfx('creep',{k:1});hap(6);lkAfter(()=>{if(live()){luckSfx('creep',{k:2});hap(6)}},T/3);lkAfter(()=>{if(live()){luckSfx('creep',{k:3});hap(6)}},T*2/3)}
+    lkAfter(()=>{if(!live())return;luckSfx('stop');hap(30);med(key).classList.add('bn-hit');rows.forEach(r=>{const el=li(r.k);if(r.k===key){el.classList.remove('bn-out');el.classList.add('bn-hit')}else{el.classList.add('bn-out');med(r.k).classList.add('bn-off')}});note.textContent='Read. The crack stopped at one sign, and the record is closed on it.';
+      say(`The crack ends at: ${key==='nothing'?'nothing. Robbed in antiquity':boneName(key).replace(/^A /,'a ').replace(/^(Ore|Bones)/,m=>m.toLowerCase())}. ${fev?'The Quartermaster writes it down':'The lid agrees'}.`)},rm?0:T);
+    lkAfter(()=>{if(!live())return;tag();go.innerHTML='Back to the wall<small>the record is closed</small>';go.disabled=false;lock=false;go.focus&&go.focus({preventScroll:true});
+      lkAfter(close,BONE.holdMs/sp())},rm?160:T+(quick?220:BONE.tagMs/sp()))};
+  const tag=()=>{
+    const bad=key==='mimic',plain=key==='bones'||key==='nothing',t=$('#bntag'),aeg=bad&&pw('Aegis of Athena');
+    const line={relic:fev?'Catalogue it before anyone else does.':'Seal it before the wall takes it back.',ore:'Into the pouch, if there is room.',bones:'The occupant. Recorded, respectfully. They still count.',mimic:aeg?'It met the Aegis and thought better of it.':'The lid bites back. The wall takes the blame.',memory:'Something you had misplaced.',gold:'Grave goods, loose. Banked as found.',nothing:'Robbed in antiquity. Noted without comment.'}[key];
+    const art=BONE.sym[key]?`<img class="ico" alt="" src="${boneSign(key,false)}">`:'';
+    t.style.setProperty('--tc',BONE.col[key]);
+    t.innerHTML=`<u>Find No. ${bnEsc(ctxN)}</u>${art}<b>${boneName(key)}</b><span>${line}</span><i class="bn-stamp">${bad?'Hazard':plain?'Recorded':'Bagged'}</i>`;
+    t.classList.add('bn-show');luckSfx('tag');hap(bad?[40,40,120]:plain?[20]:[15,40,15,40,30]);
+    if(bad&&!rm){stage.classList.add('bn-shk');lkAfter(()=>stage.classList.remove('bn-shk'),480)}
+  };
+  const STEPS=[s0,s1,s2];
+  go.onclick=()=>{if(!live()||lock)return;if(step>=3){close();return}const k=step++;STEPS[k](false);label();if(k<2)hold(BONE.lockMs/sp());else{lock=true;go.disabled=true;if(fast)fast.remove()}};
+  if(fast)fast.onclick=()=>{if(!live()||lock||step>=3)return;lock=true;go.disabled=true;fast.remove();const from=step;step=3;go.innerHTML='Reading…<small>the crack runs</small>';
+    if(from<1)s0(true);if(from<2){s1(true);lkAfter(()=>{if(live())s2(true)},rm?60:260)}else s2(true)};
+  label();
+  say(fev?`${lkOrd(LUCK.jackpot.at).replace(/^./,c=>c.toUpperCase())} Fever of the dig. The Quartermaster has kept a second bone back. Heat the pit.`
+     :first?'The Quartermaster carries ox shoulder blades from dig to dig and asks one before every lid. His habit, not the tomb’s. Heat the pit.'
+     :'The Quartermaster hands you an ox shoulder blade, a bronze rod and a look. Heat the pit.');
+  statsBone();
+  return p;
+}
+const bnEsc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function lkNum(n){return({2:'Two',3:'Three',4:'Four'}[n]||String(n))}
+function luckBone(r,apply,sul){ // the sarcophagus: called by openSarc() with the roll already made and saved
   const st0=state;
   if(!luckOn()||LK.busy){apply();return}
-  const kind=LK_KINDS.find(k=>r<k[0]),sym=kind[2],faces=[sym,sym,sym]; // Sprint 15 (C-4): the reels always show the real result, three alike. No staged near-miss.
-  if((kind[1]==='bones'||kind[1]==='mimic'))srnd(); // one draw is still spent here so a seed's later rolls are exactly what they were
-  LK.note('reels',r,kind[1]);LK.mode='reels';
-  const pn=lkPanel('lkreels',`<div class="lkt"><b>The lid creaks</b><span id="lkcap">Three reels. The lid was decided before they spun.</span><small class="lkodds">${LK_KINDS.map((k,i)=>({relic:'relic',ore:'ore',bones:'bones',mimic:'mimic',memory:'a Memory'}[k[1]])+' '+Math.round(((k[0]>1?1:k[0])-(i?LK_KINDS[i-1][0]:0))*100)+'%').join(' · ')}.</small></div><div class="lkr">${[0,1,2].map(i=>`<canvas width="48" height="48" data-i="${i}"></canvas>`).join('')}</div>`);
+  const kind=LK_KINDS.find(k=>r<k[0]);
+  if((kind[1]==='bones'||kind[1]==='mimic')){srnd();if(state.sarcPend)state.sarcPend.d=1} // one draw is still spent here so a seed's later rolls are exactly what they were in rc9a (it was the near-miss roll once). d=1 tells a resume that it has been spent
+  LK.note('reels',r,kind[1]);LK.mode='reels'; // internal names kept: the log and the telemetry keys do not change
+  luckBoneOpen('sarc',boneTable('sarc',{sul:!!sul}),kind[1],()=>{
+    if(state!==st0){lkDone();return}
+    s10GFree('reels',{result:kind[1]});apply();lkDone();
+  });
   ui();
-  const cv3=[...pn.querySelectorAll('.lkr canvas')],cap=pn.querySelector('#lkcap'),rm=rmEff(),ALL=['star','ore','heart','bones','mimic'];
-  const draw1=(i,s,dy,flash)=>{const g=cv3[i].getContext('2d');g.imageSmoothingEnabled=false;g.fillStyle=flash?'#3a2a10':'#120d08';g.fillRect(0,0,48,48);g.save();g.beginPath();g.rect(0,0,48,48);g.clip();g.drawImage(lkSym(s),0,Math.round(dy),48,48);g.restore();if(flash){g.strokeStyle='#ffd44a';g.lineWidth=2;g.strokeRect(1,1,46,46)}};
-  const live=()=>LK.panel===pn&&state===st0;
-  const fin=()=>{
-    if(!live())return;
-    if(kind[1]==='relic'){luckSfx('win');cap.textContent='Three stars. The lid gives something up.'}
-    lkAfter(()=>{if(!live())return;s10GFree('reels',{result:kind[1]});apply();lkAfter(()=>{if(LK.panel===pn)lkDone()},LUCK.reels.holdMs/Q.speed)},380/Q.speed);
-  };
-  if(rm){faces.forEach((s,i)=>draw1(i,s,0,false));luckSfx('reelstop',{i:2});lkAfter(fin,250);return}
-  const stops=LUCK.reels.stop.map(ms=>ms/Q.speed),t0=performance.now(),done=[false,false,false];let lastTick=0;
-  const step=()=>{
-    if(!live())return;
-    const now=performance.now()-t0;
-    for(let i=0;i<3;i++){
-      if(done[i])continue;
-      if(now>=stops[i]){done[i]=true;draw1(i,faces[i],0,true);luckSfx('reelstop',{i});hap(14);lkAfter(()=>{if(live())draw1(i,faces[i],0,false)},140);if(i===2){fin();return}continue}
-      const k=Math.floor(now/(60/Q.speed)),s=ALL[(k*(2+i)+i*3)%5];draw1(i,s,((now/(8/Q.speed))%48)-24,false);
-    }
-    if(now-lastTick>85/Q.speed){lastTick=now;luckSfx('reeltick',{k:Math.floor(now/85)})}
-    lkAfter(step,30);
-  };
-  step();
 }
-// ================= 5. STREAK JACKPOT =================
-const JP_KEYS=['ore','memory','gold','relic','nothing'],JP_COL={ore:'#2a9d94',memory:'#b3342c',gold:'#c9a24a',relic:'#7b25a6',nothing:'#4a494f'};
-const jpName=k=>({ore:'Ore',memory:'A Memory',gold:LUCK.jackpot.gold+' points',relic:'A relic',nothing:'Nothing'}[k]);
+// ================= 5. THE SECOND BONE (the fourth full Fever of a run) =================
 function luckFever(){ // a full Fever has just been reached
   if(!luckOn())return;
   const S=RS();S.fev=(S.fev||0)+1;
   if(S.fev===LUCK.jackpot.at){S.jpOwed=1;luckJackpotSoon(0)}
 }
-function luckJackpotSoon(n){ // wait for a calm moment (no seal in flight, no card up), then open the wheel
+function luckJackpotSoon(n){ // wait for a calm moment (no seal in flight, no card up), then bring out the second bone
   lkAfter(()=>{
     if(!RS().jpOwed||!state||state.over||state.train)return; // a new chamber re-arms it (luckChamberStart)
     const ov=document.getElementById('overlay');
@@ -6446,58 +6630,29 @@ function luckJackpotSoon(n){ // wait for a calm moment (no seal in flight, no ca
     luckJackpot();
   },n?400:700);
 }
-function lkWheel(c,rot){
-  const g=c.getContext('2d'),S=c.width,R=S*.415,cx=S/2,cy=S*.525,W=LUCK.jackpot.w;let tot=0;JP_KEYS.forEach(k=>tot+=W[k]);
-  g.clearRect(0,0,S,S);g.imageSmoothingEnabled=false;
-  g.fillStyle='#000';g.beginPath();g.arc(cx,cy,R+S*.05,0,6.283);g.fill();
-  const rg=g.createLinearGradient(0,cy-R,0,cy+R);rg.addColorStop(0,'#f0d27a');rg.addColorStop(.5,'#c9a24a');rg.addColorStop(1,'#7d5f22');g.fillStyle=rg;g.beginPath();g.arc(cx,cy,R+S*.04,0,6.283);g.fill();
-  let a=0;
-  JP_KEYS.forEach(k=>{
-    const w=W[k]/tot*6.2832,a0=-Math.PI/2+rot+a,a1=a0+w,am=(a0+a1)/2;
-    g.fillStyle=JP_COL[k];g.beginPath();g.moveTo(cx,cy);g.arc(cx,cy,R,a0,a1);g.closePath();g.fill();
-    g.strokeStyle='rgba(0,0,0,.65)';g.lineWidth=2;g.stroke();
-    g.fillStyle='rgba(255,255,255,.12)';g.beginPath();g.moveTo(cx,cy);g.arc(cx,cy,R,a0,a0+Math.min(w,.2));g.closePath();g.fill();
-    const lx=cx+Math.cos(am)*R*.66,ly=cy+Math.sin(am)*R*.66;
-    if(k==='gold'){g.fillStyle='#2a1a06';g.font=`900 ${Math.round(S*.07)}px Cinzel, serif`;g.textAlign='center';g.textBaseline='middle';g.fillText(String(LUCK.jackpot.gold),lx,ly)}
-    else if(k==='nothing'){g.fillStyle='#bcab8c';g.font=`900 ${Math.round(S*.07)}px Cinzel, serif`;g.textAlign='center';g.textBaseline='middle';g.fillText('—',lx,ly)}
-    else{const u=Math.round(S*.12),sp=lkSym(k==='ore'?'ore':k==='memory'?'heart':'star');g.drawImage(sp,Math.round(lx-u/2),Math.round(ly-u/2),u,u)}
-    a+=w;
-  });
-  g.fillStyle='#000';g.beginPath();g.arc(cx,cy,S*.07,0,6.283);g.fill();g.fillStyle='#c9a24a';g.beginPath();g.arc(cx,cy,S*.055,0,6.283);g.fill();g.fillStyle='#fff3c4';g.fillRect(cx-2,cy-2,3,3);
-  for(let k=0;k<20;k++){const b=k/20*6.2832+rot;g.fillStyle='#fff3c4';g.beginPath();g.arc(cx+Math.cos(b)*(R+S*.025),cy+Math.sin(b)*(R+S*.025),S*.011,0,6.283);g.fill()}
-  g.fillStyle='#000';g.beginPath();g.moveTo(cx-S*.06,cy-R-S*.075);g.lineTo(cx+S*.06,cy-R-S*.075);g.lineTo(cx,cy-R+S*.02);g.closePath();g.fill();
-  g.fillStyle='#d8383f';g.beginPath();g.moveTo(cx-S*.042,cy-R-S*.062);g.lineTo(cx+S*.042,cy-R-S*.062);g.lineTo(cx,cy-R+S*.0);g.closePath();g.fill();
+function jpRoll(){ // the fourth-Fever roll: the same two seeded draws the wheel made (the second chose where in its slice the pointer stopped; it is still drawn so every seed plays out as it did)
+  const W=LUCK.jackpot.w;let tot=0;JP_KEYS.forEach(k=>tot+=W[k]);
+  let r=srnd()*tot,i=0;for(;i<4;i++){if(r<W[JP_KEYS[i]])break;r-=W[JP_KEYS[i]]}
+  srnd();return{key:JP_KEYS[i],u:(r+(JP_KEYS.slice(0,i).reduce((a,k)=>a+W[k],0)))/tot};
 }
-function jpIndex(rot){const W=LUCK.jackpot.w;let tot=0;JP_KEYS.forEach(k=>tot+=W[k]);const th=((-rot)%6.2832+6.2832)%6.2832;let a=0;for(let i=0;i<5;i++){a+=W[JP_KEYS[i]]/tot*6.2832;if(th<a)return i}return 4}
-function luckJackpot(){
-  const S=RS();S.jpOwed=0;const W=LUCK.jackpot.w;let tot=0;JP_KEYS.forEach(k=>tot+=W[k]);
-  LK.busy=true;LK.mode='jackpot';document.body.classList.add('lk');
-  const card=document.getElementById('card'),ov=document.getElementById('overlay');
-  card.innerHTML=`<div class="tbar">Streak Jackpot</div><div class="body jp"><h2>${lkOrd(LUCK.jackpot.at).replace(/^./,c=>c.toUpperCase())} Fever<small>The Quartermaster rolls out the wheel. Nothing is staked, nothing is paid.</small></h2><canvas id="jpw" aria-label="Prize wheel with five slots"></canvas><ul class="jpt" aria-label="Odds">${JP_KEYS.map(k=>`<li><i style="background:${JP_COL[k]}"></i><b>${jpName(k)}</b><span>${lkPct(W,k)}%</span></li>`).join('')}</ul><p class="cite" id="jpmsg">Five slots. The odds are printed before the spin, not after.</p><button type="button" id="jpgo">Spin the wheel</button></div>`;
-  ov.hidden=false;ov.scrollTop=0;
-  const cvs=card.querySelector('#jpw'),side=Math.min(240,Math.round(Math.min(innerWidth*.62,innerHeight*.36))),dpr=Math.min(2,window.devicePixelRatio||1);
-  cvs.style.width=cvs.style.height=side+'px';cvs.width=cvs.height=Math.round(side*dpr);lkWheel(cvs,0);
-  const jp=LK.jp={alive:true};
-  const go=card.querySelector('#jpgo'),msg=card.querySelector('#jpmsg');
-  go.onclick=()=>{
-    go.disabled=true;
-    let r=srnd()*tot,i=0;for(;i<4;i++){if(r<W[JP_KEYS[i]])break;r-=W[JP_KEYS[i]]}
-    const key=JP_KEYS[i],f=.15+srnd()*.7;LK.note('jackpot',(r+(JP_KEYS.slice(0,i).reduce((a,k)=>a+W[k],0)))/tot,key);
-    let before=0;for(let j=0;j<i;j++)before+=W[JP_KEYS[j]]/tot*6.2832;
-    const target=6.2832*6-(before+f*W[key]/tot*6.2832),T=LUCK.jackpot.spinMs/Q.speed,t0=performance.now();let lastI=-1;
-    const land=()=>{
-      jp.alive=false;statsJackpot();hap([30,40,30,40,90]);luckSfx('jackpot');
-      s10GFree('wheel',{result:key==='gold'?'points':key});const out=jpApply(key);msg.innerHTML=`<b>${out.t}</b>`;go.textContent='Back to the wall';go.disabled=false;go.onclick=()=>{ov.hidden=true;LK.busy=false;LK.mode='';LK.jp=null;document.body.classList.remove('lk');out.after?out.after():(ui(),draw(),checkClear())};
-    };
-    if(rmEff()){lkWheel(cvs,target);lkAfter(land,350);return}
-    const step=()=>{
-      if(!jp.alive||LK.jp!==jp)return;
-      const u=Math.min(1,(performance.now()-t0)/T),e=1-Math.pow(1-u,3),rot=target*e,ix=jpIndex(rot);
-      lkWheel(cvs,rot);if(ix!==lastI){lastI=ix;luckSfx('wheel')}
-      if(u>=1){land();return}lkAfter(step,16);
-    };
-    step();
-  };
+function luckJackpot(){ // internal name kept (the app shell hooks it)
+  const S=RS(),st0=state;S.jpOwed=0;
+  const J=jpRoll(),key=J.key;LK.note('jackpot',J.u,key);
+  state.jpPend={k:key};try{S11.save()}catch(e){} // decided and saved before anything is shown: closing the app cannot dodge it or reroll it
+  LK.mode='jackpot';
+  luckBoneOpen('fever',boneTable('fever'),key,()=>{
+    if(state!==st0){lkDone();return}
+    s10GFree('wheel',{result:key==='gold'?'points':key});jpPay(key);
+  });
+  ui();
+}
+function jpPay(key,quiet){ // pays a decided second bone, once: from the reading, or on resume when the app was closed mid-reading
+  state.jpPend=null;const out=jpApply(key);
+  if(!quiet)try{const sg={relic:['relic'],memory:['memGain'],gold:['ore',{t:'gold'}]}[key];if(sg)sfx(sg[0],sg[1])}catch(e){} // the game's own result stings (ore plays its own when it is picked up); nothing is silent
+  try{log((quiet?'The second bone had already answered. ':'')+out.t)}catch(e){}
+  lkClose();LK.busy=false;LK.mode='';document.body.classList.remove('lk');
+  if(out.after)out.after();else{ui();draw();checkClear()}
+  try{S11.save()}catch(e){}
 }
 function jpApply(key){ // returns {t: text, after: fn|undefined}
   const L=LUCK.jackpot,hearts=()=>{document.getElementById('lives').textContent='♥'.repeat(run.lives)+'♡'.repeat(3-run.lives)};
@@ -6511,7 +6666,7 @@ function jpApply(key){ // returns {t: text, after: fn|undefined}
       addToVault(r.n,(ok,why)=>{if(ok||why==='owned'){const T=RS();if(!T.relics.includes(r.n))T.relics.push(r.n)}if(ok){ovr.hidden=false;showEntry(r.n,()=>{ovr.hidden=true;fin()})}else fin()});
     }};
   }
-  return{t:'Nothing. The wheel is a wheel.'};
+  return{t:'Nothing. Robbed in antiquity.'};
 }
 // ================= 6. WALL TELLS =================
 function luckTell(i,TR){ // decided from the seed alone, on a side stream: a wall with no tell is generated exactly as before
@@ -6571,19 +6726,25 @@ function luckChamberStart(){
   if(RS().jpOwed)luckJackpotSoon(0);
 }
 function luckSlipHide(){const s=document.getElementById('lkslip');if(s)s.remove();if(state)state.strikes=(state.strikes|0)+1}
-// ================= HOW TO PLAY: the Luck card =================
-HOW.push({h:'Luck',
-  get t(){const P=LUCK.press,w=P.w,C=LUCK;return`Past ${Math.round(P.at*100)}% crack every strike rolls: ${lkPct(w,'normal')}% steady, ${lkPct(w,'lucky')}% lucky (the finds it touches are worth ×${P.luckyMult}), ${lkPct(w,'tremor')}% tremor (+${Math.round(P.tremorCrack*100)}% crack). A seal of ${C.coin.min}+ that leaves the chamber open may offer the knucklebone, once a chamber: it pays ${C.coin.mult} times over only if it lands on its back (Pranes, ${kbPct().pranes}%); Hyption ${kbPct().hyption}%, Chios ${kbPct().chios}% and Kos ${kbPct().kos}% take the seal back. A knucklebone has four faces, and none of them are fair. Sheep ankle bones were the dice of ancient Greece and Rome, and bones like them turn up in digs from about 5000 BCE. Stake 2 and up tilt the red: ${lkPct({normal:w.normal,lucky:w.lucky+SKILL.press2.lucky,tremor:w.tremor+SKILL.press2.tremor},"normal")}% steady, ${lkPct({normal:w.normal,lucky:w.lucky+SKILL.press2.lucky,tremor:w.tremor+SKILL.press2.tremor},"lucky")}% lucky, ${lkPct({normal:w.normal,lucky:w.lucky+SKILL.press2.lucky,tremor:w.tremor+SKILL.press2.tremor},"tremor")}% tremor. Sarcophagus reels are theater; the lid was decided first. The ${lkOrd(C.jackpot.at)} Fever spins the wheel, and every empty strike drains ${Math.round(SKILL.fever.decay*100)}% of the bar, so read before you swing. About one chamber in ${Math.round(1/C.tell.chance)} has a tell on a slip: Unstable, Gilded, Quiet or Hollow.${s9TellNote()}${kitLuckNote()}`},
+// ================= HOW TO PLAY: the Chances card =================
+function bonePrinted(mode){const rows=boneTable(mode),f=s=>rows.filter(r=>r.side===s).map(r=>boneName(r.k).replace(/^A (relic|mimic)/,(m,w)=>w).replace(/^(Ore|Bones|Nothing|A Memory)/,m=>m[0].toLowerCase()+m.slice(1))+' '+r.pct+'%').join(', ');return f('L')+' left of the pit; '+f('R')+' right of it'} // the How to Play text reads the same table the roll uses
+HOW.push({h:'Chances',
+  get t(){const P=LUCK.press,w=P.w,C=LUCK,w2={normal:w.normal,lucky:w.lucky+SKILL.press2.lucky,tremor:w.tremor+SKILL.press2.tremor};return`Past ${Math.round(P.at*100)}% crack the wall is talking and every strike rolls: ${lkPct(w,'normal')} in 100 steady, ${lkPct(w,'lucky')} in 100 loose stone (the finds it touches are worth ×${P.luckyMult}), ${lkPct(w,'tremor')} in 100 a tremor (+${Math.round(P.tremorCrack*100)}% crack). Stake 2 and up tilt the red: ${lkPct(w2,'normal')} steady, ${lkPct(w2,'lucky')} loose, ${lkPct(w2,'tremor')} tremor. Before a sarcophagus lid the Quartermaster asks an ox shoulder blade. It is his own habit, and he brings it to every tomb. Heat the pit, the crack forks, read where it ends. The lid was decided first and nothing is staked. The chances are printed before you start: ${bonePrinted('sarc')}. The fork rules one side out, and the record is revised in pencil to the real chances of what is left. The ${lkOrd(C.jackpot.at)} Fever of a run brings out his second bone: ${bonePrinted('fever')}. Every empty strike drains ${Math.round(SKILL.fever.decay*100)}% of the Fever bar, so read before you swing. The knucklebone is different: it is a wager, and says so. A seal of ${C.coin.min}+ that leaves the chamber open may offer it, once a chamber: ${lkCoinName().toLowerCase()} or nothing. It pays ${C.coin.mult} times over only if it lands on its back (Pranes, ${kbPct().pranes}%); Hyption ${kbPct().hyption}%, Chios ${kbPct().chios}% and Kos ${kbPct().kos}% take the seal back. A knucklebone has four faces, and none of them are fair. Sheep ankle bones were the dice of ancient Greece and Rome, and bones like them turn up in digs from about 5000 BCE. About one chamber in ${Math.round(1/C.tell.chance)} has a tell on a slip: Unstable, Gilded, Quiet or Hollow.${s9TellNote()}${kitLuckNote()}`},
   d(g){
     g.fillStyle='#17141c';g.fillRect(0,0,264,120);
     g.drawImage(lkBone('pranes'),10,16,48,48);hText(g,'PRANES ×'+LUCK.coin.mult,34,76,{a:'center',s:8,c:'#f0d27a'});hText(g,'ANY OTHER 0',34,90,{a:'center',s:8,c:'#ff7a7f'});
-    ['star','star','bones'].forEach((k,i)=>{const x=80+i*34;g.fillStyle='#000';g.fillRect(x-1,19,34,34);g.fillStyle='#120d08';g.fillRect(x,20,32,32);g.strokeStyle='#c9a24a';g.strokeRect(x+.5,20.5,31,31);g.drawImage(lkSym(k),x+2,22,28,28)});
-    hText(g,'REELS: FOR SHOW',130,66,{a:'center',s:8,c:'#bcab8c'});
-    const cx=224,cy=44,R=30,W=LUCK.jackpot.w;let tot=0;JP_KEYS.forEach(k=>tot+=W[k]);let a=-Math.PI/2;
-    JP_KEYS.forEach(k=>{const w=W[k]/tot*6.2832;g.fillStyle=JP_COL[k];g.beginPath();g.moveTo(cx,cy);g.arc(cx,cy,R,a,a+w);g.closePath();g.fill();g.strokeStyle='#000';g.lineWidth=1;g.stroke();a+=w});
-    g.fillStyle='#d8383f';g.beginPath();g.moveTo(cx-5,cy-R-7);g.lineTo(cx+5,cy-R-7);g.lineTo(cx,cy-R+1);g.closePath();g.fill();
-    hText(g,lkOrd(LUCK.jackpot.at).toUpperCase()+' FEVER',cx,90,{a:'center',s:8,c:'#bcab8c'});
-    hText(g,'LUCKY ×2  ·  TREMOR  ·  TELLS',132,108,{a:'center',s:8,c:'#f0d27a'});
+    // the ox shoulder blade: five signs along the top, a pit at the bottom, a crack that forks
+    g.fillStyle='#8c7748';g.beginPath();g.moveTo(84,14);g.quadraticCurveTo(130,4,176,14);g.quadraticCurveTo(178,40,160,62);g.lineTo(146,84);g.quadraticCurveTo(130,90,114,84);g.lineTo(100,62);g.quadraticCurveTo(82,40,84,14);g.closePath();g.fill();
+    g.fillStyle='#e9dfc6';g.beginPath();g.moveTo(86,16);g.quadraticCurveTo(130,7,174,16);g.quadraticCurveTo(175,40,158,61);g.lineTo(145,82);g.quadraticCurveTo(130,87,115,82);g.lineTo(102,61);g.quadraticCurveTo(85,40,86,16);g.closePath();g.fill();
+    [96,113,130,147,164].forEach((x,i)=>{g.fillStyle=i<2?'#5a4526':'#b9a274';g.beginPath();g.arc(x,27,5.5,0,6.283);g.fill()});
+    g.fillStyle='#17110c';g.beginPath();g.arc(130,76,3.5,0,6.283);g.fill();g.fillStyle='#ff7a2e';g.fillRect(129,75,2,2);
+    g.strokeStyle='#2b1d10';g.lineWidth=1.6;g.beginPath();g.moveTo(130,72);g.lineTo(128,62);g.lineTo(131,54);g.lineTo(122,47);g.lineTo(118,41);g.lineTo(114,34);g.stroke();
+    hText(g,'THE BONE IS ASKED',130,100,{a:'center',s:8,c:'#bcab8c'});
+    // the record: two lines kept and pencilled over, three struck in red
+    g.fillStyle='#000';g.fillRect(193,13,62,74);g.fillStyle='#efe2c2';g.fillRect(194,14,60,72);
+    [0,1,2,3,4].forEach(i=>{const y=24+i*13;g.fillStyle='#6b5634';g.fillRect(199,y,26,2);g.fillStyle='#33506b';g.fillRect(238,y,10,2);if(i>1){g.fillStyle='#b3261e';g.fillRect(197,y,53,1.5)}else{g.fillStyle='#b3261e';g.fillRect(228,y-1,8,3)}});
+    hText(g,'RECORD REVISED',224,100,{a:'center',s:8,c:'#bcab8c'});
+    hText(g,'LOOSE STONE ×'+LUCK.press.luckyMult+'  ·  TREMOR  ·  TELLS',132,112,{a:'center',s:8,c:'#f0d27a'});
   }});
 // ===================== SPRINT 7 · CONTENT PASS: classes, tools, gear, ores, hats, tomb palettes =====================
 // Every number that Balance might tune lives in PROG_DATA. Sprites live in KIT_ART. Copy lives next to the thing it describes.
@@ -7051,6 +7212,9 @@ Object.keys(KIT_ART.TOOLS).forEach(k=>{});
 const _kitTc={};
 function kitToolCanvas(id,size){const key=id+'/'+size;return _kitTc[key]||(_kitTc[key]=artCanvas(KIT_ART.TOOLS[id].px,KIT_ART.TOOLS[id].pal,16,16,size/16))}
 function kitTool(){return(run&&run.kit&&run.kit.tool)||'standard'}
+// Sprint 15b (item 7): what this run's two tool buttons really are. Wall and coaching text names tools only through this, so it never mentions one the kit does not have
+// (the Daily can deal a Chisel, which has no hammer at all). ham is null when there is no heavy tool; stdPick / stdHam say whether the class's own numbers still apply.
+function kitNames(){const T=kitTool(),P={trowel:'trowel',chisel:'chisel',brush:'brush',auger:'auger'}[T],H={mattock:'mattock',drill:'drill',powder:'powder',pulley:'pulley'}[T];return{T,pick:P||'pick',ham:T==='chisel'?null:(H||'hammer'),stdPick:!P,stdHam:!H&&T!=='chisel'}}
 function kitR(){return run.kit||(run.kit={tool:'standard',swaps:PROG_DATA.fence.swaps,rope:PROG_DATA.gear.rope.free})}
 function kitEquip(id){kitR().tool=id;if(state){if(id==='chisel'&&tool==='hammer')setTool('pick');ui();draw()}}
 function kitNoKS(){return{l:0,r:0,u:0,d:0,abort:'',ab:'',use:''}}
@@ -7064,7 +7228,7 @@ function kitCalc(which,s){ // pure: returns {o: the stats to use, ks: the extras
     if(T==='brush'||T==='auger')s9PickTool(T,o,ks);
     if(T==='trowel'||T==='chisel'){const B=D[T],[d,c]=kitRelicPick(B.dmg,B.crack);o.r=0;o.big=false;o.dmg=d;o.crack=c;o.line=!!(state&&state.flint>0);if(o.line)o.dmg=Math.max(o.dmg,2);else if(B.side){ks.l=ks.r=B.side}}
   }else{
-    if(T==='chisel'){ks.abort='The chisel has no hammer. Use the pick.';ks.ab='No hammer on a chisel';return{o,ks}}
+    if(T==='chisel'){ks.abort='The chisel is the only tool in this kit.';ks.ab='Chisel only';return{o,ks}}
     if(T==='mattock'||T==='drill'){const B=D[T],H=kitRelicHam(B.r,B.dmg,B.crack,!!B.big);Object.assign(o,{r:H.r,dmg:H.dmg,crack:H.crack,big:H.big,line:false,glass:false});
       if(T==='drill'){const left=state&&state.kit?state.kit.drill:D.drill.uses;if(left<=0){ks.abort='The drill is out of bit for this chamber.';ks.ab='Drill out of bit'}else ks.use='drill'}}
     if(T==='pulley')s9Pulley(o,ks);
@@ -7252,7 +7416,7 @@ function kitGearList(){const daily=s15Daily();return daily?[...GEAR]:[...GEAR,..
 // ---------- ores ----------
 const KIT_BASE_POOL=ORE_POOL.slice();
 Object.assign(ORES,{
- quartz:{n:"Quartz",s:"lucky roll",d:"The next Press Your Luck roll in the red is lucky. Guaranteed. Spent with the chamber."},
+ quartz:{n:"Quartz",s:"loose stone",d:"The next strike in the red finds loose stone: what it touches is worth double. Guaranteed. Spent with the chamber."},
  bitumen:{n:"Bitumen",s:PROG_DATA.ores.bitumen.strikes+" tarred hits",d:`The wall is tarred: the next ${PROG_DATA.ores.bitumen.strikes} strikes add no crack.`}
 });
 const KIT_ORE_COST={
@@ -7265,7 +7429,7 @@ function kitPoolSync(daily){
   ORE_POOL.length=0;ORE_POOL.push(...KIT_BASE_POOL,...ext);ORE_REAL.length=0;ORE_REAL.push(...ORE_POOL.filter(t=>t!=='pyrite'));
 }
 function kitOreImg(k,size){const im=new Image();im.alt='';im.src=oreURL(k);im.style.cssText=`width:${size}px;height:${size}px;image-rendering:pixelated`;return im}
-function kitLuckNote(){return kitHas('ore_quartz')?' Quartz turns the next roll in the red into a lucky one, and Bitumen keeps the wall from cracking for three strikes.':''}
+function kitLuckNote(){return kitHas('ore_quartz')?' Quartz makes the next roll in the red loose stone, and Bitumen keeps the wall from cracking for three strikes.':''}
 // ---------- run start ----------
 function kitRunInit(){
   const K2=_kit2||{};let t=K2.tool||'standard';
@@ -7362,7 +7526,7 @@ const TOMB_SLIP=[ // [name, text]; the text is built from PROG_DATA so a rule an
  ()=>['No guardian','Chamber three. No guardian on record. The Quartermaster finds this suspicious and has noted it.'],
  ()=>["The Pythia's terms",`A free X-ray in this chamber, on the house. The Oracle sees all of it, and she has hidden the ore from you. Targets are ${_kitPct(PROG_DATA.tombs[1].target)}% higher.`],
  ()=>{const T=PROG_DATA.tombs[2];return['The two mounds',`Two relics lie buried here. In the red the wall shudders ${_kitPct(T.tremor)} times in a hundred, not ${_kitPct(T.tremorBase)}. The wall holds ${_kitPct(1-T.crack)}% less and the target is ${_kitPct(T.target)}% higher.`]},
- ()=>{const T=PROG_DATA.tombs[3];return['The strangler roots',`${_kitPct(T.rootFrac)}% of the dirt is root, ${T.rootDepth} deep. Sarcophagi turn up twice as often. Bring a good hammer.`]},
+ ()=>{const T=PROG_DATA.tombs[3];return['The strangler roots',`${_kitPct(T.rootFrac)}% of the dirt is root, ${T.rootDepth} deep. Sarcophagi turn up twice as often. Bring something heavy.`]},
  ()=>{const T=PROG_DATA.tombs[4];return["The king's tribute",`Targets are ${_kitPct(T.target)}% higher. You start with Fortune +${T.fortune}. The knucklebone is offered after every seal, whether you asked or not. The wall holds ${_kitPct(1-T.crack)}% less.`]},
  ()=>{const T=PROG_DATA.tombs[5];return['The labyrinth',`Chamber three is ${T.cols} tiles wide, the lamp reaches ${T.lamp} and the target is ${_kitPct(T.target)}% higher. Nobody is recorded leaving a map. A few are recorded leaving.`]},
  ()=>{const T=PROG_DATA.tombs[6];return['The army',`Everything here is large: nothing under 2×2, not one coin, and so few of them that the target is ${_kitPct(-T.target)}% lower. Farmers found the first warrior in 1974 while digging a well, and the Quartermaster would like it noted that nobody has found the last.`]}
@@ -7706,7 +7870,7 @@ const TOMBS=[
 // Stakes: each stacks all the ones below it. rule = exact rule change; leg / epic = relic tier weights at that stake (base 1 / 2).
 const STAKES=[
  {id:1,n:"Shallow Grave",rule:"The game as it stands.",leg:1,epic:2},
- {id:2,n:"Loose Mortar",rule:`In the red, Press Your Luck odds are ${LUCK.press.w.normal} / ${LUCK.press.w.lucky+SKILL.press2.lucky} / ${LUCK.press.w.tremor+SKILL.press2.tremor} (steady, lucky, tremor).`,leg:1,epic:2},
+ {id:2,n:"Loose Mortar",rule:`In the red, the chances are ${LUCK.press.w.normal} / ${LUCK.press.w.lucky+SKILL.press2.lucky} / ${LUCK.press.w.tremor+SKILL.press2.tremor} in 100 (steady, loose stone, tremor).`,leg:1,epic:2},
  {id:3,n:"Thin Air",rule:"The wall holds 125 crack, not 150.",leg:2,epic:2},
  {id:4,n:"Hungry Dead",rule:"Relics start Dormant and need one feed to wake. The Blighted finish can turn up. Targets +5%.",leg:2,epic:3},
  {id:5,n:"Gilded Lies",rule:"Every chamber carries a Pyrite decoy relic. Chests hold 2 dust, not 1. Targets +10%.",leg:3,epic:3},
@@ -7753,7 +7917,7 @@ UNL({id:'gear:lampoil',kind:'gear',key:'lampoil',name:'Lamp Oil',tile:'Lamp Oil'
 UNL({id:'gear:rope',kind:'gear',key:'rope',name:'Rope',tile:'Rope',rank:7,stub:true,line:'Walking away costs no Memory, once a run.'});
 UNL({id:'gear:sieve',kind:'gear',key:'sieve',name:'Sieve',tile:'Sieve',rank:9,stub:true,line:'Pyrite is worth 5, not 1.'});
 UNL({id:'gear:reliquary',kind:'gear',key:'reliquary',name:'Reliquary',tile:'Reliquary',rank:13,stub:true,line:'The Vault holds two more relics while this is packed, and every relic is worth 10% less.'});
-UNL({id:'ore:quartz',kind:'ore',key:'quartz',name:'Quartz',tile:'Quartz',rank:11,stub:true,line:'Your next Press Your Luck strike is guaranteed lucky.'});
+UNL({id:'ore:quartz',kind:'ore',key:'quartz',name:'Quartz',tile:'Quartz',rank:11,stub:true,line:'Your next strike in the red is guaranteed loose stone.'});
 UNL({id:'ore:bitumen',kind:'ore',key:'bitumen',name:'Bitumen',tile:'Bitumen',rank:16,condition:{tomb:2,stake:3},stub:true,line:'Seals the wall: the crack cannot rise for three strikes.'});
 UNL({id:'cosmetic:fez',kind:'cosmetic',key:'fez',name:'Fez',tile:'Fez',rank:15,stub:true,line:'A raider hat, drawn on the sprite and on the title screen.'});
 UNL({id:'cosmetic:laurel',kind:'cosmetic',key:'laurel',name:'Laurel Wreath',tile:'Laurel',rank:20,stub:true,line:'A raider hat. Greek, leafy, slightly smug.'});
@@ -7913,7 +8077,7 @@ function progTargets(i,TR){
   if(i===2&&tombN()>=3&&SKILL.guard.per&&!s15Daily())m*=1+Math.min(SKILL.guard.max,SKILL.guard.per*Math.max(0,loadColl().length-SKILL.guard.free)); // Sprint 10 (T19): a full Vault wakes the guardian
   if(m!==1)TARGETS[i]=Math.round(TARGETS[i]*m/10)*10;
 }
-function pressW(){ // Press Your Luck odds as they stand now: the base, Stake 2, the Jelling twist, then Fortune
+function pressW(){ // the red-line chances as they stand now: the base, Stake 2, the Jelling twist, then Fortune
   const b=LUCK.press.w;let l=b.lucky,t=b.tremor;
   if(!(state&&state.train)){
     if(stakeN()>=2){l+=SKILL.press2.lucky;t+=SKILL.press2.tremor}
@@ -8147,7 +8311,7 @@ function progStatsHtml(){
 }
 
 // ---- How to play: one more card
-HOW.push({h:'The ladder',t:`Every run pays XP: ${XP.hundred} per 100 banked, ${XP.chamber} per chamber cleared, ${XP.tomb} for the tomb, ${XP.relic} per relic sealed, +${Math.round(XP.stakeBonus*100)}% per stake above the first. Rank unlocks tools, gear, ores, classes and hats; the Ledger lists every slot and what it wants. Clear a tomb at Stake 1 to open the next. Clear any tomb at a stake with a class to open the next stake for that class. Each stake stacks the last; every odds table is printed on the kit screen.`,
+HOW.push({h:'The ladder',t:`Every run pays XP: ${XP.hundred} per 100 banked, ${XP.chamber} per chamber cleared, ${XP.tomb} for the tomb, ${XP.relic} per relic sealed, +${Math.round(XP.stakeBonus*100)}% per stake above the first. Rank unlocks tools, gear, ores, classes and hats; the Ledger lists every slot and what it wants. Clear a tomb at Stake 1 to open the next. Clear any tomb at a stake with a class to open the next stake for that class. Each stake stacks the last; every table of chances is printed on the kit screen.`,
   d(g){
     g.fillStyle='#17141c';g.fillRect(0,0,264,120);
     STAKES.forEach((s,i)=>{const x=14+i*40,h=14+i*12;g.fillStyle=i<3?'#5a4228':'#7e2323';g.fillRect(x,100-h,32,h);g.strokeStyle='#c9a24a';g.strokeRect(x+.5,100-h+.5,31,h-1);hText(g,PGR(s.id),x+16,108,{a:'center',s:8,c:'#f0d27a'})});
@@ -8250,7 +8414,7 @@ function skillDeal(s,tomb){ // {gives: html, cost: text, up: did the relic odds 
   const S=STAKES[s-1],b=skillShares(s,tomb),a=s>1?skillShares(s-1,tomb):null,up=!!a&&(a.L!==b.L||a.E!==b.E);
   const xp=s>1?`XP ×${skillXp(s)}`:'base XP';
   const dl=(n,x,y)=>x===y?`${n} ${y}%`:`${n} ${x}% → ${y}%`;
-  const rar=up?`<em class="rar up">relic odds: ${a?dl('legendary',a.L,b.L):''}, ${dl('epic',a.E,b.E)}</em>`:`<em class="rar same">relic odds: legendary ${b.L}%, epic ${b.E}%${a?' (as Stake '+(s-1)+')':''}</em>`;
+  const rar=up?`<em class="rar up">relic chances: ${a?dl('legendary',a.L,b.L):''}, ${dl('epic',a.E,b.E)}</em>`:`<em class="rar same">relic chances: legendary ${b.L}%, epic ${b.E}%${a?' (as Stake '+(s-1)+')':''}</em>`;
   return{gives:`<b class="xpm">${xp}</b>, ${rar}.`,cost:s>1?S.rule:'nothing. The game as it stands.',up,xp:skillXp(s)};
 }
 
@@ -8262,7 +8426,7 @@ SKILL.why={
  'tomb:1':"The kind tomb. Learn the walls here and keep your fingers.",
  'tomb:2':"Greek relics turn up three times as often, and the Pythia hands you a free X-ray.",
  'tomb:3':"Norse relics, two buried at once in the last chamber. Bring a steady hand.",
- 'tomb:4':"Maya relics, jade in the dark, and roots that reward a good hammer.",
+ 'tomb:4':"Maya relics, jade in the dark, and roots that reward a heavy tool.",
  'tomb:5':"Mesopotamian relics, a king who expects tribute and a knucklebone offered at every seal. It costs more; it pays more.",
  'tomb:6':"Greek relics three times as often, and a maze in chamber three: twelve tiles wide, a lamp that reaches three. Bring a memory.",
  'tomb:7':"Chinese relics three times as often, and an army: every find at least 2×2, no coins, a target 60% lower. Everything is big, and so is the pay-off.",
@@ -8278,7 +8442,7 @@ SKILL.why={
  'gear:rope':"Walk away free, once a run. A Memory saved is a Memory you can spend later.",
  'gear:sieve':"Pyrite pays 5, not 1. Somebody has to buy the fool's gold, and it is you.",
  'gear:reliquary':"Two more Vault slots while it is packed. Relics are worth less; a library is a burden of love.",
- 'ore:quartz':"Your next roll in the red is lucky, guaranteed. The one honest thing in the whole Press Your Luck.",
+ 'ore:quartz':"Your next roll in the red is loose stone, guaranteed. The one sure thing past the red line.",
  'ore:bitumen':"Tar on the wall: three strikes add no crack. Smells terrible, works beautifully.",
  'cosmetic:fez':"Purely decorative, therefore essential. The Quartermaster approves of nothing else.",
  'cosmetic:laurel':"For the excavator who wants to look smug about a Greek find.",
@@ -8823,7 +8987,7 @@ Object.assign(POWERS,{
  "Bronze Ding":{d:`Sated scores ×${R.ding.sated} Fame, not ×2. The cauldron was built for feeding.`,hunger:"a find worth 5 or more",want:f=>f.worth>=5},
  "Seated Scribe":{d:"Timelines always pay in full, whatever order you seal them in. The scribe keeps the order.",hunger:"a Tablet or Shard",want:f=>f.name==="Tablet"||f.name==="Shard"},
  "Rhind Mathematical Papyrus":{d:`A Hoard needs ${R.rhind.hoard} finds, not 8.`,hunger:"a find of odd age",want:f=>f.age%2===1},
- "Charioteer of Delphi":{d:`In the red, lucky strikes are ${R.charioteer.lucky} points likelier, taken from the steady rolls.`,hunger:"a Coin",want:f=>f.name==="Coin"},
+ "Charioteer of Delphi":{d:`In the red, loose stone is ${R.charioteer.lucky} points likelier, taken from the steady rolls.`,hunger:"a Coin",want:f=>f.name==="Coin"},
  "Venus de Milo":{d:"Greek Dynasties need only 2 finds.",hunger:"a find worth 3 or less",want:f=>f.worth<=3},
  "Lewis Chessmen":{d:`Bones are worth ×${R.lewis.bones}.`,hunger:"Bones",want:f=>f.name==="Bone"||f.name==="Bones"},
  "Mammen Axe":{d:`Fever lasts ${R.mammen.fever} strikes longer.`,hunger:"a Norse find",want:f=>f.civ===2},
@@ -8966,8 +9130,8 @@ Object.assign(KIT_ORE_COST,{
 });
 SKILL.glow.sulfur='#e8e060';SKILL.glow.silver='#dfe6f0';
 function s9Sulfur(){if(state.sulfur){state.sulfur=false;return true}return false}
-function s9SarcRoll(){ // openSarc(): the roll, with Sulfur turning a would-be mimic (0.75 to 0.9) into the bones range, so the reels and the lid agree
-  const r0=srnd(),sul=s9Sulfur(),hit=sul&&r0>=.75&&r0<.9;return{r:hit?.45+(r0-.75)/.15*.3:r0,hit};
+function s9SarcRoll(){ // openSarc(): the roll, with Sulfur turning a would-be mimic (0.75 to 0.9) into the bones range, so the bone and the lid agree. sul = Sulfur was armed, so the printed record can say mimic 0%
+  const r0=srnd(),sul=s9Sulfur(),hit=sul&&r0>=.75&&r0<.9;return{r:hit?.45+(r0-.75)/.15*.3:r0,hit,sul};
 }
 function s9Pills(){let h='';if(!state)return h;if(state.sulfur)h+='<span class="pill armed">✦ Sulfur</span>';if(state.silver)h+='<span class="pill armed">✦ Silver</span>';if(state.sightT>0)h+='<span class="pill armed">✦ Sight</span>';return h}
 function s9OreUse(t){ // useOre(): the two new single-use ores
@@ -8980,7 +9144,7 @@ Object.assign(LUCK_ART.tells,S9.tells);
 Object.assign(TELL_TXT,{
  veined:()=>['Veined',`${PROG_DATA.tells.veined.ores} more ${PROG_DATA.tells.veined.ores===1?'ore lies':'ores lie'} in this wall. The veins are not subtle.`],
  crowded:()=>['Crowded',`${PROG_DATA.tells.crowded.finds} more finds are packed in, and the target is ${Math.round(PROG_DATA.tells.crowded.target*100)}% higher.`],
- damp:()=>['Damp',`The pick cracks the wall ${Math.round((1-PROG_DATA.tells.damp.pick)*100)}% less. The hammer cracks it ${Math.round((PROG_DATA.tells.damp.hammer-1)*100)}% more.`],
+ damp:()=>{const N=kitNames();return['Damp',`The ${N.pick} cracks the wall ${Math.round((1-PROG_DATA.tells.damp.pick)*100)}% less.${N.ham?` The ${N.ham} cracks it ${Math.round((PROG_DATA.tells.damp.hammer-1)*100)}% more.`:''}`]},
  gleaming:()=>['Gleaming',`Fortune +${PROG_DATA.tells.gleaming.fort} in this chamber. Something down here wants to be found.`]
 });
 TOMBS.forEach(t=>{if(t.id>1){const w=Object.assign({},t.tells||LUCK.tell.w);Object.keys(PROG_DATA.tells).forEach(k=>{w[k]=PROG_DATA.tells[k].w});t.tells=w}});
@@ -9015,7 +9179,7 @@ Object.assign(PROG_DATA.rank,{class_mystic:16,tool_pulley:17,gear_canteen:18,too
 
 // ---------------------------------------------------------------- rival raiders: Odalys Vane, Brother Kettle, Mags Crow
 const RIVALS={
- odalys:{n:"The Bennu",role:"heron of rebirth",deal:"The Wager",quote:"One Memory on the table, and the tomb decides what it was worth. I have burned and come back more often than you have dug. The odds are fair. It is the tomb that cheats.",myth:"Egypt. The Bennu was the heron of Heliopolis, tied to the sun, the flood and rebirth. The Greeks later wrote it up as the phoenix."},
+ odalys:{n:"The Bennu",role:"heron of rebirth",deal:"The Wager",quote:"One Memory on the table, and the tomb decides what it was worth. I have burned and come back more often than you have dug. The chances are fair. It is the tomb that cheats.",myth:"Egypt. The Bennu was the heron of Heliopolis, tied to the sun, the flood and rebirth. The Greeks later wrote it up as the phoenix."},
  kettle:{n:"Camazotz",role:"death bat, pawnbroker",deal:"The Loan",quote:"A relic on loan, friend. Bring it back whole, or clear the tomb, and perhaps I forget to ask. I have taken heads for less.",myth:"Maya. In the Popol Vuh, Camazotz, the death bat of the House of Bats in Xibalba, bites off the head of the hero Hunahpu. The head is recovered and Hunahpu lives to play on."},
  crow:{n:"The Sun Crow",role:"rival digger",deal:"Two Graves",quote:"I found a second grave in your wall. Dug it myself, with three feet. Have a look, for a consideration.",myth:"China. In Han dynasty tomb art the sun holds a black crow, often drawn with three legs: the Sānzúwū."}
 };
@@ -9073,7 +9237,7 @@ function rivalCard(p){
     rows=`<li><span>A genuine second relic, Epic or better</span><b>${Math.round(C.epic*100)}%</b></li><li><span>Pyrite in a good coat</span><b>${100-Math.round(C.epic*100)}%</b></li><li><span>The Crow's cut of every seal in this chamber</span><b>${Math.round(C.cut*100)}%</b></li>`;
     ev=`It is buried in this wall. The wall will not say which grave is which.`;
   }
-  card.innerHTML=`<div class="tbar">A visitor at the door</div><div class="body rival"><div class="vincoming" style="--tc:#c9a24a"><span id="rvart"></span><div><b>${V.n}</b><small>${V.role} · ${V.deal}</small></div></div><p class="rvq">"${V.quote}"</p><p class="rvmyth">${esc(V.myth)}</p><ul class="rvo">${rows}</ul><p class="rvev">${ev}</p><button id="rvyes" type="button">${yes}</button><button id="rvno" type="button">No, thank you</button><p class="cite">Offered once a run. The odds are printed before you answer, not after.</p></div>`;
+  card.innerHTML=`<div class="tbar">A visitor at the door</div><div class="body rival"><div class="vincoming" style="--tc:#c9a24a"><span id="rvart"></span><div><b>${V.n}</b><small>${V.role} · ${V.deal}</small></div></div><p class="rvq">"${V.quote}"</p><p class="rvmyth">${esc(V.myth)}</p><ul class="rvo">${rows}</ul><p class="rvev">${ev}</p><button id="rvyes" type="button">${yes}</button><button id="rvno" type="button">No, thank you</button><p class="cite">Offered once a run. The terms are printed before you answer, not after.</p></div>`;
   card.querySelector('#rvart').appendChild(rivalArt(p.id,3));
   const done=msg=>{p.done=true;ov.hidden=true;if(msg)log(msg);ui();draw()};
   card.querySelector('#rvno').onclick=()=>{p.ans='declined';done(`${V.n} inclines its head and goes. The offer goes with it.`)};
@@ -9615,11 +9779,11 @@ HOW.push({h:'The Quartermaster',
     hText(g,'NOTHING HERE IS FOR REAL MONEY',132,108,{a:'center',s:8,c:'#bcab8c'});
   }});
 HOW.push({h:'Visitors',
-  get t(){const R=PROG_DATA.rival,W=R.wager,tot=W.w.reduce((a,b)=>a+b,0),pc=n=>Math.round(n/tot*100);return`After your first tomb, some digs get a visitor at the start of a chamber, once a run. The Bennu's Wager costs a Memory and prints three outcomes: ${pc(W.w[0])}%, ${pc(W.w[1])}% and ${pc(W.w[2])}%. Camazotz lends you a relic a tier above your best; clear the tomb and he lets you keep it ${Math.round(R.loan.keep*100)}% of the time, and a collapse in chamber ${R.loan.collapseCh} costs a Memory, once a tomb. He will not lend if you already hold a loan. The Sun Crow buries a second grave in the wall: ${Math.round(R.crow.epic*100)}% a genuine Epic or better, otherwise Pyrite in a good coat, and it takes ${Math.round(R.crow.cut*100)}% of every seal in that chamber. A heron, a bat and a crow, from Egypt, the Maya and China. The odds are printed before you answer.`},
+  get t(){const R=PROG_DATA.rival,W=R.wager,tot=W.w.reduce((a,b)=>a+b,0),pc=n=>Math.round(n/tot*100);return`After your first tomb, some digs get a visitor at the start of a chamber, once a run. The Bennu's Wager costs a Memory and prints three outcomes: ${pc(W.w[0])}%, ${pc(W.w[1])}% and ${pc(W.w[2])}%. Camazotz lends you a relic a tier above your best; clear the tomb and he lets you keep it ${Math.round(R.loan.keep*100)}% of the time, and a collapse in chamber ${R.loan.collapseCh} costs a Memory, once a tomb. He will not lend if you already hold a loan. The Sun Crow buries a second grave in the wall: ${Math.round(R.crow.epic*100)}% a genuine Epic or better, otherwise Pyrite in a good coat, and it takes ${Math.round(R.crow.cut*100)}% of every seal in that chamber. A heron, a bat and a crow, from Egypt, the Maya and China. The terms are printed before you answer.`},
   d(g){
     g.fillStyle='#17141c';g.fillRect(0,0,264,120);
     ['odalys','kettle','crow'].forEach((id,i)=>{const x=14+i*84;g.fillStyle='#000';g.fillRect(x-1,13,66,66);g.fillStyle='#120d08';g.fillRect(x,14,64,64);try{g.imageSmoothingEnabled=false;g.drawImage(rivalArt(id,4),x,14,64,64)}catch(e){}hText(g,['BENNU · WAGER','CAMAZOTZ · LOAN','SUN CROW · GRAVES'][i],x+32,90,{a:'center',s:7,c:'#f0d27a'})});
-    hText(g,'ODDS PRINTED BEFORE YOU ANSWER',132,108,{a:'center',s:8,c:'#bcab8c'});
+    hText(g,'TERMS PRINTED BEFORE YOU ANSWER',132,108,{a:'center',s:8,c:'#bcab8c'});
   }});
 HOW.push({h:'The Mystic',
   get t(){const M=PROG_DATA.mystic;return`The fox has no Fever. A Sight meter fills with every find tile a strike uncovers; when it is full, every relic and ore on the wall shows for ${M.sightMs/1000} seconds, buried or not. Her hammer is ${2*M.hamR+1}×${2*M.hamR+1} and ${M.hamDmg===3?'three':M.hamDmg} deep for ${M.hamCrack} crack. She unlocks at Rank 16 in the Ledger.`},
@@ -10678,7 +10842,8 @@ GUARD.risk=900;
     shownBanked=chBank();document.getElementById('banked').textContent=shownBanked;document.getElementById('target').textContent=TARGETS[z.i];document.getElementById('banked').parentNode.style.setProperty('--p',Math.min(100,chBank()/TARGETS[z.i]*100)+'%');
   };
   const wallAfter=()=>{ // whatever was decided but not yet paid when the app closed is paid now, once
-    if(state.sarcPend){const sp=state.sarcPend,f=state.finds[sp.id];state.sarcPend=null;if(f&&f.sarc&&typeof sp.r==='number'){if(luckOn()&&sp.r>=.45&&sp.r<.9)srnd();sarcPay(f,{r:sp.r,hit:!!sp.hit})}}
+    if(state.sarcPend){const sp=state.sarcPend,f=state.finds[sp.id];state.sarcPend=null;if(f&&f.sarc&&typeof sp.r==='number'){if(luckOn()&&sp.r>=.45&&sp.r<.9&&!sp.d)srnd();sarcPay(f,{r:sp.r,hit:!!sp.hit})}} // Sprint 15b: sp.d = the spare draw was already spent before this save was written (rc9a spent it twice if the app closed 0.6 s or more into the reels)
+    if(state.jpPend){const jk=state.jpPend&&state.jpPend.k;state.jpPend=null;if(JP_KEYS.indexOf(jk)>=0)jpPay(jk,true)} // Sprint 15b: a second bone that was decided but not yet read out
     if(state.pend){const P=state.pend;state.pend=null;
       run.banked+=P.t;ecoEarn(Math.max(0,Math.min(P.g|0,Math.floor(P.t/ECON.gold.sealDiv))),'seal');
       const rel=P.r.map(id=>state.finds[id]).filter(f=>f&&f.relic&&!f.fake),names=[...new Set(rel.map(f=>f.name))];
@@ -11094,17 +11259,13 @@ function s12Chips(hs){
 })();
 
 // ---- Owner play report (Medium, Tomb III, "too much crack per hammer"): each class says what it is on its first dig, once per class
-function s12ClassLine(k){
-  const c=CLASSES[k];if(!c)return'';const hc=c.hamCrack,pc=c.pickCrack;
-  switch(k){
-    case'scholar':return`Your hammer is modest (${hc} crack). X-ray a 3×3 patch once a chamber, then dig where it shows.`;
-    case'brute':return`Your hammer clears 4×4 but costs ${hc} crack, and the pick is clumsy (${pc}). Hammer the big finds, pick the rest.`;
-    case'medium':return`Her hammer is expensive (${hc} crack). Listen for the thump, then pick. Relics pay ×3; commons pay only their age.`;
-    case'fence':return`Your hammer is weak (3×3, ${hc} crack). One find is sealed for you at the end of every chamber, at half value.`;
-    case'cartographer':return`Your hammer is a surveyor's (3×3, ${hc} crack). Learn the outlines in the first 3 seconds, then dig from memory.`;
-    case'mystic':return`Your hammer is 5×5 and three deep (${hc} crack). There is no Fever: fill the Sight meter, then take the relics it shows.`;
-  }
-  return String(c.d||'');
+function s12ClassLine(k){ // Sprint 15b: built from the kit the run really has. The class hammer is described only when the kit carries it.
+  const c=CLASSES[k];if(!c)return'';const hc=c.hamCrack,pc=c.pickCrack,N=kitNames(),TD=KIT_TOOL_BY[N.T];
+  const H={scholar:`Your hammer is modest (${hc} crack).`,brute:`Your hammer clears 4×4 but costs ${hc} crack${N.stdPick?`, and the pick is clumsy (${pc})`:''}.`,medium:`Her hammer is expensive (${hc} crack).`,fence:`Your hammer is weak (3×3, ${hc} crack).`,cartographer:`Your hammer is a surveyor's (3×3, ${hc} crack).`,mystic:`Your hammer is 5×5 and three deep (${hc} crack).`}[k];
+  const R={scholar:'X-ray a 3×3 patch once a chamber, then dig where it shows.',brute:N.stdHam?(N.stdPick?'Hammer the big finds, pick the rest.':`Hammer the big finds; the ${N.pick} takes the rest.`):'Take the big finds first.',medium:'Listen for the thump, then dig. Relics pay ×3; commons pay only their age.',fence:'One find is sealed for you at the end of every chamber, at half value.',cartographer:'Learn the outlines in the first 3 seconds, then dig from memory.',mystic:'There is no Fever: fill the Sight meter, then take the relics it shows.'}[k];
+  if(!H||!R)return String(c.d||'');
+  const big=N.stdHam?H:N.ham?`Your ${N.ham} does the heavy work${TD&&/^Hammer /.test(TD.d)?': it '+TD.d.replace(/^Hammer /,''):''}.`:`This kit carries one tool${TD&&/^Pick /.test(TD.d)?': the '+N.pick+' '+TD.d.replace(/^Pick /,''):', the '+N.pick}.`;
+  return big+' '+R;
 }
 function s12ClassSlip(){
   if(!state||state.train||!run||run.train||state.i!==0)return;

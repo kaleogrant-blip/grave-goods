@@ -1,6 +1,6 @@
 # Grave Goods: app shell
 
-Capacitor 7 wrapper around the single-file game (`game/current.html`, v1.0-rc9a). **v1 is iPhone/iPad only.** An Android project is kept in the repo and kept building, but Android is planned for after v1 and nothing public should mention it. The game file is never edited: everything native is added around it at build time and by wrapping the game's own functions at run time. Built on GitHub Actions' hosted machines because there is no Mac (Codemagic is kept as a secondary alternative); nothing here has been run in Xcode, Android Studio or on a device (see "Known gaps").
+Capacitor 7 wrapper around the single-file game (`game/current.html`, v1.0-rc9b). **v1 is iPhone/iPad only.** An Android project is kept in the repo and kept building, but Android is planned for after v1 and nothing public should mention it. The game file is never edited: everything native is added around it at build time and by wrapping the game's own functions at run time. Built on GitHub Actions' hosted machines because there is no Mac (Codemagic is kept as a secondary alternative); nothing here has been run in Xcode, Android Studio or on a device (see "Known gaps").
 
 **Business model (owner rulings, 9 Nov 2026):** free game. The only ads are **opt-in rewarded videos** (AdMob): +1 Memory, +1 free seal next chamber. **No interstitial**, no banner, no tracking prompt. One purchase, `gg_adfree` ($2.99 placeholder, non-consumable). No content is gated. The earlier two-product design (full unlock + Drops) is parked, unloaded, in `www/legacy-premium/`.
 

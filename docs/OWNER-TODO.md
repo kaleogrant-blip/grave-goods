@@ -86,7 +86,7 @@ All in `store/privacy-policy.md`. Host the finished page on the developer websit
 
 | # | Decision | Where it shows |
 |---|---|---|
-| 6.1 | Decided 10 Nov: the knucklebone wager stays; the chest reveal becomes an oracle-bone reading (no reels, no wheel). Not built yet | When it is in the build you submit, fill `[CHEST REVEAL: describe what the submitted build shows. Nothing is staked on it and the outcome is decided before it is shown.]` in `store/review-notes.md` from that build, and only then mention the new reveal in public text |
+| 6.1 | Decided 10 Nov: the knucklebone wager stays; the chest reveal becomes an oracle-bone reading (no reels, no wheel). Built in rc9b (13 Nov) | When it is in the build you submit, fill `[CHEST REVEAL: describe what the submitted build shows. Nothing is staked on it and the outcome is decided before it is shown.]` in `store/review-notes.md` from that build, and only then mention the new reveal in public text |
 | 6.1a | Age rating: answer simulated gambling "yes, infrequent". Expect Apple 13+ and R18+ in Australia | Run the questionnaire, screenshot the result, and decide whether Australia stays in the availability list at R18+ |
 | 6.2 | The Daily fix (same tomb, raider and kit for everyone) is in the game from rc9a | Nothing to do unless an older game build is ever submitted |
 | 6.3 | iPhone only, or iPad too | Screenshots, Xcode device families |
