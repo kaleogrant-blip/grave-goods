@@ -1,0 +1,4 @@
+  30 runs, 35 s
+  60 runs, 67 s
+  90 runs, 86 s
+  120 runs, 101 s

@@ -17,6 +17,9 @@ async function open(file,o={}){
   const page=await ctx.newPage(),errors=[];await page.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.fulfill({status:200,contentType:'text/css',body:''}));
   page.on('pageerror',e=>errors.push('pageerror: '+e.message+'\n'+(e.stack||'').split('\n').slice(0,4).join('\n')));
   page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
+  // The game file is a bare fragment with no charset line. Opened from disk, Chromium guesses the encoding, and under heavy CPU load it sometimes guessed wrong (hearts and dots turned to mojibake in screenshots).
+  // The real hosts wrap the fragment in a page that declares UTF-8, so the harness serves the file with that header. Same file, same quirks mode, same storage.
+  {const F=path.resolve(file);await page.route('file://'+F,r=>r.fulfill({status:200,contentType:'text/html; charset=utf-8',body:require('fs').readFileSync(F)}))}
   await page.goto('file://'+path.resolve(file));
   await page.waitForFunction(()=>typeof newChamber==='function'&&typeof S11==='object');
   return{page,ctx,errors};

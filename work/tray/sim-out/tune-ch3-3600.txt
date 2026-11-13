@@ -1,0 +1,17 @@
+  50 runs, 36 s
+  110 runs, 59 s
+  170 runs, 79 s
+  230 runs, 98 s
+  290 runs, 118 s
+  350 runs, 142 s
+  410 runs, 158 s
+  470 runs, 178 s
+  530 runs, 202 s
+  590 runs, 225 s
+  650 runs, 249 s
+  710 runs, 271 s
+  770 runs, 286 s
+  830 runs, 307 s
+  890 runs, 324 s
+  950 runs, 338 s
+  1010 runs, 351 s

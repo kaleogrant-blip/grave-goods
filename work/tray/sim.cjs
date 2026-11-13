@@ -32,6 +32,7 @@ async function openSim(browser, set) {
   const page = await ctx.newPage(), errors = [];
   await page.route(/fonts\.(googleapis|gstatic)\.com/, r => r.fulfill({ status: 200, contentType: 'text/css', body: '' }));
   page.on('pageerror', e => errors.push(String(e.message)));
+  await page.route('file://' + BUILD, r => r.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: fs.readFileSync(BUILD) })); // the fragment declares no charset; say UTF-8 as the real hosts do
   await page.goto('file://' + BUILD);
   await page.waitForFunction(() => typeof newChamber === 'function' && typeof S11 === 'object');
   await page.addScriptTag({ path: path.join(__dirname, 'simlib.js') });

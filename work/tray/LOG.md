@@ -90,7 +90,33 @@ So that ×3 "changes nothing but the digits", these moved with it: first-wall so
 
 ## Tests (all on md5 8e42b5f5, real touchscreen taps)
 
-RESULTS-TABLE
+| Check | Result |
+|---|---|
+| `node --check` on the extracted script (`check.sh`) | OK, 947,578 bytes |
+| **Full flow at 390×844, 360×640, 844×390** (`flow.cjs`): title, kit, dig, eight loose finds, one tapped onto the tray and one tapped off, a six-find seal, sarcophagus reading, second bone, chamber cleared, Market | PASS. 0 page errors. No horizontal scroll at any of 15 stops per size. No vibrate call before the first tap |
+| **Default tray** (`tray.cjs`): eight loose finds, the six worth most are on it; button says Tray 6/6; tag and chip say Loose 8/9; the panel prices the tray | PASS |
+| **Pick and unpick** by tapping finds: off, back on, a hammer tap on a find moves it and digs nothing (crack and dirt unchanged), six hand picks, a seventh refused | PASS |
+| **Seal takes exactly the tray**: the six chosen are banked, two stay loose, picks reset, the bank rises by the previewed total | PASS |
+| **Tenth find, the oldest crumbles**: exactly the first-uncovered find is gone, nine remain, the tenth is there, toast and first-time line shown, the effect ends, and the tile is painted as a dark hole (pixel brightness 388 to 73) | PASS |
+| The same with **Reduce Motion**: no shake, effect ends, same state | PASS |
+| **Several in one strike**: the lower Worth gets the older stamp; a sarcophagus is not a loose find | PASS |
+| **Resume mid-pick**: app closed with one find tapped off and one tapped on, nine loose. After relaunch: same loose finds, same tray, same hand picks, same ages, same crack, bank and generator state. A tenth find after the resume crumbles the same oldest | PASS |
+| **Seeded determinism**: same seed, same taps (dig, pick, crumble, seal), run twice: identical finds, ages, losses, crack, bank, generator state | PASS |
+| Hoard at six and not at five; targets 900 / 1,200 / 9,000; both caps off; every Worth a multiple of 3; version and tag; no storage key outside `S15T_` | PASS |
+| **Same seed, same wall as rc9b** (`seeds.cjs`): 60 walls over 20 seeds, dirt, finds, ores, tell and generator state identical | PASS |
+| **Main-game save untouched** (`mainsave.cjs`): play rc9b to a saved dig, then play the tray build from the title in the same browser profile (the two files do share one storage: checked), then reopen rc9b. All 12 main-game keys byte-identical, none added or removed; the tray build wrote 12 keys, all `S15T_`; it did not offer the main game's run; rc9b resumed the same wall, crack, bank and tap count | PASS |
+| **Smaller rules and words** (`extras.cjs`): tag and version at three sizes, tag above cards, the new How to Play card present with its text, no retired wording, Rhind 5, Draupnir +9, Cyrus +24, Terracotta Warrior, Gold per 300, knucklebone 2,700, tomb targets, training wall clears with one tray | PASS, 16 of 16 |
+| **rc9b's own resume test** on this build (`rc9b-resume.cjs`): 28 relaunches mid-reading (sarcophagus and second bone) plus 3 mid-dig | PASS, every one ends in the same state as the uninterrupted run |
+| **rc9b's own honest-fork test** on this build (`rc9b-fork.cjs`) | PASS |
+| **Fuzz** (`fuzz.cjs`), 3 × 1,200 random actions (one run per screen size), tray taps in the mix, tray rules checked after every action | PASS. 0 page errors, 0 tray-rule breaks, 0 stuck, no horizontal scroll. Up to 9 loose finds reached, 89 tray taps, 6 crumbles |
+| **Fuzz that hardly ever seals**, 3 × 1,200 | PASS. 0 page errors, 0 tray-rule breaks, 0 stuck. 112 tray taps, 3 crumbles |
+| Screenshots (`shots.cjs`) | 36 written, 0 page errors, no horizontal scroll |
+
+Tray rules the fuzz checks after every action: never more than nine loose, never more than six on the tray, every loose find has an age and no two share one, a crumbled find is banked and lost, the tray holds only loose finds, and the Seal button's count equals the tray.
+
+Fuzz, taps that should dig and did not (2,202 of 3,828 over both runs, 0 unexplained): 1,777 Confirm digs was on (the fuzz switches it on in Settings), 304 a seal was being counted, 118 the tool or tile refused and said so, 3 landed on another element. These are rc9b's own categories; none is new.
+
+Random tapping rarely uncovers ten finds, so the fuzz hit the crumble only 9 times. The crumble is covered by the direct tests above.
 
 ## Simulator
 
@@ -147,7 +173,15 @@ The proposal's holder waits for the red bar and scores 63%. On the real build th
 
 ### The same players on rc9b (old seal rule), for scale
 
-MAIN-TABLE
+500 runs a player, `game/current.html`, numbers in rc9b's own units.
+
+| | Early sealer (seals at six loose) | Holder (red bar) | Hammer bot | New player |
+|---|---|---|---|---|
+| rc9b, clears the tomb | 9.2% | 91.6% | 87.4% | 1.8% |
+| Proposal's figures for today's rules | 40% | 90% | 99% | 0.0% |
+| Tray build | 56.3% | 24.1% | 41.7% | 0.5% |
+
+My holder lands on the proposal's holder (92% against 90%), so the two simulators agree about the old rule's problem. My early sealer is much weaker than theirs under the old rule (theirs sealed "at about 8 finds"; mine seals at six). Under the old rule, sealing early was a disaster and holding was nearly a sure win. Under the tray rule that is reversed, and the 92% player is gone.
 
 ### Other tombs and Stakes
 

@@ -21,6 +21,7 @@ module.exports = async function (openSim, chromium, BUILD) {
     const page = await ctx.newPage(), errors = [];
     await page.route(/fonts\.(googleapis|gstatic)\.com/, r => r.fulfill({ status: 200, contentType: 'text/css', body: '' }));
     page.on('pageerror', e => errors.push(String(e.message)));
+    await page.route('file://' + BUILD, r => r.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: require('fs').readFileSync(BUILD) }));
     await page.goto('file://' + BUILD); await page.waitForFunction(() => typeof newChamber === 'function' && typeof S11 === 'object');
     await page.addScriptTag({ path: path.join(__dirname, 'simlib.js') });
     await page.waitForTimeout(600);
