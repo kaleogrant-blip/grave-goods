@@ -7,9 +7,12 @@ const H=require('./h.cjs');const FILE=process.argv[2]||H.BUILD;
     const v=await page.evaluate(()=>({c:GAME_VERSION,shown:(document.querySelector('.tl-ver')||{}).textContent}));say(v.c==='v1.0-rc9b'&&/v1\.0-rc9b/.test(v.shown||''),'version string on the title',v);
     await H.sarcSeed(page,'EXT-');await page.waitForTimeout(500);
     // ---- first-time line, tap guard
-    await page.evaluate(()=>{ST.br=0});await H.tapSarc(page);
+    // the guard is timed against the clock, so it is checked inside the page in one step: open the lid, click the button at once, and again 300 ms later
+    const early=await page.evaluate(()=>new Promise(res=>{ST.br=0;try{luckSlipHide()}catch(e){}const f=state.finds.find(f=>f.sarc);f.cells.forEach(([x,y])=>state.dirt[y][x]=0);openSarc(f);
+      const g=document.getElementById('bngo'),ev=()=>['pointerdown','pointerup','click'].forEach(t=>g.dispatchEvent(new MouseEvent(t,{bubbles:true,cancelable:true})));ev();const a=document.getElementById('lkp').className;
+      setTimeout(()=>{ev();res([a,document.getElementById('lkp').className])},300)}));
     const cap1=await page.evaluate(()=>document.getElementById('bncap').textContent);say(/carries ox shoulder blades from dig to dig/.test(cap1)&&/His habit, not the tomb/.test(cap1),'first reading: the Quartermaster\'s-habit line',cap1);
-    await page.locator('#bngo').tap();const early=await page.evaluate(()=>document.getElementById('lkp').className);say(!/s1/.test(early),'a tap in the first 600 ms is ignored (thumb still digging)',early);
+    say(!/s1/.test(early[0])&&!/s1/.test(early[1]),'a tap in the first 600 ms is ignored (thumb still digging)',early);
     await page.waitForTimeout(700);say(!(await H.boneInfo(page)).fast,'no fast path on the first reading');
     await H.boneStep(page,700);await H.boneStep(page,800);await H.boneStep(page,1800);await page.locator('#bngo').tap();await page.waitForFunction(()=>!LK.busy);
     const br=await page.evaluate(()=>ST.br);say(br===1,'"Bones read" counted once',br);
@@ -18,8 +21,8 @@ const H=require('./h.cjs');const FILE=process.argv[2]||H.BUILD;
     await H.tapSarc(page);await page.waitForTimeout(700);const b=await H.boneInfo(page);say(b.fast&&/hands you an ox shoulder blade/.test(b.cap),'after '+br+'+ readings: ordinary line and a "Read it at once" button',b.cap);
     say(b.rows.every(r=>/%$/.test(r.pct)),'fast path: the printed chances are on screen before the tap');
     const saved=await page.evaluate(()=>LK_KINDS.find(k=>state.sarcPend.r<k[0])[1]);
-    await page.locator('#bnfast').tap();await page.waitForTimeout(900);const f=await H.boneInfo(page);
-    say(f.rows.find(r=>r.k===saved).hit&&f.rows.filter(r=>!r.hit).every(r=>r.out)&&/Find No/.test(f.tag),'fast path: one tap shows the fork revision and ends at the saved result ('+saved+')');
+    const tF=Date.now();await page.locator('#bnfast').tap();await page.waitForFunction(()=>document.getElementById('bntag').classList.contains('bn-show'),null,{timeout:4000});const fastMs=Date.now()-tF;const f=await H.boneInfo(page);
+    say(f.rows.find(r=>r.k===saved).hit&&f.rows.filter(r=>!r.hit).every(r=>r.out)&&/Find No/.test(f.tag),'fast path: one tap shows the fork revision and ends at the saved result ('+saved+'), '+fastMs+' ms from tap to tag');
     await page.waitForFunction(()=>!LK.busy,null,{timeout:6000});say(true,'the tag closes by itself if it is not tapped ('+(await page.evaluate(()=>BONE.holdMs))+' ms)');
     // ---- red line
     await page.evaluate(()=>{document.getElementById('overlay').hidden=true;state.over=false;state.crack=maxCrack()*.85;ui()});await page.waitForTimeout(200);

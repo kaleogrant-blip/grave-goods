@@ -2,30 +2,34 @@ ok   reel and wheel effects removed from SND, SND_LV, SND_HI []
 ok   bone effects present 
 ok   no bell voices in the bone effects 
 ok   [sarc] audio context is running in this browser "running"
-ok   [sarc] hiss is sounding 0.3 s after Heat {"all":6,"noStop":0,"maxStop":1.0820975056689344,"live":6,"game":6,"timers":1,"ctx":"running","loops":6,"loopsNoStop":0}
+ok   [sarc] hiss is sounding 0.3 s after Heat {"all":6,"noStop":0,"maxStop":1.085,"live":6,"game":6,"timers":3,"ctx":"running","loops":6,"loopsNoStop":0}
 ok   [sarc] every node was given a stop time when it started (29 nodes, longest 1.08 s, 15 looping buffers all with a stop) {"noStop":0,"loopsNoStop":0}
 ok   [sarc] no node is scheduled to live longer than 3 s 
 ok   [sarc] 3.6 s after the reading: nothing still sounding {"live":0,"game":0}
 ok   [sarc] no luck timer left pending 0
-ok   [sarc] haptics fired: [[8,60,8,60,12,60,16,60,22],[40,30,20],[6,120,6,120,30],[15,40,15,40,30]] 
-ok   [sarc] the heating haptic rises [8,60,8,60,12,60,16,60,22]
+ok   [sarc] haptics fired: [8,12,18,28,100,6,6,6,30,[15,40,15,40,30]] 
+ok   [sarc] heating: four separate pulses, each longer than the last [8,12,18,28]
+ok   [sarc] the crack is one hard tap (100 ms; the iOS shell maps a peak of 100+ to a medium impact, anything less to a light one) 100
+ok   [sarc] creep: three small ticks, then the stop [6,6,6,30]
 ok   [sarc] no page errors []
 ok   [fever] audio context is running in this browser "running"
-ok   [fever] hiss is sounding 0.3 s after Heat {"all":6,"noStop":0,"maxStop":1.085,"live":6,"game":6,"timers":1,"ctx":"running","loops":6,"loopsNoStop":0}
+ok   [fever] hiss is sounding 0.3 s after Heat {"all":6,"noStop":0,"maxStop":1.085,"live":5,"game":5,"timers":3,"ctx":"running","loops":6,"loopsNoStop":0}
 ok   [fever] every node was given a stop time when it started (29 nodes, longest 1.08 s, 15 looping buffers all with a stop) {"noStop":0,"loopsNoStop":0}
 ok   [fever] no node is scheduled to live longer than 3 s 
 ok   [fever] 3.6 s after the reading: nothing still sounding {"live":0,"game":0}
 ok   [fever] no luck timer left pending 0
-ok   [fever] haptics fired: [[8,60,8,60,12,60,16,60,22],[40,30,20],[6,120,6,120,30],[15,40,15,40,30]] 
-ok   [fever] the heating haptic rises [8,60,8,60,12,60,16,60,22]
+ok   [fever] haptics fired: [8,12,18,28,100,6,6,6,30,[15,40,15,40,30]] 
+ok   [fever] heating: four separate pulses, each longer than the last [8,12,18,28]
+ok   [fever] the crack is one hard tap (100 ms; the iOS shell maps a peak of 100+ to a medium impact, anything less to a light one) 100
+ok   [fever] creep: three small ticks, then the stop [6,6,6,30]
 ok   [fever] no page errors []
-ok   quit mid-hiss: 6 node(s) sounding before, 0 after luckReset(), no timers {"all":6,"noStop":0,"maxStop":1.085,"live":0,"game":0,"timers":0,"ctx":"running","loops":6,"loopsNoStop":0}
+ok   quit mid-hiss: 6 node(s) sounding before, 0 after luckReset(), no timers {"all":6,"noStop":0,"maxStop":1.0849999999999997,"live":0,"game":0,"timers":0,"ctx":"running","loops":6,"loopsNoStop":0}
 ok     vibration cancelled 
 ok     and nothing new started in the next 1.5 s {"live":0,"started":0}
-ok   quit just after the crack: 0 node(s) sounding before, 0 after luckReset(), no timers {"all":13,"noStop":0,"maxStop":1.085,"live":0,"game":0,"timers":0,"ctx":"running","loops":9,"loopsNoStop":0}
+ok   quit just after the crack: 4 node(s) sounding before, 0 after luckReset(), no timers {"all":10,"noStop":0,"maxStop":1.0849999999999995,"live":0,"game":0,"timers":0,"ctx":"running","loops":8,"loopsNoStop":0}
 ok     vibration cancelled 
 ok     and nothing new started in the next 1.5 s {"live":0,"started":0}
-ok   quit while the crack creeps: 0 node(s) sounding before, 0 after luckReset(), no timers {"all":16,"noStop":0,"maxStop":1.085,"live":0,"game":0,"timers":0,"ctx":"running","loops":10,"loopsNoStop":0}
+ok   quit while the crack creeps: 0 node(s) sounding before, 0 after luckReset(), no timers {"all":16,"noStop":0,"maxStop":1.0849999999999995,"live":0,"game":0,"timers":0,"ctx":"running","loops":10,"loopsNoStop":0}
 ok     vibration cancelled 
 ok     and nothing new started in the next 1.5 s {"live":0,"started":0}
 ok   app hidden mid-hiss, shown again: nothing left sounding 3.8 s later {"all":13,"noStop":0,"maxStop":1.085,"live":0,"game":0,"timers":0,"ctx":"running","loops":9,"loopsNoStop":0}

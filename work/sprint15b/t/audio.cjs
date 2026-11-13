@@ -29,8 +29,10 @@ async function start(mode){const o=await H.open(process.argv[2]||H.BUILD,{init:I
       say(b.maxStop<=3.05,'['+mode+'] no node is scheduled to live longer than 3 s');
       await page.locator('#bngo').tap();await page.waitForFunction(()=>!LK.busy);await page.waitForTimeout(3600);
       const c=await st(page);say(c.live===0&&c.game===0,'['+mode+'] 3.6 s after the reading: nothing still sounding',{live:c.live,game:c.game});say(c.timers===0,'['+mode+'] no luck timer left pending',c.timers);
-      const vib=await page.evaluate(()=>__vib.map(v=>v[1]));say(vib.length>=3,'['+mode+'] haptics fired: '+JSON.stringify(vib));
-      const hs=vib[0];say(Array.isArray(hs)&&hs.filter((v,i)=>i%2===0).every((v,i,a)=>i===0||v>=a[i-1])&&hs[hs.length-1]>hs[0],'['+mode+'] the heating haptic rises',hs);
+      const vib=await page.evaluate(()=>__vib.map(v=>v[1]));say(vib.length>=8,'['+mode+'] haptics fired: '+JSON.stringify(vib));
+      const hs=vib.slice(0,4);say(hs.every(v=>typeof v==='number')&&hs.every((v,i,a)=>i===0||v>a[i-1]),'['+mode+'] heating: four separate pulses, each longer than the last',hs);
+      say(vib[4]>=100,'['+mode+'] the crack is one hard tap (100 ms; the iOS shell maps a peak of 100+ to a medium impact, anything less to a light one)',vib[4]);
+      say(JSON.stringify(vib.slice(5,9))==='[6,6,6,30]','['+mode+'] creep: three small ticks, then the stop',vib.slice(5,9));
       const errs=q.errors.slice();say(errs.length===0,'['+mode+'] no page errors',errs);if(q!==o)await q.ctx.close()}
     await o.ctx.close()}
   // quit mid-reading, at each step

@@ -6569,16 +6569,16 @@ function luckBoneOpen(mode,rows,key,done){
   const label=()=>{const L=LBL[step];if(L){go.innerHTML=`${L[0]}<small>${L[1]}</small>`}};
   const hold=ms=>{lock=true;go.disabled=true;if(fast)fast.disabled=true;lkAfter(()=>{if(!live()||closed)return;lock=false;go.disabled=false;if(fast)fast.disabled=false},ms)};
   const close=()=>{if(closed||!live())return;closed=true;done()};
-  const s0=quick=>{p.classList.add('s1');if(!quick){luckSfx('hiss');hap([8,60,8,60,12,60,16,60,22])}say('The rod goes in. The bone smells of the kitchen. Nothing yet.')};
-  const s1=quick=>{p.classList.add('s2');luckSfx('crack');hap([40,30,20]);if(!rm){stage.classList.add('bn-shk');lkAfter(()=>stage.classList.remove('bn-shk'),480)}
+  const s0=quick=>{p.classList.add('s1');if(!quick){luckSfx('hiss');[8,12,18,28].forEach((ms,k)=>{if(!k)hap(ms);else lkAfter(()=>{if(live()&&step===1)hap(ms)},k*240/sp())})}say( /* the slow rising haptic is four separate pulses, each longer than the last: the iOS shell turns every hap() call into one impact, so a single pattern would be felt as one tick there */ 'The rod goes in. The bone smells of the kitchen. Nothing yet.')};
+  const s1=quick=>{p.classList.add('s2');luckSfx('crack');hap(100);if(!rm){stage.classList.add('bn-shk');lkAfter(()=>stage.classList.remove('bn-shk'),480)}
     const tk=quick?90:BONE.trunkMs/sp(),fk=quick?140:BONE.forkMs/sp();crack(1,tk);lkAfter(()=>{if(!live())return;crack(2,fk);if(!quick)luckSfx('creep',{k:0})},rm?0:tk+40);
     rows.forEach(r=>{const el=li(r.k);if(r.side!==side)el.classList.add('bn-out');else if(r.w>0&&rev[r.k]!==r.pct){el.classList.add('bn-rev');el.querySelector('em').textContent=rev[r.k]+'%'}});
     rows.forEach(r=>{if(r.side!==side)med(r.k).classList.add('bn-off')});
     say(`Pok. The crack forks ${side==='L'?'left':'right'}. ${nOff===1?'One answer is':lkNum(nOff)+' answers are'} off the bone; the record is revised.`);
     note.textContent='Evidence so far: which way the crack forked. Red lines are what it cannot be. Red figures are the chances of what is left.'};
   const s2=quick=>{p.classList.add('s3');const T=quick?260:BONE.creepMs/sp();crack(3,T);
-    if(!rm&&!quick){luckSfx('creep',{k:1});lkAfter(()=>{if(live())luckSfx('creep',{k:2})},T/3);lkAfter(()=>{if(live())luckSfx('creep',{k:3})},T*2/3);hap([6,120,6,120,30])}
-    lkAfter(()=>{if(!live())return;luckSfx('stop');if(rm||quick)hap(30);med(key).classList.add('bn-hit');rows.forEach(r=>{const el=li(r.k);if(r.k===key){el.classList.remove('bn-out');el.classList.add('bn-hit')}else{el.classList.add('bn-out');med(r.k).classList.add('bn-off')}});note.textContent='Read. The crack stopped at one sign, and the record is closed on it.';
+    if(!rm&&!quick){luckSfx('creep',{k:1});hap(6);lkAfter(()=>{if(live()){luckSfx('creep',{k:2});hap(6)}},T/3);lkAfter(()=>{if(live()){luckSfx('creep',{k:3});hap(6)}},T*2/3)}
+    lkAfter(()=>{if(!live())return;luckSfx('stop');hap(30);med(key).classList.add('bn-hit');rows.forEach(r=>{const el=li(r.k);if(r.k===key){el.classList.remove('bn-out');el.classList.add('bn-hit')}else{el.classList.add('bn-out');med(r.k).classList.add('bn-off')}});note.textContent='Read. The crack stopped at one sign, and the record is closed on it.';
       say(`The crack ends at: ${key==='nothing'?'nothing. Robbed in antiquity':boneName(key).replace(/^A /,'a ').replace(/^(Ore|Bones)/,m=>m.toLowerCase())}. ${fev?'The Quartermaster writes it down':'The lid agrees'}.`)},rm?0:T);
     lkAfter(()=>{if(!live())return;tag();go.innerHTML='Back to the wall<small>the record is closed</small>';go.disabled=false;lock=false;go.focus&&go.focus({preventScroll:true});
       lkAfter(close,BONE.holdMs/sp())},rm?160:T+(quick?220:BONE.tagMs/sp()))};
