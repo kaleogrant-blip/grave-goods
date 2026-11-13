@@ -1,0 +1,22 @@
+PASS default tray: the six worth most of eight tray [0,2,3,4,5,7] of [0,1,2,3,4,5,6,7]
+PASS pick and unpick by tapping finds; a tap on a find never digs on/off/on, hammer tap safe, seventh refused
+PASS seal takes exactly the tray; the rest stay loose; picks reset banked 660 for 6 finds
+PASS tenth find: the oldest crumbles, state and screen agree find 0 gone, pixels 387 -> 73
+PASS tenth find: the oldest crumbles, state and screen agree (Reduce Motion) find 0 gone, pixels 375 -> 73
+PASS several in one strike: the lowest Worth counts as oldest; a sarcophagus does not count ord 1 (worth 36) before 2 (worth 75); no sarcophagus on this wall
+PASS resume mid-pick: tray picks and find ages come back exactly picks ["1:0","3:1"], ages kept, crumble after resume took find 0
+PASS seeded determinism: same seed and same taps give the same result, twice banked 666, crack 30, rng 4149339492 both times
+PASS Hoard is a full tray; numbers are x3; caps are off; version and tag targets 900/1200/9000, Hoard 6, TRAY TEST · v1.0-tray1
+
+| Test | Result | Note |
+|---|---|---|
+| default tray: the six worth most of eight | PASS | tray [0,2,3,4,5,7] of [0,1,2,3,4,5,6,7] |
+| pick and unpick by tapping finds; a tap on a find never digs | PASS | on/off/on, hammer tap safe, seventh refused |
+| seal takes exactly the tray; the rest stay loose; picks reset | PASS | banked 660 for 6 finds |
+| tenth find: the oldest crumbles, state and screen agree | PASS | find 0 gone, pixels 387 -> 73 |
+| tenth find: the oldest crumbles, state and screen agree (Reduce Motion) | PASS | find 0 gone, pixels 375 -> 73 |
+| several in one strike: the lowest Worth counts as oldest; a sarcophagus does not count | PASS | ord 1 (worth 36) before 2 (worth 75); no sarcophagus on this wall |
+| resume mid-pick: tray picks and find ages come back exactly | PASS | picks ["1:0","3:1"], ages kept, crumble after resume took find 0 |
+| seeded determinism: same seed and same taps give the same result, twice | PASS | banked 666, crack 30, rng 4149339492 both times |
+| Hoard is a full tray; numbers are x3; caps are off; version and tag | PASS | targets 900/1200/9000, Hoard 6, TRAY TEST · v1.0-tray1 |
+TRAY PASS 9
