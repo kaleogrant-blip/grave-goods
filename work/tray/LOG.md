@@ -29,6 +29,8 @@ The seal rule under test: **a finds tray holds six, and the wall gives you room 
    - **The best player I built clears 77%.** That is just over the owner's "nobody above about 75%" line. The early sealer at 56% is inside the 45 to 60 band.
    - The players here are mine, not the design team's (their simulator was not in the repo). So the comparison is rule against rule, not bot against bot. See "How far to trust the simulator".
 4. Nothing was tuned toward the predictions. The build has the numbers the proposal lists and nothing else.
+5. **One number would put all three of the owner's tests in range:** a chamber 3 target of 3,300 (9,900 on screen) gives early sealer 50%, best player 70%. It is not in the build. It is a one-line change in `ed.py` if wanted.
+6. **Later tombs are too hard as rescaled, and Tomb V at Stake 6 cannot be cleared** by any player here. The proposal warned of this. A retune was tried in the simulator only; see "Tomb V, Stake 6 and the Stake retune".
 
 ## What changed in the build
 
@@ -119,6 +121,16 @@ Fuzz, taps that should dig and did not (2,202 of 3,828 over both runs, 0 unexpla
 
 Random tapping rarely uncovers ten finds, so the fuzz hit the crumble only 9 times. The crumble is covered by the direct tests above.
 
+### Notes on the tests themselves
+- Setup is written directly (which tiles are still covered, so a test needs ten taps and not two hundred). Every uncovering, tray pick, seal and card button is a real touchscreen tap.
+- **Text encoding.** The game file is a bare fragment with no charset line. Opened straight from disk, Chromium guesses the encoding, and with the machine busy it sometimes guessed wrong: hearts and dots turned to mojibake in two screenshots. rc9b opened the same way does the same. The app shell and the artifact host both wrap the fragment in a page that declares UTF-8, so players are not affected. The harness now serves the file with a UTF-8 header (same file, same quirks mode, same storage), and `shots.cjs` refuses to take a picture if the encoding is wrong.
+- For the crumble pictures only, the effect is held at a set moment (0.33 s and 0.82 s after it starts). No test does that.
+- The score sheet opens over the top rows of the wall for a moment after a seal. A tap there lands on the sheet, not the wall, exactly as in rc9b. The tests shut it by tapping the strip, as a player does.
+- The flow test raises the first wall's target before sealing, because a six-find tray would clear the wall and the flow still has a sarcophagus and a second bone to read on it.
+- The first fuzz run flagged one "stuck" that its own probe then cleared (two taps on one dirt tile dug it: Confirm digs was on).
+- Raw fuzz reports are not committed (`t/.gitignore`).
+- The two fuzz runs and rc9b's resume and fork tests were run before the UTF-8 header went into the harness; everything else was run again after it. The build was the same file throughout (md5 8e42b5f5).
+
 ## Simulator
 
 ### What it is
@@ -193,12 +205,15 @@ My holder lands on the proposal's holder (92% against 90%), so the two simulator
 
 ### Other tombs and Stakes
 
-Tomb clear rate. ROWS-NOTE
+Tomb clear rate. Rows marked (300) are a first pass of 300 runs a player (±5 points); rows marked (1,500) are full runs (±2.5).
 
 | | Early sealer | Holder | Holder who chooses | Chooser at nine | Hammer bot |
 |---|---|---|---|---|---|
 | Tomb I, Stake 1 (1,500) | 56.3% | 24.1% | 45.2% | 77.2% | 41.7% |
-ROWS-BODY
+| Tomb I, Stake 3 (300) | 27.7% | 9.0% | 23.7% | 52.7% | 15.3% |
+| Tomb III, Stake 1 (300) | 14.7% | 10.0% | 29.7% | 40.3% | 9.3% |
+| Tomb V, Stake 1 (300) | 3.0% | 1.7% | 4.0% | 13.7% | 2.0% |
+| Tomb V, Stake 6 (300) | 0.0% | 0.0% | 0.0% | 0.7% | 0.0% |
 
 The proposal's predictions for the same rows (early sealer / holder / hammer bot / holder who chooses): Tomb I Stake 3: 36 / 53 / 44 / 60. Tomb III Stake 1: 40 / 59 / 74 / 64. Tomb V Stake 1: 25 / 28 / 28 / 32. Tomb V Stake 6: 1 / 2 / 6 / 2.
 
@@ -247,4 +262,4 @@ Plainly:
 - **Timeline tiers for 7 and 8 ages** can no longer be reached and were left in the table.
 - **The Daily** runs under the tray rule in this build and keeps its own best score under `S15T_`. Tested for start, pick, seal and same-wall-twice only.
 - **Store text, README and docs** were not touched.
-- One check in `extras.cjs` ("no em dash in the rendered manual") failed once in four runs and passed in the other three. I did not capture what it matched. The build's own new text has no em dash. Most likely one of rc9b's own cards printed a "—" placeholder for a kit that varies with the random gear offer.
+- One check in `extras.cjs` ("no em dash in the rendered manual") failed once in four runs and passed in the other three. I did not capture what it matched. The build's own new text has no em dash. Most likely one of rc9b's own cards printed its long-dash placeholder for a kit that varies with the random gear offer.

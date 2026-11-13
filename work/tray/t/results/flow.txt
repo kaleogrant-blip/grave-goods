@@ -30,7 +30,7 @@
    7,
    8
   ],
-  "sealed": 990,
+  "sealed": 1485,
   "res": {
    "sarc": "relic",
    "fever": "ore"
@@ -40,7 +40,7 @@
  {
   "vp": "844x390",
   "errors": 0,
-  "taps_dug": 17,
+  "taps_dug": 12,
   "tray": [
    2,
    3,

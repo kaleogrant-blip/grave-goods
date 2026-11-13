@@ -4,11 +4,10 @@
  "storageSharedBetweenTheTwoFiles": true,
  "mainKeys": 14,
  "mainKeysChangedByTray": 0,
- "trayKeysAdded": 14,
+ "trayKeysAdded": 13,
  "trayKeys": [
   "S15T_crt_auto",
   "S15T_disc",
-  "S15T_first",
   "S15T_kit",
   "S15T_kit2",
   "S15T_resume",
