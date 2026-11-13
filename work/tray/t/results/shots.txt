@@ -1,0 +1,6 @@
+390x844 wall shots, scroll ok true errors 0
+390x844 how-to shots, scroll ok true errors 0 cards 13
+360x640 wall shots, scroll ok true errors 0
+360x640 how-to shots, scroll ok true errors 0 cards 13
+844x390 wall shots, scroll ok true errors 0
+844x390 how-to shots, scroll ok true errors 0 cards 13

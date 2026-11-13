@@ -1,0 +1,3 @@
+  50 runs, 8 s
+  110 runs, 16 s
+  170 runs, 22 s

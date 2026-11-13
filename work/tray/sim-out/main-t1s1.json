@@ -1,0 +1,107 @@
+{
+ "build": "/home/claude/grave-goods/game/current.html",
+ "set": null,
+ "N": 500,
+ "secs": 259.577,
+ "rows": {
+  "1:1|early": {
+   "n": 500,
+   "win": 0.092,
+   "c1": 1,
+   "c2": 0.998,
+   "best50": 696,
+   "best95": 1704,
+   "seals": 18.272,
+   "walls": 7.592,
+   "cr": 0,
+   "bare": 1.796,
+   "col": 3.142,
+   "walk": 0.564,
+   "strikes": 217.396,
+   "stuck": 0,
+   "to": 0,
+   "cls": {
+    "scholar": 23,
+    "brute": 1,
+    "medium": 3,
+    "fence": 0,
+    "cartographer": 19
+   }
+  },
+  "1:1|hold": {
+   "n": 500,
+   "win": 0.916,
+   "c1": 1,
+   "c2": 1,
+   "best50": 4833,
+   "best95": 10935,
+   "seals": 5.762,
+   "walls": 4.108,
+   "cr": 0,
+   "bare": 0.158,
+   "col": 1.03,
+   "walk": 0.004,
+   "strikes": 108.76,
+   "stuck": 0,
+   "to": 0,
+   "cls": {
+    "scholar": 100,
+    "brute": 73,
+    "medium": 86,
+    "fence": 99,
+    "cartographer": 100
+   }
+  },
+  "1:1|hammer": {
+   "n": 500,
+   "win": 0.874,
+   "c1": 0.982,
+   "c2": 0.974,
+   "best50": 5328,
+   "best95": 13200,
+   "seals": 4.558,
+   "walls": 4.16,
+   "cr": 0,
+   "bare": 0.06,
+   "col": 1.27,
+   "walk": 0,
+   "strikes": 42.554,
+   "stuck": 0,
+   "to": 0,
+   "cls": {
+    "scholar": 100,
+    "brute": 84,
+    "medium": 59,
+    "fence": 94,
+    "cartographer": 100
+   }
+  },
+  "1:1|novice": {
+   "n": 500,
+   "win": 0.018,
+   "c1": 0.914,
+   "c2": 0.584,
+   "best50": 364,
+   "best95": 1185,
+   "seals": 21.172,
+   "walls": 6.608,
+   "cr": 0,
+   "bare": 0,
+   "col": 5.074,
+   "walk": 0.018,
+   "strikes": 191.214,
+   "stuck": 0,
+   "to": 0,
+   "cls": {
+    "scholar": 6,
+    "brute": 0,
+    "medium": 1,
+    "fence": 0,
+    "cartographer": 2
+   }
+  }
+ },
+ "errors": [],
+ "unknownCards": {},
+ "stuck": []
+}

@@ -1,0 +1,13 @@
+== results/SUMMARY.txt: 
+== results/build-md5.txt: 8e42b5f50349556f81e1631f2f252557
+== results/check.txt: node --check OK 947578 bytes
+== results/extras.txt: EXTRAS PASS
+== results/flow.txt: FLOW PASS: 3 viewports, 0 page errors, no horizontal scroll
+== results/fuzz-hold.txt: FUZZ PASS: 3 runs x 1200 actions, 0 page errors, 0 tray-rule breaks, 0 stuck (0 false alarms probed), 1240 no-dig taps (0 unexplained)
+== results/fuzz.txt: FUZZ PASS: 3 runs x 1200 actions, 0 page errors, 0 tray-rule breaks, 0 stuck (1 false alarms probed), 962 no-dig taps (0 unexplained)
+== results/mainsave.txt: MAINSAVE PASS
+== results/rc9b-fork.txt: FORK PASS
+== results/rc9b-resume.txt: RESUME PASS: 28 reloads mid-reading + 3 mid-dig, every one ends in the same state as the uninterrupted run
+== results/seeds.txt: SEEDS PASS: 60 walls over 20 seeds identical to rc9b (dirt, finds, ores, tell, generator state)
+== results/shots.txt: 844x390 how-to shots, scroll ok true errors 0 cards 13
+== results/tray.txt: TRAY PASS 9
