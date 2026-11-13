@@ -7,9 +7,10 @@ const VPS=[[390,844],[360,640],[844,390]];
 for(const [w,h] of VPS){
   const {page,errors,ctx}=await H.open(process.argv[2]||H.BUILD,{w,h});const stops=[];
   const stop=async n=>{const s=await H.noScroll(page);stops.push(n+':'+s.sw+'/'+s.iw);if(!s.ok){fail++;console.log('SCROLL',w,h,n,s)}};
+  await page.waitForTimeout(600);const seed=await H.sarcSeed(page,'FLOW-'+w+'-',true); // a seed whose first wall has a real sarcophagus, then a clean launch
   await page.waitForTimeout(1300);await stop('title');
   await page.locator('#title button.tl-dig').tap();await page.waitForSelector('#overlay:not([hidden]) #dig');await page.waitForTimeout(H.GUARD);await stop('kit');
-  await page.evaluate(()=>{run.seed='FLOW-'+innerWidth});
+  await page.evaluate(s=>{run.seed=s},seed);
   await page.locator('#overlay:not([hidden]) #dig').tap();
   await page.waitForFunction(()=>state&&!state.train&&document.getElementById('overlay').hidden);await page.waitForTimeout(900);await stop('wall');
   // dig: real taps on the cells of two finds, with the pick
@@ -23,7 +24,7 @@ for(const [w,h] of VPS){
   for(let k=0;k<4;k++){const no=page.locator('#lkno');if(await no.count()){await page.waitForTimeout(1300);await no.tap();await page.waitForTimeout(400)}const go=page.locator('#overlay:not([hidden]) #go:visible');if(await go.count()){await page.waitForTimeout(H.GUARD);await go.tap();await page.waitForTimeout(500)}}
   const banked=await page.evaluate(()=>run.banked);assert(banked>0,'the seal banked something');await stop('sealed');
   // sarcophagus: real tap on the wall, three real taps on the bone
-  await page.evaluate(()=>{Q.speed=1;if(!state.finds.some(f=>f.sarc&&!f.banked)){const f=state.finds.find(f=>!f.banked&&!f.relic&&f.cells.length>=2)||state.finds.find(f=>!f.banked);f.sarc=true}});
+  await page.evaluate(()=>{Q.speed=1});
   assert(await H.tapSarc(page),'a sarcophagus opened the bone');
   const pend=await page.evaluate(()=>JSON.parse(localStorage.getItem('rw_resume')).w.sarcPend);assert(pend&&typeof pend.r==='number','the result is in the save before the first tap');
   await page.waitForTimeout(700);

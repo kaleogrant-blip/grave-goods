@@ -4169,7 +4169,7 @@ let shownBanked=0,feedMode=false;
 function toggleFeed(){if(PAUSE.on||LK.busy)return;if(!relic||relic.state==='sated')return;const P=POWERS[relic.name];if(P.wantOre){const k=run.pouch.findIndex(t=>t!=='pyrite');if(k<0){log('The Jar wants an ore. Your pouch has none.');return}const t=run.pouch.splice(k,1)[0];progSate();jingle([520,780,1040],.1);log(`${ORES[t].n} goes into the Jar. It is sated.`);ui();return}feedMode=!feedMode;log(feedMode?`Tap an uncovered find to feed the ${relic.name}. It wants ${P.hunger}.`:'Feeding called off.');ui()}
 function tryFeed(cx,cy){const o=state.owner[cy][cx];if(o<0)return false;const f=state.finds[o];if(f.banked||f.relic||f.sarc||!f.cells.every(([x,y])=>state.dirt[y][x]===0))return false;const P=POWERS[relic.name];if(!P.want(f)){log(`The ${relic.name} turns its nose up. It wants ${P.hunger}.`);return true}f.banked=true;f.lost=true;progSate();feedMode=false;juice(RJ,.4,.2);jingle([520,780,1040],.1);state.floats.push({t:1,txt:relic.blight?'FED':'SATED',x:cell*COLS/2,y:cell*ROWS/2});log(`The ${relic.name} devours the ${f.name}. Sated: Fame ×2 on every seal this chamber.`);ui();return true}
 let _cnt0=0; // rc5c: when the HUD counter started easing; the tick sound stops after 1.5 s even if the number is still moving
-(function loop(){if(state){const vis=document.getElementById('overlay').hidden;if(vis)draw();if(shownBanked!==chBank()){const d=chBank()-shownBanked;shownBanked+=Math.abs(d)<2?d:Math.sign(d)*Math.ceil(Math.abs(d)*.15);if(!_cnt0)_cnt0=performance.now();document.getElementById('banked').textContent=shownBanked;document.getElementById('banked').parentNode.style.setProperty('--p',Math.min(100,shownBanked/TARGETS[state.i]*100)+'%');if(vis&&Math.abs(d)>=2&&(frame%3===0)&&performance.now()-_cnt0<1500)sfx('count',{f:900+Math.min(600,Math.abs(d))})}else _cnt0=0}requestAnimationFrame(loop)})();
+(function loop(){if(state){const _lp=document.getElementById('lkp'),vis=document.getElementById('overlay').hidden&&!(_lp&&_lp.classList.contains('bn'));if(vis)draw(); /* Sprint 15b: a bone reading covers the wall completely, so the wall is not repainted under it (as under a card) */if(shownBanked!==chBank()){const d=chBank()-shownBanked;shownBanked+=Math.abs(d)<2?d:Math.sign(d)*Math.ceil(Math.abs(d)*.15);if(!_cnt0)_cnt0=performance.now();document.getElementById('banked').textContent=shownBanked;document.getElementById('banked').parentNode.style.setProperty('--p',Math.min(100,shownBanked/TARGETS[state.i]*100)+'%');if(vis&&Math.abs(d)>=2&&(frame%3===0)&&performance.now()-_cnt0<1500)sfx('count',{f:900+Math.min(600,Math.abs(d))})}else _cnt0=0}requestAnimationFrame(loop)})();
 let hover=null;
 function pos(e){const r=cv.getBoundingClientRect();return{x:Math.floor((e.clientX-r.left)/cell),y:Math.floor((e.clientY-r.top)/cell)-TOP}}
 // ---- crack-cost preview: hover with a mouse, press-and-hold (250 ms) with a finger. Read-only: it mirrors strike() and never changes state.
@@ -6607,7 +6607,7 @@ function luckBone(r,apply,sul){ // the sarcophagus: called by openSarc() with th
   const st0=state;
   if(!luckOn()||LK.busy){apply();return}
   const kind=LK_KINDS.find(k=>r<k[0]);
-  if((kind[1]==='bones'||kind[1]==='mimic'))srnd(); // one draw is still spent here so a seed's later rolls are exactly what they were in rc9a (it was the near-miss roll once)
+  if((kind[1]==='bones'||kind[1]==='mimic')){srnd();if(state.sarcPend)state.sarcPend.d=1} // one draw is still spent here so a seed's later rolls are exactly what they were in rc9a (it was the near-miss roll once). d=1 tells a resume that it has been spent
   LK.note('reels',r,kind[1]);LK.mode='reels'; // internal names kept: the log and the telemetry keys do not change
   luckBoneOpen('sarc',boneTable('sarc',{sul:!!sul}),kind[1],()=>{
     if(state!==st0){lkDone();return}
@@ -6629,11 +6629,14 @@ function luckJackpotSoon(n){ // wait for a calm moment (no seal in flight, no ca
     luckJackpot();
   },n?400:700);
 }
-function luckJackpot(){ // internal name kept (the app shell hooks it)
-  const S=RS(),st0=state;S.jpOwed=0;const W=LUCK.jackpot.w;let tot=0;JP_KEYS.forEach(k=>tot+=W[k]);
-  // the roll: the same two draws the wheel made (the second one chose where in its slice the pointer stopped; it is still drawn so every seed plays out as it did)
+function jpRoll(){ // the fourth-Fever roll: the same two seeded draws the wheel made (the second chose where in its slice the pointer stopped; it is still drawn so every seed plays out as it did)
+  const W=LUCK.jackpot.w;let tot=0;JP_KEYS.forEach(k=>tot+=W[k]);
   let r=srnd()*tot,i=0;for(;i<4;i++){if(r<W[JP_KEYS[i]])break;r-=W[JP_KEYS[i]]}
-  const key=JP_KEYS[i];srnd();LK.note('jackpot',(r+(JP_KEYS.slice(0,i).reduce((a,k)=>a+W[k],0)))/tot,key);
+  srnd();return{key:JP_KEYS[i],u:(r+(JP_KEYS.slice(0,i).reduce((a,k)=>a+W[k],0)))/tot};
+}
+function luckJackpot(){ // internal name kept (the app shell hooks it)
+  const S=RS(),st0=state;S.jpOwed=0;
+  const J=jpRoll(),key=J.key;LK.note('jackpot',J.u,key);
   state.jpPend={k:key};try{S11.save()}catch(e){} // decided and saved before anything is shown: closing the app cannot dodge it or reroll it
   LK.mode='jackpot';
   luckBoneOpen('fever',boneTable('fever'),key,()=>{
@@ -10837,7 +10840,7 @@ GUARD.risk=900;
     shownBanked=chBank();document.getElementById('banked').textContent=shownBanked;document.getElementById('target').textContent=TARGETS[z.i];document.getElementById('banked').parentNode.style.setProperty('--p',Math.min(100,chBank()/TARGETS[z.i]*100)+'%');
   };
   const wallAfter=()=>{ // whatever was decided but not yet paid when the app closed is paid now, once
-    if(state.sarcPend){const sp=state.sarcPend,f=state.finds[sp.id];state.sarcPend=null;if(f&&f.sarc&&typeof sp.r==='number'){if(luckOn()&&sp.r>=.45&&sp.r<.9)srnd();sarcPay(f,{r:sp.r,hit:!!sp.hit})}}
+    if(state.sarcPend){const sp=state.sarcPend,f=state.finds[sp.id];state.sarcPend=null;if(f&&f.sarc&&typeof sp.r==='number'){if(luckOn()&&sp.r>=.45&&sp.r<.9&&!sp.d)srnd();sarcPay(f,{r:sp.r,hit:!!sp.hit})}} // Sprint 15b: sp.d = the spare draw was already spent before this save was written (rc9a spent it twice if the app closed 0.6 s or more into the reels)
     if(state.jpPend){const jk=state.jpPend&&state.jpPend.k;state.jpPend=null;if(JP_KEYS.indexOf(jk)>=0)jpPay(jk,true)} // Sprint 15b: a second bone that was decided but not yet read out
     if(state.pend){const P=state.pend;state.pend=null;
       run.banked+=P.t;ecoEarn(Math.max(0,Math.min(P.g|0,Math.floor(P.t/ECON.gold.sealDiv))),'seal');
