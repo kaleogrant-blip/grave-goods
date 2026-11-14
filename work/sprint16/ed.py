@@ -124,5 +124,33 @@ rep("${cell1('Best banked',fmtN(S.best),'one run, all chambers')}", "${cell1('Be
 rep("syncTop();paint();\nwindow.S14={paint,setOpen,setPouch,state:S};\n})();\n",
     "syncTop();paint();\nwindow.S14={paint,setOpen,setPouch,state:S};\n})();\n(function(){const _sm=showMenu;showMenu=function(){const a=arguments,t=this;try{if(rc10Note()&&rc10NoteCard(()=>showMenu.apply(t,a)))return}catch(e){console.error(e)}return _sm.apply(t,a)}})();\n")
 
+# ================================================================ 5. the first tomb (a profile that has never cleared a tomb): the seal waits for a full tray, and chamber 3 asks less
+rep("function sarcAt(x,y){", """// ===================== rc10: THE FIRST TOMB =====================
+// Why: the plain new-player bot (seals the moment anything shows) cleared 0.5 in 100 tombs. It spent its three free seals on single finds at Fame x1 and died in chamber 3.
+// Lower targets alone did not help it (3 in 100 at two thirds of the target); holding the seal for a full tray did. Both rules end with the profile's first cleared tomb. Never on the Daily.
+const FT={tray:FT_TRAY_,red:.8,t3:FT_T3_,coach:3};
+function ftWon(){try{return (ST.wins|0)>0||(bestGet().wins|0)>0||Object.keys(PROG.tombs.c||{}).length>0}catch(e){return true}}
+function ftRun(){return !!(run&&!run.train&&(run.tomb|0)===0&&stakeN()===1&&!s15Daily()&&!ftWon())}
+function sealHeld(){ // the Quartermaster keeps his hand on the seal until the tray is full. He lets go in the red, at nine loose finds, and when no dirt is left.
+  return !!(state&&state.ft&&!state.train&&!state.over&&trayList().length<FT.tray&&exposedFinds().length<TRAY.loose&&state.crack<maxCrack()*FT.red&&dirtLeft())}
+function ftCoach(){try{const o=JSON.parse(Store.get('rw_traycoach')||'{}')||{};const n=o.ft|0;if(n>=FT.coach)return false;o.ft=n+1;Store.set('rw_traycoach',JSON.stringify(o));return true}catch(e){return false}}
+function sarcAt(x,y){""".replace("FT_TRAY_", str(FT_TRAY)).replace("FT_T3_", str(FT_T3)))
+rep("""  if(!ex.length){log("The tray is empty. Tap a find to put it on the tray.");return}
+  if(skillPaid()){skillPayCard();return}""", """  if(!ex.length){log("The tray is empty. Tap a find to put it on the tray.");return}
+  if(sealHeld()){const n=ex.length;log("Not yet. On your first tomb the Quartermaster stamps a full tray: "+n+" of "+FT.tray+" so far. He lets go when the wall is in the red, when nine finds lie loose, or when the dirt is gone.");
+    if(ftCoach())uiToast("Fill the tray first: six finds make a Hoard, and a Hoard doubles the Fame. In the red you may seal what you have.",5600);hap(6);sfx('tap');return}
+  if(skillPaid()){skillPayCard();return}""")
+rep("(i===1&&SKILL.ch2T1&&tombN()===1)?SKILL.ch2T1:TARGETS_BASE[i];\n  else{run.tb=run.tb||{};",
+    "(i===1&&SKILL.ch2T1&&tombN()===1)?SKILL.ch2T1:(i===2&&FT.t3&&FT.t3<TARGETS_BASE[2]&&ftRun())?FT.t3:TARGETS_BASE[i];\n  else{run.tb=run.tb||{};")
+# the chamber knows it is a first-tomb chamber (saved with the wall, so a resumed dig keeps the rule it started with)
+rep("function progState(i,TELL){ // the chamber's state exists now\n", "function progState(i,TELL){ // the chamber's state exists now\n  state.ft=ftRun()?1:0;\n  if(state.ft&&i===2&&FT.t3<TARGETS_BASE[2])setTimeout(()=>{try{if(state&&state.i===2&&!state.over&&!(state.strikes|0))log('Your first tomb: this chamber asks '+fmtN(TARGETS[2])+', not '+fmtN(TARGETS_BASE[2])+'. Once you have cleared a tomb it asks the full sum.')}catch(e){}},320);\n")
+# the Seal button says so
+rep("{const tn=trayList().length,tt=tn?'Tray '+tn+'/'+TRAY.n:'';sm.textContent=sack?", "{const tn=trayList().length,tt=tn?'Tray '+tn+'/'+TRAY.n:'';if(sealHeld()&&tn){sm.textContent=tt+' · fill it'}else sm.textContent=sack?")
+
+# ================================================================ 6. class spread: the two weakest hammers cost a little less crack
+rep('d:"Hammer clears 4×4 for 26 crack. Pick is clumsy and cracks 1.5.",pickDmg:1,pickCrack:1.5,hamR:1,hamDmg:3,hamCrack:26,', 'd:"Hammer clears 4×4 for %d crack. Pick is clumsy and cracks 1.5.",pickDmg:1,pickCrack:1.5,hamR:1,hamDmg:3,hamCrack:%d,' % (BRUTE_HAM, BRUTE_HAM))
+rep('brute:{d:"Hammer clears 4×4 for 26 crack. The pick is clumsy: 1.5 crack."}', 'brute:{d:"Hammer clears 4×4 for %d crack. The pick is clumsy: 1.5 crack."}' % BRUTE_HAM)
+rep("fence:{extraOffers:1,swaps:1,stealMult:.5,pickDmg:1,pickCrack:1,hamR:1,hamDmg:2,hamCrack:12}", "fence:{extraOffers:1,swaps:1,stealMult:.5,pickDmg:1,pickCrack:1,hamR:1,hamDmg:2,hamCrack:%d}" % FENCE_HAM)
+
 open(OUT, 'w', encoding='utf-8').write(s)
 print('edits:', N[0], ' bytes:', len(s.encode('utf-8')), ' md5:', hashlib.md5(s.encode('utf-8')).hexdigest())

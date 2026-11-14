@@ -14,16 +14,16 @@ async function setup(seed,mode){
   await page.waitForTimeout(750);return o;
 }
 const FILE=process.argv[2]||H.BUILD;
-async function resume(o){const n=await H.relaunch(o,FILE);await H.resumeFromTitle(n.page).catch(async e=>{console.log('RESUME DID NOT HAPPEN',JSON.stringify(await n.page.evaluate(()=>({card:(document.querySelector('#card h2')||{}).textContent,rec:(localStorage.getItem('S15T_resume')||'').length}))),n.errors);throw e});return n}
+async function resume(o){const n=await H.relaunch(o,FILE);await H.resumeFromTitle(n.page).catch(async e=>{console.log('RESUME DID NOT HAPPEN',JSON.stringify(await n.page.evaluate(()=>({card:(document.querySelector('#card h2')||{}).textContent,rec:(localStorage.getItem('rw_resume')||'').length}))),n.errors);throw e});return n}
 (async()=>{let fail=0;const rows=[];
   for(const mode of ['sarc','fever'])for(const seed of (mode==='sarc'?['RES-11','RES-12','RES-15','RES-19']:['RES-21','RES-22','RES-23'])){
     // control: finish the reading with three real taps and a fourth to close
-    const c=await setup(seed,mode);const saved=await c.page.evaluate(()=>{const w=JSON.parse(localStorage.getItem('S15T_resume')).w;return w.sarcPend?{r:w.sarcPend.r,key:LK_KINDS.find(k=>w.sarcPend.r<k[0])[1]}:{key:w.jpPend.k}});
+    const c=await setup(seed,mode);const saved=await c.page.evaluate(()=>{const w=JSON.parse(localStorage.getItem('rw_resume')).w;return w.sarcPend?{r:w.sarcPend.r,key:LK_KINDS.find(k=>w.sarcPend.r<k[0])[1]}:{key:w.jpPend.k}});
     await H.boneStep(c.page,700);await H.boneStep(c.page,800);await H.boneStep(c.page,1800);await c.page.locator('#bngo').tap();await c.page.waitForFunction(()=>!LK.busy);await c.page.waitForTimeout(500);await closeCards(c.page);
     const want=await snap(c.page);await c.ctx.close();
     for(let step=0;step<=3;step++){
       process.stdout.write('['+mode+' '+seed+' step '+step+'] ');const o=await setup(seed,mode);for(let k=0;k<step;k++)await H.boneStep(o.page,k===2?1800:750);
-      const pre=await o.page.evaluate(()=>{const w=JSON.parse(localStorage.getItem('S15T_resume')).w;return{sarc:w.sarcPend,jp:w.jpPend}});
+      const pre=await o.page.evaluate(()=>{const w=JSON.parse(localStorage.getItem('rw_resume')).w;return{sarc:w.sarcPend,jp:w.jpPend}});
       const e0=o.errors.slice();let q=await resume(o);await closeCards(q.page);
       const got=await snap(q.page);
       const same=JSON.stringify(got)===JSON.stringify(want),paid=!got.sarcPend&&!got.jpPend&&!await q.page.evaluate(()=>!!document.getElementById('lkp'));

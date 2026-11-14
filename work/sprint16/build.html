@@ -3032,7 +3032,7 @@ const RELIC_BY=Object.fromEntries(RELIC_DB.map(r=>[r.n,r]));
 const RELIC_SHAPES=[{cells:[[0,0],[1,0],[0,1],[1,1]]}];
 const CLASSES={
  scholar:{n:"Scholar (Athena's Owl)",d:"X-ray a 3×3 area once per chamber. Hammer is modest (cracks 9).",pickDmg:1,pickCrack:1,hamR:1,hamDmg:2,hamCrack:9,skill:"X-ray",skillS:"peek 3×3"},
- brute:{n:"Brute (Gullinbursti)",d:"Hammer clears 4×4 for 26 crack. Pick is clumsy and cracks 1.5.",pickDmg:1,pickCrack:1.5,hamR:1,hamDmg:3,hamCrack:26,hamBig:true,skill:null},
+ brute:{n:"Brute (Gullinbursti)",d:"Hammer clears 4×4 for 22 crack. Pick is clumsy and cracks 1.5.",pickDmg:1,pickCrack:1.5,hamR:1,hamDmg:3,hamCrack:22,hamBig:true,skill:null},
  medium:{n:"Medium (Bastet's Cat)",d:"Hear relics: every strike thumps louder the closer you are. Relics score ×3, common finds score only their age (all of it).",pickDmg:1,pickCrack:1,hamR:1,hamDmg:2,hamCrack:16,skill:null,hear:true},
 };
 const GEAR=[
@@ -3288,6 +3288,15 @@ function trayDraw(){ // marks on the wall: which finds are on the tray, the crac
     const tw=ctx.measureText('CRUMBLED').width+12,lx=Math.min(COLS*cell-tw/2-2,Math.max(tw/2+2,(x0+x1)/2)),ly=Math.max(fs,y0-fs*.8)-(rm?0:p*cell*.3);
     ctx.fillStyle='rgba(18,8,6,.92)';ctx.fillRect(lx-tw/2,ly-fs*.75,tw,fs*1.5);ctx.strokeStyle='#ff6a4d';ctx.lineWidth=1;ctx.strokeRect(lx-tw/2+.5,ly-fs*.75+.5,tw-1,fs*1.5-1);ctx.fillStyle='#ffb09a';ctx.fillText('CRUMBLED',lx,ly+1);ctx.restore()});
 }
+// ===================== rc10: THE FIRST TOMB =====================
+// Why: the plain new-player bot (seals the moment anything shows) cleared 0.5 in 100 tombs. It spent its three free seals on single finds at Fame x1 and died in chamber 3.
+// Lower targets alone did not help it (3 in 100 at two thirds of the target); holding the seal for a full tray did. Both rules end with the profile's first cleared tomb. Never on the Daily.
+const FT={tray:6,red:.8,t3:7500,coach:3};
+function ftWon(){try{return (ST.wins|0)>0||(bestGet().wins|0)>0||Object.keys(PROG.tombs.c||{}).length>0}catch(e){return true}}
+function ftRun(){return !!(run&&!run.train&&(run.tomb|0)===0&&stakeN()===1&&!s15Daily()&&!ftWon())}
+function sealHeld(){ // the Quartermaster keeps his hand on the seal until the tray is full. He lets go in the red, at nine loose finds, and when no dirt is left.
+  return !!(state&&state.ft&&!state.train&&!state.over&&trayList().length<FT.tray&&exposedFinds().length<TRAY.loose&&state.crack<maxCrack()*FT.red&&dirtLeft())}
+function ftCoach(){try{const o=JSON.parse(Store.get('rw_traycoach')||'{}')||{};const n=o.ft|0;if(n>=FT.coach)return false;o.ft=n+1;Store.set('rw_traycoach',JSON.stringify(o));return true}catch(e){return false}}
 function sarcAt(x,y){const o=state.owner[y][x];if(o<0)return null;const f=state.finds[o];return f.sarc&&!f.banked&&f.cells.every(([a,b])=>state.dirt[b][a]===0)?f:null}
 function findWorth(f){const w=Math.round(findWorth0(f)*(f.fake?1/TRAY.x:1)*progWorthMul(f)*(f.lucky?LUCK.press.luckyMult:1)*kitWorthMul());return w*TRAY.x} // rc10: every Worth x3 (Pyrite is already x3 in kitPyrite)
 function findWorth0(f){
@@ -3554,6 +3563,8 @@ function seal(){
   if(!all.length){log("Nothing uncovered yet. Dig first.");return}
   const ex=trayList(all);
   if(!ex.length){log("The tray is empty. Tap a find to put it on the tray.");return}
+  if(sealHeld()){const n=ex.length;log("Not yet. On your first tomb the Quartermaster stamps a full tray: "+n+" of "+FT.tray+" so far. He lets go when the wall is in the red, when nine finds lie loose, or when the dirt is gone.");
+    if(ftCoach())uiToast("Fill the tray first: six finds make a Hoard, and a Hoard doubles the Fame. In the red you may seal what you have.",5600);hap(6);sfx('tap');return}
   if(skillPaid()){skillPayCard();return}
   sealGo(ex);
 }
@@ -4894,7 +4905,7 @@ try{new ResizeObserver(()=>size()).observe(document.getElementById('wrap'),{box:
 const STRINGS={
  classes:{
   scholar:{d:"X-ray a 3×3 patch once per chamber. The hammer is modest: 9 crack.",skillS:"peek 3×3"},
-  brute:{d:"Hammer clears 4×4 for 26 crack. The pick is clumsy: 1.5 crack."},
+  brute:{d:"Hammer clears 4×4 for 22 crack. The pick is clumsy: 1.5 crack."},
   medium:{d:"Hear relics: strikes thump louder up close. Relics ×3. Commons score age only."}
  },
  gear:{
@@ -6872,7 +6883,7 @@ function luckTell(i,TR){ // decided from the seed alone, on a side stream: a wal
 }
 function luckTargets(i,TR,TELL){ // targets are restored every wall, so a Hollow target never sticks to the next one
   if(TR)return;
-  if(i<3)TARGETS[i]=(i===0&&SKILL.firstReal&&frSoft()&&!s15Daily())?SKILL.firstReal:(i===1&&SKILL.ch2T1&&tombN()===1)?SKILL.ch2T1:TARGETS_BASE[i];
+  if(i<3)TARGETS[i]=(i===0&&SKILL.firstReal&&frSoft()&&!s15Daily())?SKILL.firstReal:(i===1&&SKILL.ch2T1&&tombN()===1)?SKILL.ch2T1:(i===2&&FT.t3&&FT.t3<TARGETS_BASE[2]&&ftRun())?FT.t3:TARGETS_BASE[i];
   else{run.tb=run.tb||{};if(run.tb[i]==null)run.tb[i]=TARGETS[i];TARGETS[i]=run.tb[i]}
   if(TELL==='hollow')TARGETS[i]=Math.round(TARGETS[i]*(1+LUCK.tell.hollow.target)/10)*10;
   if(TELL==='crowded')TARGETS[i]=Math.round(TARGETS[i]*(1+PROG_DATA.tells.crowded.target)/10)*10;
@@ -6946,7 +6957,7 @@ HOW.push({h:'Chances',
 // Until it exists every item counts as unlocked, which is what the standalone content build and the tests want.
 // The current tomb is read from `run.tomb` (0..4, default 0); the equipped tool and hat come from rw_kit2.
 const PROG_DATA={
- fence:{extraOffers:1,swaps:1,stealMult:.5,pickDmg:1,pickCrack:1,hamR:1,hamDmg:2,hamCrack:12},
+ fence:{extraOffers:1,swaps:1,stealMult:.5,pickDmg:1,pickCrack:1,hamR:1,hamDmg:2,hamCrack:11},
  carto:{revealMs:3000,lamp:-1,memories:3,pickDmg:1,pickCrack:1,hamR:1,hamDmg:3,hamCrack:10},
  mystic:{sightMs:4000,perTile:.04,pickDmg:1,pickCrack:1,hamR:2,hamDmg:3,hamCrack:16}, // Sight: the meter gains perTile for every find tile a strike uncovers; full, it shows every relic and ore for sightMs
  rel:{warrior:{n:3,mult:2},suit:{crack:.4,mult:2},ding:{sated:2.5},rhind:{hoard:5},charioteer:{lucky:5},lewis:{bones:3},mammen:{fever:2},madrid:{age:.5},lamassu:{seals:1},ur:{mult:2},cyrus:{flat:24}}, // the new relic powers
@@ -8261,6 +8272,8 @@ function progWall(i,TELL,place,finds,dirt,owner,r){ // after the ordinary wall: 
   if(tw.roots){const R=sideRand('roots',i);for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)if(dirt[y][x]>0&&R()<tw.roots)dirt[y][x]=3}
 }
 function progState(i,TELL){ // the chamber's state exists now
+  state.ft=ftRun()?1:0;
+  if(state.ft&&i===2&&FT.t3<TARGETS_BASE[2])setTimeout(()=>{try{if(state&&state.i===2&&!state.over&&!(state.strikes|0))log('Your first tomb: this chamber asks '+fmtN(TARGETS[2])+', not '+fmtN(TARGETS_BASE[2])+'. Once you have cleared a tomb it asks the full sum.')}catch(e){}},320);
   const tw=twistAt(i),T=TOMB();
   state.tomb=T.id;state.twist=tw.id==='none'?'':tw.id;state.hideOre=!!tw.hideOre;state.roots=!!tw.roots;state.ptint=T.tint||'';tombSkin(T.id-1);
   if(run.debt>0&&!state.train){state.crack=run.debt;state.debt=run.debt;run.debt=0}
@@ -8549,7 +8562,7 @@ function skillSealUi(){
   const t=state.train?'Seal':'Seal '+(sack?Math.min(n+1,B):n+1)+'/'+B;
   if(b.firstChild&&b.firstChild.nodeType===3&&b.firstChild.textContent!==t)b.firstChild.textContent=t;
   b.classList.toggle('paid',skillPaid());b.classList.toggle('dusted',!!state.goldDust);
-  {const tn=trayList().length,tt=tn?'Tray '+tn+'/'+TRAY.n:'';sm.textContent=sack?(n>=B?'sack is full':tt?tt+(n?' · LAST':''):n?'LAST seal':'TWO seals'):state.train?'bank what glows':n>=B?'costs a Memory':tt?tt+(n===B-1?' · last free':''):n===B-1?'last free seal':'tray of six'}
+  {const tn=trayList().length,tt=tn?'Tray '+tn+'/'+TRAY.n:'';if(sealHeld()&&tn){sm.textContent=tt+' · fill it'}else sm.textContent=sack?(n>=B?'sack is full':tt?tt+(n?' · LAST':''):n?'LAST seal':'TWO seals'):state.train?'bank what glows':n>=B?'costs a Memory':tt?tt+(n===B-1?' · last free':''):n===B-1?'last free seal':'tray of six'}
 }
 function skillPayCardS9(){
   const M=SKILL.seals.memory,card=document.getElementById('card'),ov=document.getElementById('overlay');

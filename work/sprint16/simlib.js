@@ -18,7 +18,7 @@ function profile(novice){ // the same profile before every run, so runs do not l
   [PRE+'train',PRE+'tut',PRE+'first'].forEach(k=>{try{localStorage.setItem(k,'1')}catch(e){}});
   try{localStorage.setItem(PRE+'traycoach',JSON.stringify({six:9,nine:9,cr:9}))}catch(e){}
   _mercy=novice?0:SKILL.mercy.free;                       // a seasoned profile has used its free collapses; the new player still has both
-  ST.chambers=novice?1:50;                                // frSoft(): only a profile that has cleared nothing gets the soft first target
+  ST.chambers=novice?1:50;ST.wins=novice?0:5;                // the first-tomb rules (seal held for a full tray, softer chamber 3) end with the first cleared tomb                                // frSoft(): only a profile that has cleared nothing gets the soft first target
   if(novice)try{localStorage.removeItem(PRE+'first')}catch(e){}
 }
 function start(o){
@@ -122,6 +122,7 @@ function choose(){ // "picks a good six": every way of splitting the loose finds
     for(let m=1;m<(1<<n)-1;m++){const a=ex.filter((f,j)=>m>>j&1),b=ex.filter((f,j)=>!(m>>j&1));if(a.length<3||!(state.sealed+1<skillBudget()))continue;const v=score(a).total+score(b).total;if(v>bv*1.02){bv=v;best=a}}}
   if(best)setTray(best)}
 // ---------------------------------------------------------------- when to seal
+function held(){try{return typeof sealHeld==='function'&&!!sealHeld()}catch(e){return false}}
 function freeLeft(){return skillBudget()-state.sealed}
 function canFree(){return exposedFinds().length>0&&!sackSpent()&&!skillPaid()}
 function doSeal(pick){if(pick)choose();const t=score(trayList()).total;if(t>SIM.best)SIM.best=t;SIM.seals++;rec({a:'seal'});seal()}
@@ -144,7 +145,7 @@ const POL={
   // Hammer bot: hammer only, no mis-taps, seals at 85% crack. Never chooses.
   hammer:{hands:'hammer',seal:()=>canFree()&&crackPct()>=.85},
   // New player: seals the moment anything is uncovered, as long as a free seal is left.
-  novice:{hands:'novice',seal:()=>canFree()&&exposedFinds().length>0},
+  novice:{hands:'novice',seal:()=>canFree()&&exposedFinds().length>0&&!held()}, // held(): the Seal button is shut by the game itself (the first-tomb guard); the bot presses it the moment it opens
 };
 function step(o,R){
   const P=POL[o.pol];

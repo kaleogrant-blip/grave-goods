@@ -40,7 +40,7 @@ for(const [w,h] of VPS){
   // sarcophagus: real tap on the wall, three real taps on the bone
   await page.evaluate(()=>{Q.speed=1});
   assert(await H.tapSarc(page),'a sarcophagus opened the bone');
-  const pend=await page.evaluate(()=>JSON.parse(localStorage.getItem('S15T_resume')).w.sarcPend);assert(pend&&typeof pend.r==='number','the result is in the save before the first tap');
+  const pend=await page.evaluate(()=>JSON.parse(localStorage.getItem('rw_resume')).w.sarcPend);assert(pend&&typeof pend.r==='number','the result is in the save before the first tap');
   await page.waitForTimeout(700);
   const b0=await H.boneInfo(page),tbl=await page.evaluate(()=>boneTable('sarc'));
   assert.deepStrictEqual(b0.rows.map(r=>[r.k,r.pct,r.side]),tbl.map(r=>[r.k,r.pct+'%',r.side]),'printed record = boneTable');await stop('bone0');
@@ -58,7 +58,7 @@ for(const [w,h] of VPS){
   if(await page.evaluate(()=>!state.over)){
     await page.evaluate(()=>{const S=RS();S.fev=LUCK.jackpot.at-1;luckFever()});
     await page.waitForSelector('#lkp.bn-fev',{timeout:8000});await page.waitForTimeout(800);
-    const jp=await page.evaluate(()=>JSON.parse(localStorage.getItem('S15T_resume')).w.jpPend);assert(jp&&jp.k,'second bone: result saved before the first tap');
+    const jp=await page.evaluate(()=>JSON.parse(localStorage.getItem('rw_resume')).w.jpPend);assert(jp&&jp.k,'second bone: result saved before the first tap');
     const f0=await H.boneInfo(page),ft=await page.evaluate(()=>boneTable('fever'));assert.deepStrictEqual(f0.rows.map(r=>[r.k,r.pct,r.side]),ft.map(r=>[r.k,r.pct+'%',r.side]));await stop('fev0');
     await H.boneStep(page,800);await H.boneStep(page,900);await stop('fev2');await H.boneStep(page,1800);
     const f3=await H.boneInfo(page);assert(f3.rows.find(r=>r.k===jp.k).hit,'second bone ended at the saved result');await stop('fev3');
