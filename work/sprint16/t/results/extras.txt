@@ -1,0 +1,43 @@
+PASS title shows v1.0-rc10 and no test tag (390x844) v1.0-rc10 | Grave Goods
+PASS How to Play: the tray card, the bare-wall rule and the first tomb (390x844) 13 cards
+PASS title shows v1.0-rc10 and no test tag (360x640) v1.0-rc10 | Grave Goods
+PASS How to Play: the tray card, the bare-wall rule and the first tomb (360x640) 13 cards
+PASS title shows v1.0-rc10 and no test tag (844x390) v1.0-rc10 | Grave Goods
+PASS How to Play: the tray card, the bare-wall rule and the first tomb (844x390) 13 cards
+PASS relics that count finds Rhind 5 ("A Hoard needs 5 finds, not a full tray of 6."), Draupnir +9 a find, Cyrus +24, Terracotta Warrior unchanged
+PASS Gold and XP are paid on a third of the x3 points; no payout cap 9,000 banked pays 30 Gold (rc9b: 3,000 pays 30); knucklebone from 2,700; second-bone gold 1,500; full-Memory gift 75; training target 90
+FAIL targets of the tombs Expected values to be strictly deep-equal:
++ actual - expected
+
+  [
+    900,
+    1200,
++   7500
+-   9000
+  ]
+
+PASS training wall still clears with one seal of five 5 finds score 324 against 90
+
+| Check | Result | Note |
+|---|---|---|
+| title shows v1.0-rc10 and no test tag (390x844) | PASS | v1.0-rc10 | Grave Goods |
+| How to Play: the tray card, the bare-wall rule and the first tomb (390x844) | PASS | 13 cards |
+| title shows v1.0-rc10 and no test tag (360x640) | PASS | v1.0-rc10 | Grave Goods |
+| How to Play: the tray card, the bare-wall rule and the first tomb (360x640) | PASS | 13 cards |
+| title shows v1.0-rc10 and no test tag (844x390) | PASS | v1.0-rc10 | Grave Goods |
+| How to Play: the tray card, the bare-wall rule and the first tomb (844x390) | PASS | 13 cards |
+| tap sizes (reported, not judged) | INFO | {"390x844":{"tile":42,"seal":"97x67","pick":"64x67","hammer":"71x67"},"360x640":{"tile":36,"seal":"88x59","pick":"59x59","hammer":"65x59"},"844x390":{"tile":28,"seal":"67x59","pick":"67x59","hammer":"67x59"}} |
+| relics that count finds | PASS | Rhind 5 ("A Hoard needs 5 finds, not a full tray of 6."), Draupnir +9 a find, Cyrus +24, Terracotta Warrior unchanged |
+| Gold and XP are paid on a third of the x3 points; no payout cap | PASS | 9,000 banked pays 30 Gold (rc9b: 3,000 pays 30); knucklebone from 2,700; second-bone gold 1,500; full-Memory gift 75; training target 90 |
+| targets of the tombs | FAIL | Expected values to be strictly deep-equal:
++ actual - expected
+
+  [
+    900,
+    1200,
++   7500
+-   9000
+  ]
+ |
+| training wall still clears with one seal of five | PASS | 5 finds score 324 against 90 |
+EXTRAS FAIL 1

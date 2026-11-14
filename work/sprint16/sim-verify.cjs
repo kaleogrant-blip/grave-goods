@@ -6,15 +6,23 @@
 'use strict';
 const path = require('path');
 module.exports = async function (openSim, chromium, BUILD) {
-  const CASES = [{ tomb: 1, stake: 1, pol: 'early', cls: 'scholar', seed: 'V-1' }, { tomb: 1, stake: 1, pol: 'pick9', cls: 'medium', seed: 'V-2' }, { tomb: 1, stake: 1, pol: 'hammer', cls: 'brute', seed: 'V-3' }, { tomb: 3, stake: 3, pol: 'hold', cls: 'fence', seed: 'V-4' }];
+  const CASES = [{ tomb: 1, stake: 1, pol: 'early', cls: 'scholar', seed: 'V-1' }, { tomb: 1, stake: 1, pol: 'pick9', cls: 'medium', seed: 'V-2' }, { tomb: 1, stake: 1, pol: 'hammer', cls: 'brute', seed: 'V-3' }, { tomb: 3, stake: 3, pol: 'hold', cls: 'fence', seed: 'V-4' },
+    { tomb: 1, stake: 1, pol: 'novice', cls: 'scholar', seed: 'V-5' },   // rc10: a new profile under the first-tomb rules (seal held for a full tray, chamber 3 at 7,500, two free collapses)
+    { tomb: 5, stake: 6, pol: 'pick9', cls: 'cartographer', seed: 'V-6' }, // rc10: retuned guardian chamber and Stake 6
+    { tomb: 1, stake: 1, pol: 'early', cls: 'mystic', seed: 'V-7' },
+    { tomb: 1, stake: 1, pol: 'early', cls: 'scholar', bare2: true, max: 700 }]; // rc10: a run in which a second bare wall of one chamber costs a Memory, replayed to its end
   const MAX = +process.env.VERIFY_ACTIONS || 220;
   const browser = await chromium.launch(); let fail = 0; const rows = [];
   for (const o of (process.env.VERIFY_ONLY ? [CASES[+process.env.VERIFY_ONLY]] : CASES)) {
     // 1. the simulated run, recorded
     const s = await openSim(browser);
+    if (o.bare2) { // find a seed whose run has two bare walls in one chamber (the second one costs a Memory)
+      o.seed = await s.page.evaluate(o => { for (let k = 0; k < 400; k++) { const seed = 'V-B' + k; let two = false; const _bc = bareCheck; bareCheck = function () { const r = _bc.apply(this, arguments); if (r && state.bare === 2) two = true; return r; }; SIM.run(Object.assign({}, o, { seed })); bareCheck = _bc; if (two) return seed; } return null; }, o);
+      if (!o.seed) throw new Error('no run with a second bare wall found');
+    }
     const tr = await s.page.evaluate(o => { SIM.rec = true; const r = SIM.run(o); SIM.rec = false; return { r, trace: SIM.trace }; }, o);
     await s.ctx.close();
-    const trace = tr.trace.slice(0, MAX);
+    const trace = tr.trace.slice(0, o.max || MAX);
     // 2. the same actions on the untouched build: real clock, real taps
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, reducedMotion: 'reduce' });
     await ctx.addInitScript('window.__SIM_REAL=1;try{navigator.vibrate=()=>true}catch(e){}');

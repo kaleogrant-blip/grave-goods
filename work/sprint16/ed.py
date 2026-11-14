@@ -37,7 +37,7 @@ rep('// TRAY TEST: ', '// rc10: ', s.count('// TRAY TEST: '))
 # run.bx[i] = bare walls already taken in chamber i. It lives on the run, so it is saved and resumed with it. state.bare: 1 = the free one, 2 = one that costs.
 rep('''log("The wall is bare and there is nothing left to seal. It comes down anyway, and a bare wall costs nothing.");state.bare=1;collapse();return true}''',
     '''run.bx=run.bx||{};const paid=!state.train&&(run.bx[state.i]|0)>=BARE.free;run.bx[state.i]=(run.bx[state.i]|0)+1;log(paid?"The wall is bare again. This chamber has had its free bare wall, so this one costs a Memory.":"The wall is bare and there is nothing left to seal. It comes down anyway. The first bare wall of a chamber costs nothing; the next one costs a Memory.");if(!paid&&!state.train&&bareCoach())uiToast('A bare wall costs nothing once a chamber. The next one costs a Memory.',5200);state.bare=paid?2:1;collapse();return true}
-const BARE={free:1,coach:3}; // rc10: bare walls a chamber that cost nothing; times the coaching line is shown to a profile
+const BARE=SKILL.bare; // {free, coach}: bare walls a chamber that cost nothing; times the coaching line is shown to a profile
 function bareCoach(){try{const o=JSON.parse(Store.get('rw_traycoach')||'{}')||{};const n=o.bare|0;if(n>=BARE.coach)return false;o.bare=n+1;Store.set('rw_traycoach',JSON.stringify(o));return true}catch(e){return false}}
 function bareLeft(){return !!(state&&run&&!state.train&&((run.bx||{})[state.i]|0)<BARE.free)}''')
 rep("let saved='';if(state.bare){saved='bare'}else if(mercyTake())", "let saved='';if(state.bare===1){saved='bare'}else if(mercyTake())")
@@ -128,13 +128,13 @@ rep("syncTop();paint();\nwindow.S14={paint,setOpen,setPouch,state:S};\n})();\n",
 rep("function sarcAt(x,y){", """// ===================== rc10: THE FIRST TOMB =====================
 // Why: the plain new-player bot (seals the moment anything shows) cleared 0.5 in 100 tombs. It spent its three free seals on single finds at Fame x1 and died in chamber 3.
 // Lower targets alone did not help it (3 in 100 at two thirds of the target); holding the seal for a full tray did. Both rules end with the profile's first cleared tomb. Never on the Daily.
-const FT={tray:FT_TRAY_,red:.8,t3:FT_T3_,coach:3};
+const FT=SKILL.first; // {tray, red, t3, coach}: the numbers sit in SKILL with the rest of the balance sheet
 function ftWon(){try{return (ST.wins|0)>0||(bestGet().wins|0)>0||Object.keys(PROG.tombs.c||{}).length>0}catch(e){return true}}
 function ftRun(){return !!(run&&!run.train&&(run.tomb|0)===0&&stakeN()===1&&!s15Daily()&&!ftWon())}
 function sealHeld(){ // the Quartermaster keeps his hand on the seal until the tray is full. He lets go in the red, at nine loose finds, and when no dirt is left.
   return !!(state&&state.ft&&!state.train&&!state.over&&trayList().length<FT.tray&&exposedFinds().length<TRAY.loose&&state.crack<maxCrack()*FT.red&&dirtLeft())}
 function ftCoach(){try{const o=JSON.parse(Store.get('rw_traycoach')||'{}')||{};const n=o.ft|0;if(n>=FT.coach)return false;o.ft=n+1;Store.set('rw_traycoach',JSON.stringify(o));return true}catch(e){return false}}
-function sarcAt(x,y){""".replace("FT_TRAY_", str(FT_TRAY)).replace("FT_T3_", str(FT_T3)))
+function sarcAt(x,y){""")
 rep("""  if(!ex.length){log("The tray is empty. Tap a find to put it on the tray.");return}
   if(skillPaid()){skillPayCard();return}""", """  if(!ex.length){log("The tray is empty. Tap a find to put it on the tray.");return}
   if(sealHeld()){const n=ex.length;log("Not yet. On your first tomb the Quartermaster stamps a full tray: "+n+" of "+FT.tray+" so far. He lets go when the wall is in the red, when nine finds lie loose, or when the dirt is gone.");
@@ -183,6 +183,13 @@ rep("`Targets are ${_kitPct(T.target)}% higher. You start with Fortune +${T.fort
 rep("the lamp reaches ${T.lamp} and the target is ${_kitPct(T.target)}% higher.", "the lamp reaches ${T.lamp} and the target is ${kitTgt(T.target)}.")
 rep("not one coin, and so few of them that the target is ${_kitPct(-T.target)}% lower.", "not one coin, and the target is ${kitTgt(T.target)}.")
 rep("every find at least 2×2, no coins, a target 60% lower.", "every find at least 2×2, no coins, a target %s." % pct(TW_ARMY))
+
+# ================================================================ 9. the new balance numbers sit in SKILL (the app shell's remote config reads and writes that object), and the Stake multipliers become a table
+rep("  adj:[\"Egyptian\",\"Greek\",\"Norse\",\"Maya\",\"Mesopotamian\",\"Chinese\"]\n};",
+    "  first:{tray:%d,red:.8,t3:%d,coach:3},  // rc10: the first tomb of a profile. The seal is held until `tray` finds are on it (let go at `red` of the wall's crack, at nine loose finds, or with no dirt left); chamber 3 asks t3\n  bare:{free:1,coach:3},            // rc10: bare-wall exits a chamber that cost nothing; after that a bare wall costs a Memory\n  stakeT:[%s],  // rc10: what each Stake does to every target (was hard-coded in progTargets: 1, 1, 1, 1.05, 1.1, 1.15)\n  adj:[\"Egyptian\",\"Greek\",\"Norse\",\"Maya\",\"Mesopotamian\",\"Chinese\"]\n};" % (FT_TRAY, FT_T3, ','.join(('%g' % v) for v in STAKE_T)))
+rep("if(TR)return;let m=1;m*=[1,1,1,1.05,1.1,1.15][stakeN()-1];", "if(TR)return;let m=1;m*=SKILL.stakeT[stakeN()-1]||1;")
+rep("deepMul:1.6, long4:.75, ", "deepMul:1.6, long4:%g, " % LONG4)
+rep("const S10={build:GAME_VERSION,cfgVer:10,", "const S10={build:GAME_VERSION,cfgVer:11,")
 
 open(OUT, 'w', encoding='utf-8').write(s)
 print('edits:', N[0], ' bytes:', len(s.encode('utf-8')), ' md5:', hashlib.md5(s.encode('utf-8')).hexdigest())

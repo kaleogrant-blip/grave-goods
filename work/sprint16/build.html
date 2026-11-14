@@ -3078,7 +3078,7 @@ const ORE_POOL=["gold","gold","quick","quick","lode","flint","amber","nitre","ma
 const ORE_REAL=ORE_POOL.filter(t=>t!=="pyrite");
 const SKILL={ // sprint 8 · B, C, D, F. Every number the Balance seat may turn is here.
   targets:[900,2700,9000],            // rc10: 300 / 900 / 3,000 (was 4,500), then every Worth and target x3           // PER-CHAMBER targets for Tomb 1 (counted from state.bankedThisChamber). Tomb and stake scaling is unchanged (progTargets).
-  deepMul:1.6, long4:.75,                      // 'Descend further': depth N asks round(targets[2] * deepMul^(N-3) / 500) * 500, x0.45 for the Long Dark's fourth chamber
+  deepMul:1.6, long4:0.75,                      // 'Descend further': depth N asks round(targets[2] * deepMul^(N-3) / 500) * 500, x0.45 for the Long Dark's fourth chamber
   seals:{free:3,sack:2,memory:1},   // seals per wall before the next one costs; the Sack keeps its own cap; Memories a paid seal costs
   order:{pay:.5,floorFrom:'timeline'}, // a scattered Timeline pays this share of its bonus above x1; floor = top age of the Timelines already sealed ('any' = of every find sealed)
   hint:{frac:.5,min:3},             // "A Greek Dynasty is close": share of a buried set's tiles that must be open, and the finds of one civ that make a set
@@ -3090,6 +3090,9 @@ const SKILL={ // sprint 8 · B, C, D, F. Every number the Balance seat may turn 
   ch2T1:1200,                       // Sprint 13b: was 500 (Sprint 11, was 900). Novice ch2 first-wall clear 14% -> 23%, human/planner/setter tomb clear unchanged. team/sprint13b/balance.md Tombs II to V keep targets[1]. team/sprint11/balance.md
   firstReal:600,                   // Sprint 10 (T4/T5): the first real chamber of a profile that has cleared nothing but the training chamber asks this (set 0 to switch off)
   guard:{per:.03,free:3,max:.3},    // Sprint 10 (T19): from Tomb III on, the guardian chamber asks +per for every Vault relic above free, at most +max
+  first:{tray:6,red:.8,t3:7500,coach:3},  // rc10: the first tomb of a profile. The seal is held until `tray` finds are on it (let go at `red` of the wall's crack, at nine loose finds, or with no dirt left); chamber 3 asks t3
+  bare:{free:1,coach:3},            // rc10: bare-wall exits a chamber that cost nothing; after that a bare wall costs a Memory
+  stakeT:[1,1,1,1.05,1.1,1.15],  // rc10: what each Stake does to every target (was hard-coded in progTargets: 1, 1, 1, 1.05, 1.1, 1.15)
   adj:["Egyptian","Greek","Norse","Maya","Mesopotamian","Chinese"]
 };
 const TARGETS=SKILL.targets.slice();
@@ -3291,7 +3294,7 @@ function trayDraw(){ // marks on the wall: which finds are on the tray, the crac
 // ===================== rc10: THE FIRST TOMB =====================
 // Why: the plain new-player bot (seals the moment anything shows) cleared 0.5 in 100 tombs. It spent its three free seals on single finds at Fame x1 and died in chamber 3.
 // Lower targets alone did not help it (3 in 100 at two thirds of the target); holding the seal for a full tray did. Both rules end with the profile's first cleared tomb. Never on the Daily.
-const FT={tray:6,red:.8,t3:7500,coach:3};
+const FT=SKILL.first; // {tray, red, t3, coach}: the numbers sit in SKILL with the rest of the balance sheet
 function ftWon(){try{return (ST.wins|0)>0||(bestGet().wins|0)>0||Object.keys(PROG.tombs.c||{}).length>0}catch(e){return true}}
 function ftRun(){return !!(run&&!run.train&&(run.tomb|0)===0&&stakeN()===1&&!s15Daily()&&!ftWon())}
 function sealHeld(){ // the Quartermaster keeps his hand on the seal until the tray is full. He lets go in the red, at nine loose finds, and when no dirt is left.
@@ -3469,7 +3472,7 @@ function walkAway(){if(PAUSE.on||LK.busy)return; // B12: end the chamber from th
   endChamber(false,lost);
 }
 function bareCheck(){if(state.over||state.sealing||chWon())return false;if(state.dirt.some(r=>r.some(d=>d>0))||exposedFinds().length||state.finds.some(f=>f.sarc&&!f.banked))return false;run.bx=run.bx||{};const paid=!state.train&&(run.bx[state.i]|0)>=BARE.free;run.bx[state.i]=(run.bx[state.i]|0)+1;log(paid?"The wall is bare again. This chamber has had its free bare wall, so this one costs a Memory.":"The wall is bare and there is nothing left to seal. It comes down anyway. The first bare wall of a chamber costs nothing; the next one costs a Memory.");if(!paid&&!state.train&&bareCoach())uiToast('A bare wall costs nothing once a chamber. The next one costs a Memory.',5200);state.bare=paid?2:1;collapse();return true}
-const BARE={free:1,coach:3}; // rc10: bare walls a chamber that cost nothing; times the coaching line is shown to a profile
+const BARE=SKILL.bare; // {free, coach}: bare walls a chamber that cost nothing; times the coaching line is shown to a profile
 function bareCoach(){try{const o=JSON.parse(Store.get('rw_traycoach')||'{}')||{};const n=o.bare|0;if(n>=BARE.coach)return false;o.bare=n+1;Store.set('rw_traycoach',JSON.stringify(o));return true}catch(e){return false}}
 function bareLeft(){return !!(state&&run&&!state.train&&((run.bx||{})[state.i]|0)<BARE.free)}
 function nearestRelicDist(cx,cy){
@@ -6979,11 +6982,11 @@ const PROG_DATA={
  tombs:[                                                // chamber-3 twists. The Design seat builds the rules; these numbers feed the guardian slips so copy and rule cannot drift.
   {},
   {xray:1,target:.1},
-  {tremor:.15,relics:2,tremorBase:.10,crack:.6,target:-.05},
-  {rootFrac:.2,rootDepth:3,sarcMult:2,target:.05},
-  {target:-.1,fortune:1,crack:.7},
-  {cols:12,lamp:3,target:.1},
-  {fill:9,target:-.05}],
+  {tremor:.15,relics:2,tremorBase:.10,crack:.6,target:-.1},
+  {rootFrac:.2,rootDepth:3,sarcMult:2,target:-.05},
+  {target:-.12,fortune:1,crack:.7},
+  {cols:12,lamp:3,target:.05},
+  {fill:9,target:-.15}],
  rank:{class_fence:6,class_cartographer:12,tool_trowel:3,tool_chisel:5,tool_mattock:8,tool_drill:10,tool_powder:14,tool_rod:18,
   gear_lampoil:4,gear_rope:7,gear_sieve:9,gear_reliquary:13,ore_quartz:11,ore_bitumen:16,hat_fez:15,hat_laurel:20,hat_gjermundbu:25,hat_diadem:30}
 };
@@ -8063,15 +8066,15 @@ const TOMBS=[
  {id:2,n:"The Oracle's Cellar",s:"Oracle",civ:1,cw:3,tint:"rgba(86,140,214,.18)",mus:2,tells:{unstable:1,gilded:2,quiet:2,hollow:1},blurb:"Marble, olive oil and riddles that cost extra.",
   twist:{id:'oracle',xray:1,hideOre:1,tgt:.1,t:"Guardian chamber: a free X-ray and a target 10% higher, but the ores are hidden."}},
  {id:3,n:"Jelling Mounds",s:"Jelling",civ:2,cw:3,tint:"rgba(150,196,230,.17)",mus:-3,tells:{unstable:2,gilded:1,quiet:1,hollow:2},blurb:"Iron, frost and two very large stones.",
-  twist:{id:'jelling',tremor:5,relics:2,crack:.6,tgt:-.05,t:"Guardian chamber: tremors are 5 points likelier in the red, two relics lie buried, the wall holds 40% less and the target is 5% lower."}},
+  twist:{id:'jelling',tremor:5,relics:2,crack:.6,tgt:-.1,t:"Guardian chamber: tremors are 5 points likelier in the red, two relics lie buried, the wall holds 40% less and the target is 10% lower."}},
  {id:4,n:"Tikal Understory",s:"Tikal",civ:3,cw:3,tint:"rgba(44,172,104,.17)",mus:5,tells:{unstable:1,gilded:2,quiet:1,hollow:2},blurb:"Jade, vines and roots that mind their own business.",
-  twist:{id:'tikal',roots:.2,sarc:2,tgt:.05,t:"Guardian chamber: a fifth of the dirt is roots, three hits deep, sarcophagi come twice as often, and the target is 5% higher."}},
+  twist:{id:'tikal',roots:.2,sarc:2,tgt:-.05,t:"Guardian chamber: a fifth of the dirt is roots, three hits deep, sarcophagi come twice as often, and the target is 5% lower."}},
  {id:5,n:"Ziggurat of Ur",s:"Ur",civ:4,cw:3,tint:"rgba(72,88,208,.18)",mus:7,tells:{unstable:1,gilded:3,quiet:1,hollow:1},blurb:"Clay, lapis and complaints about the grain tax.",
-  twist:{id:'ur',tgt:-.1,fort:1,coin:1,crack:.7,t:"Guardian chamber: the wall holds 30% less and the target is 10% lower. Fortune +1 to start, and the knucklebone is always offered."}},
+  twist:{id:'ur',tgt:-.12,fort:1,coin:1,crack:.7,t:"Guardian chamber: the wall holds 30% less and the target is 12% lower. Fortune +1 to start, and the knucklebone is always offered."}},
  {id:6,n:"Palace of Knossos",s:"Knossos",civ:1,cw:3,tint:"rgba(190,70,60,.18)",mus:3,tells:{unstable:1,gilded:1,quiet:2,hollow:2},crest:'<svg viewBox="0 0 16 16"><path d="M8 2v13M8 4L2.5 2.2Q4.6 7 2.5 11.8L8 10M8 4l5.5-1.8Q11.4 7 13.5 11.8L8 10"/></svg>',blurb:"Red columns, painted bulls and a floor plan that turned into a legend.",
-  twist:{id:'knossos',cols:12,lampR:3,tgt:.1,t:"Guardian chamber: the labyrinth. The wall is twelve tiles wide, the lamp reaches only three, and the target is 10% higher."}},
+  twist:{id:'knossos',cols:12,lampR:3,tgt:.05,t:"Guardian chamber: the labyrinth. The wall is twelve tiles wide, the lamp reaches only three, and the target is 5% higher."}},
  {id:7,n:"Terracotta Pit",s:"Terracotta",civ:5,cw:3,tint:"rgba(190,110,70,.18)",mus:0,tells:{unstable:1,gilded:2,quiet:1,hollow:2},crest:'<svg viewBox="0 0 16 16"><path d="M3 3.5h10M4.5 8h7M3 12.5h10M8 3.5v9"/></svg>',blurb:"Rammed earth, bronze and an army that stands very still.",
-  twist:{id:'army',big:1,fill:9,tgt:-.05,t:"Guardian chamber: the army. Every find is at least 2×2, there are no coins, and the target is 5% lower."}}
+  twist:{id:'army',big:1,fill:9,tgt:-.15,t:"Guardian chamber: the army. Every find is at least 2×2, there are no coins, and the target is 15% lower."}}
 ];
 // Stakes: each stacks all the ones below it. rule = exact rule change; leg / epic = relic tier weights at that stake (base 1 / 2).
 const STAKES=[
@@ -8281,7 +8284,7 @@ function progState(i,TELL){ // the chamber's state exists now
 }
 function progFreeXray(){return !!(state&&twistAt(state.i).xray)}
 function progTargets(i,TR){
-  if(TR)return;let m=1;m*=[1,1,1,1.05,1.1,1.15][stakeN()-1];const tw=twistAt(i);if(tw.tgt)m*=1+tw.tgt;
+  if(TR)return;let m=1;m*=SKILL.stakeT[stakeN()-1]||1;const tw=twistAt(i);if(tw.tgt)m*=1+tw.tgt;
   if(i===2&&tombN()>=3&&SKILL.guard.per&&!s15Daily())m*=1+Math.min(SKILL.guard.max,SKILL.guard.per*Math.max(0,loadColl().length-SKILL.guard.free)); // Sprint 10 (T19): a full Vault wakes the guardian
   if(m!==1)TARGETS[i]=Math.round(TARGETS[i]*m/10)*10;
 }
@@ -8637,7 +8640,7 @@ SKILL.why={
  'tomb:4':"Maya relics, jade in the dark, and roots that reward a heavy tool.",
  'tomb:5':"Mesopotamian relics, a king who expects tribute and a knucklebone offered at every seal. It costs more; it pays more.",
  'tomb:6':"Greek relics three times as often, and a maze in chamber three: twelve tiles wide, a lamp that reaches three. Bring a memory.",
- 'tomb:7':"Chinese relics three times as often, and an army: every find at least 2×2, no coins, a target 5% lower. Everything is big, and so is the pay-off.",
+ 'tomb:7':"Chinese relics three times as often, and an army: every find at least 2×2, no coins, a target 15% lower. Everything is big, and so is the pay-off.",
  'class:fence':"Pockets a find a chamber so you do not have to. Four gear offers, one swap. Unethical, and rather good.",
  'class:cartographer':"Sees every outline for three seconds, then plans the whole chamber. Slow, and rarely wrong.",
  'tool:trowel':"Two deep, five wide, one crack. The pick, but sensible.",
@@ -10005,7 +10008,7 @@ HOW.push({h:'The Mystic',
   }});
 
 // ===== SPRINT 10 · FIX SPRINT (Design Lead + UI Engineer). Every number the Balance seat may turn is in the config objects just below. =====
-const S10={build:GAME_VERSION,cfgVer:10,seedSrc:'new',lastSeed:'',fw:false,afterTrain:false,open:null,prov:null,hidAt:0,hidMs:0,g:null,gEsc:0,offer:null,shKind:'relic',n:0,sid:Math.random().toString(36).slice(2,9)+Date.now().toString(36)};
+const S10={build:GAME_VERSION,cfgVer:11,seedSrc:'new',lastSeed:'',fw:false,afterTrain:false,open:null,prov:null,hidAt:0,hidMs:0,g:null,gEsc:0,offer:null,shKind:'relic',n:0,sid:Math.random().toString(36).slice(2,9)+Date.now().toString(36)};
 const FIRST={on:true,target:900};                 // T4/T5: the first real wall of a profile that has never cleared one (never the Daily). Training no longer counts as chamber 1.
 const WALKCFG={wall:.8};                          // T1: crack share at which Walk away is always on offer
 const WASTE={frac:.05};                           // T7 (paid-seal card): warn when a paid seal is worth less than this share of the target
