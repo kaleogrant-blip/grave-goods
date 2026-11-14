@@ -9,3 +9,7 @@
 8. Daily: same tomb, class and kit for everyone (done in rc9a).
 9. Marketing: hold the "is out" post until a store link; playtest post says built with Claude.
 Queue: oracle-bone reveal (rc9b) -> tray-rule test build.
+
+## 13 Nov 2026 (evening): owner ruling on the seal rule
+- The owner played the tray test (v1.0-tray1) against rc9b and chose the tray rule: "I want to do it. I noticed the change and it's better."
+- The tray of six / room for nine rule goes into the main game. Next: tune it properly (sprint 16), then align the app shell.
