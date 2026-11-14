@@ -4,7 +4,7 @@
 // Memories and targets are whatever the build does. Only the clock is fake (sim.js installs it before the game boots), so a seal's
 // two-second tally costs no real time. What IS made up here: the five players (see POL) and how they tap.
 (function(){
-const MAIN=typeof TRAY==='undefined',PRE=MAIN?'rw_':'S15T_'; // the same players can be run on the main build (old seal rule) for a baseline
+const MAIN=typeof TRAY==='undefined',PRE=(typeof GAME_VERSION==='string'&&/tray1/.test(GAME_VERSION))?'S15T_':'rw_'; // the same players can be run on the main build (old seal rule) for a baseline
 if(MAIN){window.TRAY={n:99,loose:99};window.trayList=ex=>ex||exposedFinds();window.trayTap=()=>false;window.trayTick=()=>[]}
 const SIM=window.SIM={res:null,stuck:[],unknown:{},rec:false,trace:[]};
 const REAL=!!window.__SIM_REAL; // sim.cjs verify: the page that replays a recorded run with real taps loads this file only for start(); nothing in the build is replaced there
@@ -23,7 +23,7 @@ function profile(novice){ // the same profile before every run, so runs do not l
 }
 function start(o){
   SIM.res=null;SIM.o=o;SIM.trace=[];SIM.ends={bare:0,col:0,walk:0};SIM.ch=[];SIM.best=0;SIM.seals=0;SIM.strikes=0;SIM.walls=0;
-  profile(o.pol==='novice');
+  if(!o.keep)profile(o.pol==='novice'||o.fresh);
   try{if(_title)_title.done()}catch(e){}
   try{LK.log.length=0}catch(e){}
   cls=CLASSES[o.cls];gear=GEAR[0];relic=null;PROG.sel={tomb:o.tomb||1,stake:o.stake||1,tool:'standard'};
@@ -174,10 +174,16 @@ SIM.run=function(o){ // one whole run. o: {seed,cls,tomb,stake,pol}
     step(o,R);
   }
   const r=SIM.res||{win:false,timeout:true};
-  return{w:r.win?1:0,ch:r.win?CHN():maxI,c1:maxI>=1||r.win?1:0,c2:maxI>=2||r.win?1:0,best:SIM.best,seals:SIM.seals,strikes:SIM.strikes,walls:SIM.walls,cr:(RS().cr|0),bare:SIM.ends.bare,col:SIM.ends.col,walk:SIM.ends.walk,banked:run.banked,stuck:r.stuck?1:0,to:r.timeout?1:0,lives:run.lives};
+  return{ei:state?state.i:-1,ef:state&&TARGETS[state.i]?Math.min(1,chBank()/TARGETS[state.i]):0,et:state?TARGETS[state.i]:0,w:r.win?1:0,ch:r.win?CHN():maxI,c1:maxI>=1||r.win?1:0,c2:maxI>=2||r.win?1:0,best:SIM.best,seals:SIM.seals,strikes:SIM.strikes,walls:SIM.walls,cr:(RS().cr|0),bare:SIM.ends.bare,col:SIM.ends.col,walk:SIM.ends.walk,banked:run.banked,stuck:r.stuck?1:0,to:r.timeout?1:0,lives:run.lives};
 };
 SIM.start=start;
-SIM.batch=function(o,seeds){const out=[];for(const s of seeds)out.push(SIM.run(Object.assign({},o,{seed:s})));return out};
+SIM.batch=function(o,seeds){const out=[];for(const s of seeds){
+  if(o.seq){ // one profile, o.seq runs in a row: the profile is made once and then left alone, so free collapses, the soft first wall and any first-tomb easing run out as they would for a person
+    let won=0;const r0={seq:[]};for(let k=0;k<o.seq;k++){const r=SIM.run(Object.assign({},o,{seed:s+'#'+k,keep:k>0}));
+      if(!r.w)try{s16RunLost()}catch(e){} // the build counts a lost run in showSummary, which the simulator replaces
+      if(k===0)Object.assign(r0,r);r0.seq.push(r.w);if(r.w&&!won){won=k+1;break}}
+    r0.won=won;out.push(r0)}
+  else out.push(SIM.run(Object.assign({},o,{seed:s})))}return out};
 if(REAL)return;
 // the end of a run, win or lose, is the summary card: note it and do not build it
 showSummary=function(kind){SIM.res={win:kind==='win'};try{$('overlay').hidden=true}catch(e){}};

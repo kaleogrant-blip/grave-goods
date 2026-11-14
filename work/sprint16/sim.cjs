@@ -15,7 +15,8 @@
 const path = require('path'), fs = require('fs');
 let chromium; try { ({ chromium } = require('/home/claude/.npm-global/lib/node_modules/playwright')); } catch (e) { ({ chromium } = require('playwright')); }
 const BUILD = path.resolve(process.env.BUILD || path.join(__dirname, 'build.html'));
-const CLASSES = ['scholar', 'brute', 'medium', 'fence', 'cartographer'];
+const CLASSES = (process.env.CLS || 'scholar,brute,medium,fence,cartographer,mystic').split(',');
+const SEQ = +process.env.SEQ || 0; // SEQ=5: every profile plays up to five runs in a row (new-player rows)
 const VT = `(()=>{let now=1e6,id=1;const q=[];window.__real=performance.now.bind(performance);
  window.__vt={q,get now(){return now},flush(ms){const end=now+ms;let n=0;for(;;){let b=-1;for(let i=0;i<q.length;i++){const e=q[i];if(e.t<=end&&(b<0||e.t<q[b].t||(e.t===q[b].t&&e.id<q[b].id)))b=i}
    if(b<0)break;const e=q[b];if(e.t>now)now=e.t;if(e.iv)e.t=now+e.iv;else q.splice(b,1);try{e.fn()}catch(x){(window.__vtErr=window.__vtErr||[]).push(String(x&&x.stack||x).slice(0,600))}if(++n>50000)break}now=end}};
@@ -42,13 +43,15 @@ async function openSim(browser, set) {
 }
 function agg(rs) {
   const n = rs.length, s = k => rs.reduce((a, r) => a + (r[k] || 0), 0), srt = rs.map(r => r.best).sort((a, b) => a - b);
-  return { n, win: s('w') / n, c1: s('c1') / n, c2: s('c2') / n, best50: srt[Math.floor(n * .5)], best95: srt[Math.floor(n * .95)], seals: s('seals') / n, walls: s('walls') / n, cr: s('cr') / n, bare: s('bare') / n, col: s('col') / n, walk: s('walk') / n, strikes: s('strikes') / n, stuck: s('stuck'), to: s('to') };
+  const L = rs.filter(r => !r.w), dl = i => L.filter(r => r.ei === i), seqN = rs[0] && rs[0].seq ? Math.max(...rs.map(r => r.seq.length)) : 0;
+  const seq = []; for (let k = 1; k <= (SEQ || 0); k++) seq.push(+(rs.filter(r => r.won && r.won <= k).length / n * 100).toFixed(1));
+  return { n, died: [0, 1, 2, 3].map(i => +(dl(i).length / n * 100).toFixed(1)), dfrac: [0, 1, 2, 3].map(i => dl(i).length ? +(dl(i).reduce((a, r) => a + r.ef, 0) / dl(i).length).toFixed(2) : 0), wonBy: seq, win: s('w') / n, c1: s('c1') / n, c2: s('c2') / n, best50: srt[Math.floor(n * .5)], best95: srt[Math.floor(n * .95)], seals: s('seals') / n, walls: s('walls') / n, cr: s('cr') / n, bare: s('bare') / n, col: s('col') / n, walk: s('walk') / n, strikes: s('strikes') / n, stuck: s('stuck'), to: s('to') };
 }
 async function table(N, rows, pols, set) {
-  const browser = await chromium.launch(), P = +process.env.PAGES || 2, per = Math.ceil(N / CLASSES.length), B = 10;
+  const browser = await chromium.launch(), P = +process.env.PAGES || 2, per = Math.ceil(N / CLASSES.length), B = SEQ ? 4 : 10;
   const jobs = [];
   for (const [tomb, stake] of rows) for (const pol of pols) for (const cls of CLASSES) for (let a = 0; a < per; a += B)
-    jobs.push({ o: { tomb, stake, pol, cls }, seeds: Array.from({ length: Math.min(B, per - a) }, (_, k) => 'S' + tomb + '-' + stake + '-' + cls + '-' + (a + k)) });
+    jobs.push({ o: SEQ ? { tomb, stake, pol, cls, seq: SEQ } : { tomb, stake, pol, cls }, seeds: Array.from({ length: Math.min(B, per - a) }, (_, k) => 'S' + tomb + '-' + stake + '-' + cls + '-' + (a + k)) });
   const res = {}, t0 = Date.now(); let done = 0, next = 0; const errs = [], unknown = {}, stuck = [];
   // every finished batch is appended to <OUT>.jobs, so a run that is cut off carries on from there when started again
   const JF = process.env.OUT ? process.env.OUT + '.jobs' : null, have = {};
@@ -79,11 +82,11 @@ async function table(N, rows, pols, set) {
 }
 const pct = x => (x * 100).toFixed(1) + '%';
 function print(out, rows, pols) {
-  console.log(`\n${out.N} runs a cell (5 classes), ${out.secs.toFixed(0)} s. Tomb clear rate.` + (out.set ? ' SET ' + JSON.stringify(out.set) : ''));
+  console.log(`\n${out.N} runs a cell (${CLASSES.length} classes: ${CLASSES.join(', ')}), ${out.secs.toFixed(0)} s. Tomb clear rate.` + (out.set ? ' SET ' + JSON.stringify(out.set) : ''));
   console.log('| Tomb:Stake | ' + pols.join(' | ') + ' |\n|---|' + pols.map(() => '---|').join(''));
   for (const [t, s] of rows) console.log(`| ${t}:${s} | ` + pols.map(p => { const r = out.rows[t + ':' + s + '|' + p]; return r ? pct(r.win) : '-'; }).join(' | ') + ' |');
   console.log('\ndetail: win, cleared ch1, cleared ch2, best seal median / 95th pct, seals a run, walls a run, crumbles a run, bare walls / collapses / walk-aways a run, strikes a run, by class');
-  for (const k in out.rows) { const r = out.rows[k]; console.log(`${k.padEnd(12)} ${pct(r.win).padStart(6)} ${pct(r.c1).padStart(6)} ${pct(r.c2).padStart(6)}  ${String(r.best50).padStart(5)} / ${String(r.best95).padStart(5)}  ${r.seals.toFixed(1)}  ${r.walls.toFixed(1)}  ${r.cr.toFixed(2)}  ${r.bare.toFixed(2)}/${r.col.toFixed(2)}/${r.walk.toFixed(2)}  ${r.strikes.toFixed(0)}  ${JSON.stringify(r.cls)}${r.stuck || r.to ? '  STUCK ' + r.stuck + ' TIMEOUT ' + r.to : ''}`); }
+  for (const k in out.rows) { const r = out.rows[k]; console.log(`${k.padEnd(12)} ${pct(r.win).padStart(6)} ${pct(r.c1).padStart(6)} ${pct(r.c2).padStart(6)}  ${String(r.best50).padStart(5)} / ${String(r.best95).padStart(5)}  ${r.seals.toFixed(1)}  ${r.walls.toFixed(1)}  ${r.cr.toFixed(2)}  ${r.bare.toFixed(2)}/${r.col.toFixed(2)}/${r.walk.toFixed(2)}  ${r.strikes.toFixed(0)}  ${JSON.stringify(r.cls)} died@ch ${JSON.stringify(r.died)} frac ${JSON.stringify(r.dfrac)}${r.wonBy.length ? ' wonBy ' + JSON.stringify(r.wonBy) : ''}${r.stuck || r.to ? '  STUCK ' + r.stuck + ' TIMEOUT ' + r.to : ''}`); }
   if (out.errors.length) console.log('PAGE ERRORS', out.errors.length, [...new Set(out.errors.map(e => String(e).slice(0, 160)))].slice(0, 3));
   if (Object.keys(out.unknownCards).length) console.log('cards closed by the fallback rule:', JSON.stringify(out.unknownCards).slice(0, 600));
   if (out.stuck.length) console.log('stuck:', JSON.stringify(out.stuck));
