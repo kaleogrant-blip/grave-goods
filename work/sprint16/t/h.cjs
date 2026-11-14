@@ -12,6 +12,7 @@ async function open(file,o={}){
   const b=await browser();
   const ctx=o.ctx||await b.newContext({viewport:{width:o.w||390,height:o.h||844},deviceScaleFactor:1,isMobile:false,hasTouch:true,reducedMotion:o.rm?'reduce':'no-preference'});
   if(!o.ctx)await ctx.addInitScript(o.fresh?'':`try{for(const k of ['rw_train'])if(!localStorage.getItem(k))localStorage.setItem(k,'1')}catch(e){}`);
+  if(!o.ctx&&o.won)await ctx.addInitScript(`try{if(!localStorage.getItem('rw_rc10')){localStorage.setItem('rw_rc10','1');localStorage.setItem('rw_best',JSON.stringify({runs:3,wins:1,best:0,depth:3}))}}catch(e){}`); // a profile that has cleared a tomb: the first-tomb rules (seal held for a full tray, softer chamber 3) are off
   if(!o.ctx&&o.init)await ctx.addInitScript(o.init);
   if(!o.ctx)await ctx.addInitScript(`window.__vib=[];window.__vibEarly=[];(()=>{let tapped=false;addEventListener('pointerdown',()=>{tapped=true},true);try{navigator.vibrate=function(p){if(!tapped)window.__vibEarly.push(p);window.__vib.push([Math.round(performance.now()),p]);return true}}catch(e){}})();`); // headless Chromium refuses vibrate, so the calls are recorded instead; __vibEarly holds any made before the first tap (a real browser logs an error for those)
   const page=await ctx.newPage(),errors=[];await page.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.fulfill({status:200,contentType:'text/css',body:''}));

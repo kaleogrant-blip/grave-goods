@@ -51,7 +51,7 @@ async function table(N, rows, pols, set) {
   const browser = await chromium.launch(), P = +process.env.PAGES || 2, per = Math.ceil(N / CLASSES.length), B = SEQ ? 4 : 10;
   const jobs = [];
   for (const [tomb, stake] of rows) for (const pol of pols) for (const cls of CLASSES) for (let a = 0; a < per; a += B)
-    jobs.push({ o: SEQ ? { tomb, stake, pol, cls, seq: SEQ } : { tomb, stake, pol, cls }, seeds: Array.from({ length: Math.min(B, per - a) }, (_, k) => 'S' + tomb + '-' + stake + '-' + cls + '-' + (a + k)) });
+    jobs.push({ o: Object.assign({ tomb, stake, pol, cls }, SEQ ? { seq: SEQ } : {}, process.env.RELIC ? { relic: process.env.RELIC } : {}), seeds: Array.from({ length: Math.min(B, per - a) }, (_, k) => 'S' + tomb + '-' + stake + '-' + cls + '-' + (a + k)) });
   const res = {}, t0 = Date.now(); let done = 0, next = 0; const errs = [], unknown = {}, stuck = [];
   // every finished batch is appended to <OUT>.jobs, so a run that is cut off carries on from there when started again
   const JF = process.env.OUT ? process.env.OUT + '.jobs' : null, have = {};

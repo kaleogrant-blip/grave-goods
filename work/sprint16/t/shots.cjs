@@ -1,5 +1,5 @@
 // Screenshots for the owner: the tray pick, nine loose finds with the oldest cracked, the crumble (mid-fall and after), the updated How to Play card,
-// the Training-complete card and the title with the TRAY TEST tag. Three viewports. Finds are brought to one tile from open by setup; every uncovering and pick is a real tap.
+// the Training-complete card and the title. Three viewports. Finds are brought to one tile from open by setup; every uncovering and pick is a real tap.
 const H=require('./h.cjs');const path=require('path');const OUT=path.join(H.DIR,'shots');const FILE=process.argv[2]||H.BUILD;
 const VPS=[[390,844],[360,640],[844,390]];
 const shot=async(page,n)=>{const cs=await page.evaluate(()=>document.characterSet+'|'+document.getElementById('lives').textContent);if(!/^UTF-8\|[\u2665\u2661]*$/.test(cs))throw new Error('text encoding went wrong before '+n+': '+cs);return page.screenshot({path:path.join(OUT,n+'.png')})};

@@ -102,7 +102,7 @@ rep("""    if(n===TRAY.loose){if(trayCoach('nine'))uiToast('Nine loose finds. Th
     """    if(n===TRAY.loose){if(!trayRelicWarn()&&trayCoach('nine'))uiToast('Nine loose finds. The wall has room for no more. Uncover a tenth and the oldest crumbles.',5200)}""")
 rep("function trayGoneMsg(g){", """function trayRelicWarn(){const o=state.train?null:trayOldest();if(!o||!o.relic||state.relicWarned===o.id)return false;state.relicWarned=o.id; // a Pyrite decoy is warned about like the relic it pretends to be
   uiToast('★ The '+o.name+' is your oldest loose find. Uncover one more and it crumbles. Seal it first.',6000);try{hap([20,30,20,30,60]);sfx('warn',{lvl:2})}catch(e){}
-  setTimeout(()=>{try{if(state&&!state.over)log('★ The '+o.name+' is the oldest of nine loose finds. One more find and it crumbles. Seal a tray with it on.')}catch(e){}},60);return true}
+  setTimeout(()=>{try{if(state&&!state.over)log('★ The '+o.name+' is the oldest of nine loose finds. One more find and it crumbles. Seal a tray with it on.')}catch(e){}},250);return true}
 function trayGoneMsg(g){""")
 
 # 3e. coaching that still taught the old rule
@@ -122,7 +122,7 @@ rep("  const bsS=S.bs?`${S.bsw} × ${S.bsf}${S.bsn?' · '+S.bsn:''}`:'none seale
 rep("${cell1('Best banked',fmtN(S.best),'one run, all chambers')}", "${cell1('Best banked',fmtN(S.best),old.best?'old rule: '+fmtN(old.best)+', old digits':'one run, all chambers')}")
 # the note, once, at the first menu after the upgrade
 rep("syncTop();paint();\nwindow.S14={paint,setOpen,setPouch,state:S};\n})();\n",
-    "syncTop();paint();\nwindow.S14={paint,setOpen,setPouch,state:S};\n})();\n(function(){const _sm=showMenu;showMenu=function(){const a=arguments,t=this;try{if(rc10Note()&&rc10NoteCard(()=>showMenu.apply(t,a)))return}catch(e){console.error(e)}return _sm.apply(t,a)}})();\n")
+    "syncTop();paint();\nwindow.S14={paint,setOpen,setPouch,state:S};\n})();\n(function(){const _sm=showMenu,_sl=showLoadout; // the title's Dig button opens the kit screen, the camp opens the menu: the note comes before either, once\n  showMenu=function(){const a=arguments,t=this;try{if(rc10Note()&&rc10NoteCard(()=>showMenu.apply(t,a)))return}catch(e){console.error(e)}return _sm.apply(t,a)};\n  showLoadout=function(){const a=arguments,t=this;try{if(rc10Note()&&rc10NoteCard(()=>showLoadout.apply(t,a)))return}catch(e){console.error(e)}return _sl.apply(t,a)}})();\n")
 
 # ================================================================ 5. the first tomb (a profile that has never cleared a tomb): the seal waits for a full tray, and chamber 3 asks less
 rep("function sarcAt(x,y){", """// ===================== rc10: THE FIRST TOMB =====================
@@ -151,6 +151,38 @@ rep("{const tn=trayList().length,tt=tn?'Tray '+tn+'/'+TRAY.n:'';sm.textContent=s
 rep('d:"Hammer clears 4×4 for 26 crack. Pick is clumsy and cracks 1.5.",pickDmg:1,pickCrack:1.5,hamR:1,hamDmg:3,hamCrack:26,', 'd:"Hammer clears 4×4 for %d crack. Pick is clumsy and cracks 1.5.",pickDmg:1,pickCrack:1.5,hamR:1,hamDmg:3,hamCrack:%d,' % (BRUTE_HAM, BRUTE_HAM))
 rep('brute:{d:"Hammer clears 4×4 for 26 crack. The pick is clumsy: 1.5 crack."}', 'brute:{d:"Hammer clears 4×4 for %d crack. The pick is clumsy: 1.5 crack."}' % BRUTE_HAM)
 rep("fence:{extraOffers:1,swaps:1,stealMult:.5,pickDmg:1,pickCrack:1,hamR:1,hamDmg:2,hamCrack:12}", "fence:{extraOffers:1,swaps:1,stealMult:.5,pickDmg:1,pickCrack:1,hamR:1,hamDmg:2,hamCrack:%d}" % FENCE_HAM)
+
+# ================================================================ 7. How to Play: the bare-wall rule and the first tomb, one sentence each
+rep("When the wall is spent, you can walk away: the wall stands, your bank stays, one Memory goes.'",
+    "When the wall is spent, you can walk away: the wall stands, your bank stays, one Memory goes. A wall dug bare, with nothing left to seal, comes down free once a chamber. The next bare wall costs a Memory.'")
+rep("Every chamber has its own target, counted from zero.'", "Every chamber has its own target, counted from zero. On your first tomb the seal waits for a full tray, and the last chamber asks less.'")
+
+# ================================================================ 8. later tombs: the guardian chamber's target, tomb by tomb (see tune.py and LOG.md)
+def pct(v): return '%d%% %s' % (round(abs(v) * 100), 'higher' if v > 0 else 'lower')
+def js(v): return ('%.2f' % v).replace('0.', '.').rstrip('0')
+rep('''twist:{id:'oracle',xray:1,hideOre:1,tgt:.05,t:"Guardian chamber: a free X-ray and targets 5% higher, but the ores are hidden."}''',
+    '''twist:{id:'oracle',xray:1,hideOre:1,tgt:%s,t:"Guardian chamber: a free X-ray and a target %s, but the ores are hidden."}''' % (js(TW_ORACLE), pct(TW_ORACLE)))
+rep('''twist:{id:'jelling',tremor:5,relics:2,crack:.6,tgt:.15,t:"Guardian chamber: tremors are 5 points likelier in the red, two relics lie buried, the wall holds 40% less and the target is 15% higher."}''',
+    '''twist:{id:'jelling',tremor:5,relics:2,crack:.6,tgt:%s,t:"Guardian chamber: tremors are 5 points likelier in the red, two relics lie buried, the wall holds 40%% less and the target is %s."}''' % (js(TW_JELLING), pct(TW_JELLING)))
+rep('''twist:{id:'tikal',roots:.2,sarc:2,t:"Guardian chamber: a fifth of the dirt is roots, three hits deep, and sarcophagi come twice as often."}''',
+    '''twist:{id:'tikal',roots:.2,sarc:2,tgt:%s,t:"Guardian chamber: a fifth of the dirt is roots, three hits deep, sarcophagi come twice as often, and the target is %s."}''' % (js(TW_TIKAL), pct(TW_TIKAL)))
+rep('''twist:{id:'ur',tgt:.3,fort:1,coin:1,crack:.7,t:"Guardian chamber: targets 30% higher, Fortune +1 to start, the knucklebone is always offered, and the wall holds 30% less."}''',
+    '''twist:{id:'ur',tgt:%s,fort:1,coin:1,crack:.7,t:"Guardian chamber: the wall holds 30%% less and the target is %s. Fortune +1 to start, and the knucklebone is always offered."}''' % (js(TW_UR), pct(TW_UR)))
+rep('''twist:{id:'knossos',cols:12,lampR:3,tgt:.1,t:"Guardian chamber: the labyrinth. The wall is twelve tiles wide, the lamp reaches only three, and the target is 10% higher."}''',
+    '''twist:{id:'knossos',cols:12,lampR:3,tgt:%s,t:"Guardian chamber: the labyrinth. The wall is twelve tiles wide, the lamp reaches only three, and the target is %s."}''' % (js(TW_KNOSSOS), pct(TW_KNOSSOS)))
+rep('''twist:{id:'army',big:1,fill:9,tgt:-.6,t:"Guardian chamber: the army. Every find is at least 2×2, there are no coins, and there are so few of them that the target is 60% lower."}''',
+    '''twist:{id:'army',big:1,fill:9,tgt:%s,t:"Guardian chamber: the army. Every find is at least 2×2, there are no coins, and the target is %s."}''' % (js(TW_ARMY), pct(TW_ARMY)))
+# the guardian slips and the Ledger read the same numbers
+rep("  {xray:1,target:.05},\n  {tremor:.15,relics:2,tremorBase:.10,crack:.6,target:.15},\n  {rootFrac:.2,rootDepth:3,sarcMult:2},\n  {target:.3,fortune:1,crack:.7},\n  {cols:12,lamp:3,target:.1},\n  {fill:9,target:-.6}],",
+    "  {xray:1,target:%s},\n  {tremor:.15,relics:2,tremorBase:.10,crack:.6,target:%s},\n  {rootFrac:.2,rootDepth:3,sarcMult:2,target:%s},\n  {target:%s,fortune:1,crack:.7},\n  {cols:12,lamp:3,target:%s},\n  {fill:9,target:%s}]," % tuple(js(v) for v in (TW_ORACLE, TW_JELLING, TW_TIKAL, TW_UR, TW_KNOSSOS, TW_ARMY)))
+rep("const _kitPct=v=>Math.round(v*100);", "const _kitPct=v=>Math.round(v*100);\nconst kitTgt=v=>Math.round(Math.abs(v)*100)+'% '+(v<0?'lower':'higher'); // rc10: a guardian target may sit below the base as well as above it")
+rep("she has hidden the ore from you. Targets are ${_kitPct(PROG_DATA.tombs[1].target)}% higher.`", "she has hidden the ore from you. The target is ${kitTgt(PROG_DATA.tombs[1].target)}.`")
+rep("The wall holds ${_kitPct(1-T.crack)}% less and the target is ${_kitPct(T.target)}% higher.`", "The wall holds ${_kitPct(1-T.crack)}% less and the target is ${kitTgt(T.target)}.`")
+rep("Sarcophagi turn up twice as often. Bring something heavy.`", "Sarcophagi turn up twice as often. The target is ${kitTgt(T.target)}. Bring something heavy.`")
+rep("`Targets are ${_kitPct(T.target)}% higher. You start with Fortune +${T.fortune}.", "`The target is ${kitTgt(T.target)}. You start with Fortune +${T.fortune}.")
+rep("the lamp reaches ${T.lamp} and the target is ${_kitPct(T.target)}% higher.", "the lamp reaches ${T.lamp} and the target is ${kitTgt(T.target)}.")
+rep("not one coin, and so few of them that the target is ${_kitPct(-T.target)}% lower.", "not one coin, and the target is ${kitTgt(T.target)}.")
+rep("every find at least 2×2, no coins, a target 60% lower.", "every find at least 2×2, no coins, a target %s." % pct(TW_ARMY))
 
 open(OUT, 'w', encoding='utf-8').write(s)
 print('edits:', N[0], ' bytes:', len(s.encode('utf-8')), ' md5:', hashlib.md5(s.encode('utf-8')).hexdigest())

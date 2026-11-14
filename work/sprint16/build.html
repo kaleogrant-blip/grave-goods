@@ -3216,7 +3216,7 @@ function trayTick(){ // after anything that can uncover a find: stamp the new on
   return gone}
 function trayRelicWarn(){const o=state.train?null:trayOldest();if(!o||!o.relic||state.relicWarned===o.id)return false;state.relicWarned=o.id; // a Pyrite decoy is warned about like the relic it pretends to be
   uiToast('★ The '+o.name+' is your oldest loose find. Uncover one more and it crumbles. Seal it first.',6000);try{hap([20,30,20,30,60]);sfx('warn',{lvl:2})}catch(e){}
-  setTimeout(()=>{try{if(state&&!state.over)log('★ The '+o.name+' is the oldest of nine loose finds. One more find and it crumbles. Seal a tray with it on.')}catch(e){}},60);return true}
+  setTimeout(()=>{try{if(state&&!state.over)log('★ The '+o.name+' is the oldest of nine loose finds. One more find and it crumbles. Seal a tray with it on.')}catch(e){}},250);return true}
 function trayGoneMsg(g){return g.length?'Crumbled: '+g.map(f=>(f.relic?'★ ':'')+f.name+' (age '+f.age+')').join(', ')+'. ':''}
 function trayAt(cx,cy){ // the loose find under a tap, when a tap there means "move it on or off the tray"
   if(!state||state.over||state.sealing||state.train||feedMode||tool==='xray'||tool==='lode'||tool==='blast')return null;
@@ -6326,7 +6326,7 @@ function hHeart(g,x,y,on){
   P.forEach((r,j)=>[...r].forEach((ch,i)=>{if(ch!=='#')return;g.fillStyle=on?(j===0&&i<3?'#ff7a7f':'#d8383f'):'#3b2d2d';g.fillRect(x+i*3,y+j*3,3,3)}));
 }
 const HOW=[
- {h:'Dig and seal',t:'Tap the wall to strike it. The pick takes one tile, the hammer takes a 3×3 patch, and every strike fills the Wall meter. Finds that glow are uncovered. Tap Seal to bank a tray of them, six at most, before the wall comes down. Every chamber has its own target, counted from zero.',
+ {h:'Dig and seal',t:'Tap the wall to strike it. The pick takes one tile, the hammer takes a 3×3 patch, and every strike fills the Wall meter. Finds that glow are uncovered. Tap Seal to bank a tray of them, six at most, before the wall comes down. Every chamber has its own target, counted from zero. On your first tomb the seal waits for a full tray, and the last chamber asks less.',
   d(g){
    hGrid(g,["11211121112","11200011211","12100011121","11100011112","21111211121"]);
    hFind(g,'Coin',0,72+24,24+0,5);hFind(g,'Bone',0,72,48,3);
@@ -6385,7 +6385,7 @@ const HOW=[
    hText(g,'?',216,49,{a:'center',s:26,c:'#fff'});
    hText(g,'12 CRACK',216,86,{a:'center',s:8,bg:1});
   }},
- {h:'Memories and walking away',t:'You have three Memories. A collapse costs one and takes everything unsealed with it; the very first one is on the house. Clearing a chamber gives one back. When the wall is spent, you can walk away: the wall stands, your bank stays, one Memory goes.',
+ {h:'Memories and walking away',t:'You have three Memories. A collapse costs one and takes everything unsealed with it; the very first one is on the house. Clearing a chamber gives one back. When the wall is spent, you can walk away: the wall stands, your bank stays, one Memory goes. A wall dug bare, with nothing left to seal, comes down free once a chamber. The next bare wall costs a Memory.',
   d(g){
    g.fillStyle='#17141c';g.fillRect(0,0,264,120);
    hHeart(g,12,14,1);hHeart(g,40,14,1);hHeart(g,68,14,0);hText(g,'MEMORIES',12,44,{s:8,c:'#bcab8c'});
@@ -6978,12 +6978,12 @@ const PROG_DATA={
  ores:{quartz:{pool:1},bitumen:{strikes:3,pool:1},sulfur:{pool:1},silver:{pool:1}},     // pool = copies in the ore pool once unlocked (the base pool has 13 entries)
  tombs:[                                                // chamber-3 twists. The Design seat builds the rules; these numbers feed the guardian slips so copy and rule cannot drift.
   {},
-  {xray:1,target:.05},
-  {tremor:.15,relics:2,tremorBase:.10,crack:.6,target:.15},
-  {rootFrac:.2,rootDepth:3,sarcMult:2},
-  {target:.3,fortune:1,crack:.7},
+  {xray:1,target:.1},
+  {tremor:.15,relics:2,tremorBase:.10,crack:.6,target:-.05},
+  {rootFrac:.2,rootDepth:3,sarcMult:2,target:.05},
+  {target:-.1,fortune:1,crack:.7},
   {cols:12,lamp:3,target:.1},
-  {fill:9,target:-.6}],
+  {fill:9,target:-.05}],
  rank:{class_fence:6,class_cartographer:12,tool_trowel:3,tool_chisel:5,tool_mattock:8,tool_drill:10,tool_powder:14,tool_rod:18,
   gear_lampoil:4,gear_rope:7,gear_sieve:9,gear_reliquary:13,ore_quartz:11,ore_bitumen:16,hat_fez:15,hat_laurel:20,hat_gjermundbu:25,hat_diadem:30}
 };
@@ -7383,6 +7383,7 @@ return {RAIDERS:NEW_RAIDERS,HATS,HAT_POS,TOOLS:TOOL_ART,GEAR:GEAR_ART_NEW};
 function kitHas(id){try{return typeof progUnlocked==='function'?!!progUnlocked(id):true}catch(e){return true}}
 function kitLockWords(id){const r=PROG_DATA.rank[id];return(!r||kitHas(id))?'':` Unlocks at Expedition Rank ${r}.`}
 const _kitPct=v=>Math.round(v*100);
+const kitTgt=v=>Math.round(Math.abs(v)*100)+'% '+(v<0?'lower':'higher'); // rc10: a guardian target may sit below the base as well as above it
 // ---------- saved choices (rw_kit2: tool and hat; the Design seat adds rank/tombs/stakes beside it) ----------
 let _kit2={};try{_kit2=JSON.parse(Store.get('rw_kit2')||'{}')||{}}catch(e){_kit2={}}
 function kitSave(){try{Store.set('rw_kit2',JSON.stringify(_kit2))}catch(e){}}
@@ -7729,12 +7730,12 @@ const TOMB_DESC=[
 ];
 const TOMB_SLIP=[ // [name, text]; the text is built from PROG_DATA so a rule and its slip cannot disagree
  ()=>['No guardian','Chamber three. No guardian on record. The Quartermaster finds this suspicious and has noted it.'],
- ()=>["The Pythia's terms",`A free X-ray in this chamber, on the house. The Oracle sees all of it, and she has hidden the ore from you. Targets are ${_kitPct(PROG_DATA.tombs[1].target)}% higher.`],
- ()=>{const T=PROG_DATA.tombs[2];return['The two mounds',`Two relics lie buried here. In the red the wall shudders ${_kitPct(T.tremor)} times in a hundred, not ${_kitPct(T.tremorBase)}. The wall holds ${_kitPct(1-T.crack)}% less and the target is ${_kitPct(T.target)}% higher.`]},
- ()=>{const T=PROG_DATA.tombs[3];return['The strangler roots',`${_kitPct(T.rootFrac)}% of the dirt is root, ${T.rootDepth} deep. Sarcophagi turn up twice as often. Bring something heavy.`]},
- ()=>{const T=PROG_DATA.tombs[4];return["The king's tribute",`Targets are ${_kitPct(T.target)}% higher. You start with Fortune +${T.fortune}. The knucklebone is offered after every seal, whether you asked or not. The wall holds ${_kitPct(1-T.crack)}% less.`]},
- ()=>{const T=PROG_DATA.tombs[5];return['The labyrinth',`Chamber three is ${T.cols} tiles wide, the lamp reaches ${T.lamp} and the target is ${_kitPct(T.target)}% higher. Nobody is recorded leaving a map. A few are recorded leaving.`]},
- ()=>{const T=PROG_DATA.tombs[6];return['The army',`Everything here is large: nothing under 2×2, not one coin, and so few of them that the target is ${_kitPct(-T.target)}% lower. Farmers found the first warrior in 1974 while digging a well, and the Quartermaster would like it noted that nobody has found the last.`]}
+ ()=>["The Pythia's terms",`A free X-ray in this chamber, on the house. The Oracle sees all of it, and she has hidden the ore from you. The target is ${kitTgt(PROG_DATA.tombs[1].target)}.`],
+ ()=>{const T=PROG_DATA.tombs[2];return['The two mounds',`Two relics lie buried here. In the red the wall shudders ${_kitPct(T.tremor)} times in a hundred, not ${_kitPct(T.tremorBase)}. The wall holds ${_kitPct(1-T.crack)}% less and the target is ${kitTgt(T.target)}.`]},
+ ()=>{const T=PROG_DATA.tombs[3];return['The strangler roots',`${_kitPct(T.rootFrac)}% of the dirt is root, ${T.rootDepth} deep. Sarcophagi turn up twice as often. The target is ${kitTgt(T.target)}. Bring something heavy.`]},
+ ()=>{const T=PROG_DATA.tombs[4];return["The king's tribute",`The target is ${kitTgt(T.target)}. You start with Fortune +${T.fortune}. The knucklebone is offered after every seal, whether you asked or not. The wall holds ${_kitPct(1-T.crack)}% less.`]},
+ ()=>{const T=PROG_DATA.tombs[5];return['The labyrinth',`Chamber three is ${T.cols} tiles wide, the lamp reaches ${T.lamp} and the target is ${kitTgt(T.target)}. Nobody is recorded leaving a map. A few are recorded leaving.`]},
+ ()=>{const T=PROG_DATA.tombs[6];return['The army',`Everything here is large: nothing under 2×2, not one coin, and the target is ${kitTgt(T.target)}. Farmers found the first warrior in 1974 while digging a well, and the Quartermaster would like it noted that nobody has found the last.`]}
 ];
 const tombMusic=[ // hints for the music engine: root = semitones above A, mode = label, bpm = tempo, prog = 8 bars of {r: root in semitones from A1, t: chord tones} (null = keep M_CH)
  {root:0,mode:'A minor',bpm:172,prog:null},
@@ -8060,17 +8061,17 @@ const TOMBS=[
  {id:1,n:"Valley of the Kings",s:"Valley",civ:0,cw:3,tint:"",mus:0,tells:null,blurb:"Sand, gold and firm views on the afterlife.",
   twist:{id:'none',t:"No twist. The third chamber is only the third chamber."}},
  {id:2,n:"The Oracle's Cellar",s:"Oracle",civ:1,cw:3,tint:"rgba(86,140,214,.18)",mus:2,tells:{unstable:1,gilded:2,quiet:2,hollow:1},blurb:"Marble, olive oil and riddles that cost extra.",
-  twist:{id:'oracle',xray:1,hideOre:1,tgt:.05,t:"Guardian chamber: a free X-ray and targets 5% higher, but the ores are hidden."}},
+  twist:{id:'oracle',xray:1,hideOre:1,tgt:.1,t:"Guardian chamber: a free X-ray and a target 10% higher, but the ores are hidden."}},
  {id:3,n:"Jelling Mounds",s:"Jelling",civ:2,cw:3,tint:"rgba(150,196,230,.17)",mus:-3,tells:{unstable:2,gilded:1,quiet:1,hollow:2},blurb:"Iron, frost and two very large stones.",
-  twist:{id:'jelling',tremor:5,relics:2,crack:.6,tgt:.15,t:"Guardian chamber: tremors are 5 points likelier in the red, two relics lie buried, the wall holds 40% less and the target is 15% higher."}},
+  twist:{id:'jelling',tremor:5,relics:2,crack:.6,tgt:-.05,t:"Guardian chamber: tremors are 5 points likelier in the red, two relics lie buried, the wall holds 40% less and the target is 5% lower."}},
  {id:4,n:"Tikal Understory",s:"Tikal",civ:3,cw:3,tint:"rgba(44,172,104,.17)",mus:5,tells:{unstable:1,gilded:2,quiet:1,hollow:2},blurb:"Jade, vines and roots that mind their own business.",
-  twist:{id:'tikal',roots:.2,sarc:2,t:"Guardian chamber: a fifth of the dirt is roots, three hits deep, and sarcophagi come twice as often."}},
+  twist:{id:'tikal',roots:.2,sarc:2,tgt:.05,t:"Guardian chamber: a fifth of the dirt is roots, three hits deep, sarcophagi come twice as often, and the target is 5% higher."}},
  {id:5,n:"Ziggurat of Ur",s:"Ur",civ:4,cw:3,tint:"rgba(72,88,208,.18)",mus:7,tells:{unstable:1,gilded:3,quiet:1,hollow:1},blurb:"Clay, lapis and complaints about the grain tax.",
-  twist:{id:'ur',tgt:.3,fort:1,coin:1,crack:.7,t:"Guardian chamber: targets 30% higher, Fortune +1 to start, the knucklebone is always offered, and the wall holds 30% less."}},
+  twist:{id:'ur',tgt:-.1,fort:1,coin:1,crack:.7,t:"Guardian chamber: the wall holds 30% less and the target is 10% lower. Fortune +1 to start, and the knucklebone is always offered."}},
  {id:6,n:"Palace of Knossos",s:"Knossos",civ:1,cw:3,tint:"rgba(190,70,60,.18)",mus:3,tells:{unstable:1,gilded:1,quiet:2,hollow:2},crest:'<svg viewBox="0 0 16 16"><path d="M8 2v13M8 4L2.5 2.2Q4.6 7 2.5 11.8L8 10M8 4l5.5-1.8Q11.4 7 13.5 11.8L8 10"/></svg>',blurb:"Red columns, painted bulls and a floor plan that turned into a legend.",
   twist:{id:'knossos',cols:12,lampR:3,tgt:.1,t:"Guardian chamber: the labyrinth. The wall is twelve tiles wide, the lamp reaches only three, and the target is 10% higher."}},
  {id:7,n:"Terracotta Pit",s:"Terracotta",civ:5,cw:3,tint:"rgba(190,110,70,.18)",mus:0,tells:{unstable:1,gilded:2,quiet:1,hollow:2},crest:'<svg viewBox="0 0 16 16"><path d="M3 3.5h10M4.5 8h7M3 12.5h10M8 3.5v9"/></svg>',blurb:"Rammed earth, bronze and an army that stands very still.",
-  twist:{id:'army',big:1,fill:9,tgt:-.6,t:"Guardian chamber: the army. Every find is at least 2×2, there are no coins, and there are so few of them that the target is 60% lower."}}
+  twist:{id:'army',big:1,fill:9,tgt:-.05,t:"Guardian chamber: the army. Every find is at least 2×2, there are no coins, and the target is 5% lower."}}
 ];
 // Stakes: each stacks all the ones below it. rule = exact rule change; leg / epic = relic tier weights at that stake (base 1 / 2).
 const STAKES=[
@@ -8636,7 +8637,7 @@ SKILL.why={
  'tomb:4':"Maya relics, jade in the dark, and roots that reward a heavy tool.",
  'tomb:5':"Mesopotamian relics, a king who expects tribute and a knucklebone offered at every seal. It costs more; it pays more.",
  'tomb:6':"Greek relics three times as often, and a maze in chamber three: twelve tiles wide, a lamp that reaches three. Bring a memory.",
- 'tomb:7':"Chinese relics three times as often, and an army: every find at least 2×2, no coins, a target 60% lower. Everything is big, and so is the pay-off.",
+ 'tomb:7':"Chinese relics three times as often, and an army: every find at least 2×2, no coins, a target 5% lower. Everything is big, and so is the pay-off.",
  'class:fence':"Pockets a find a chamber so you do not have to. Four gear offers, one swap. Unethical, and rather good.",
  'class:cartographer':"Sees every outline for three seconds, then plans the whole chamber. Slow, and rarely wrong.",
  'tool:trowel':"Two deep, five wide, one crack. The pick, but sensible.",
@@ -11990,6 +11991,8 @@ if(typeof nc==='function'){try{newChamber=function(){const r=nc.apply(this,argum
 syncTop();paint();
 window.S14={paint,setOpen,setPouch,state:S};
 })();
-(function(){const _sm=showMenu;showMenu=function(){const a=arguments,t=this;try{if(rc10Note()&&rc10NoteCard(()=>showMenu.apply(t,a)))return}catch(e){console.error(e)}return _sm.apply(t,a)}})();
+(function(){const _sm=showMenu,_sl=showLoadout; // the title's Dig button opens the kit screen, the camp opens the menu: the note comes before either, once
+  showMenu=function(){const a=arguments,t=this;try{if(rc10Note()&&rc10NoteCard(()=>showMenu.apply(t,a)))return}catch(e){console.error(e)}return _sm.apply(t,a)};
+  showLoadout=function(){const a=arguments,t=this;try{if(rc10Note()&&rc10NoteCard(()=>showLoadout.apply(t,a)))return}catch(e){console.error(e)}return _sl.apply(t,a)}})();
 
 </script>

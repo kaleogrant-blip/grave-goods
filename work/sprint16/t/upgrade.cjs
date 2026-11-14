@@ -21,14 +21,17 @@ const prof=page=>page.evaluate(()=>{stSave();return{ver:GAME_VERSION,coll:loadCo
 async function makeOld(finish){
   const o=await H.open(H.MAIN,{});const page=o.page;await toDig(page);
   assert.strictEqual(await page.evaluate(()=>GAME_VERSION),'v1.0-rc9b');
+  await page.evaluate(()=>{TARGETS[state.i]=999999;document.getElementById('target').textContent=TARGETS[state.i]}); // setup: seven finds would clear rc9b's first wall, and the dig has to stay open
   await uncover(page,7);await sealNow(page); // rc9b: one seal takes all seven
   await page.evaluate(()=>{ // the rest of a lived-in profile, through rc9b's own functions
     saveColl(['Ankh','Heart Scarab']);ecoWalletEarn(140);PROG.rank.xp=xpAt(7)+5;PROG.rank.r=rankFor(PROG.rank.xp);progSaveRank();PROG.tombs.c['1.1']=2;PROG.tombs.c['2.1']=1;progSaveTombs();PROG.stakes.u.scholar=2;progSaveStakes();progGrantLegacy();
     setSet('rm',true);const d=dailyGet();d['20261101']=4321;dailyPut(d);ST.wins=2;ST.chambers=9;ST.hist.push({b:5700,w:1,d:0,c:'scholar'});stSave();const B=bestGet();B.wins=2;B.best=Math.max(B.best|0,6100);B.runs=Math.max(B.runs|0,3);bestPut(B);ST.best=Math.max(ST.best,6100);stSave();run.gold=(run.gold|0)+17;ui()});
   await uncover(page,3); // leave three finds loose on the wall
-  if(finish){ // walk away with one Memory left: the run ends and rc9b writes its summary
-    await page.evaluate(()=>{run.lives=1;ui()});await page.locator('#walk').tap();await page.waitForTimeout(650);await page.locator('#walk').tap().catch(()=>{});
-    await page.waitForFunction(()=>!document.getElementById('overlay').hidden&&/forgotten you|Expedition Log/.test(document.getElementById('card').textContent),null,{timeout:15000});await page.waitForTimeout(H.GUARD+300);
+  if(finish){ // the wall comes down on the last Memory: the run ends and rc9b writes its own summary and best scores
+    await page.evaluate(()=>{run.lives=1;_mercy=SKILL.mercy.free;state.crack=maxCrack()-.5;ui()});
+    const c=await page.evaluate(()=>{for(let y=ROWS-1;y>=0;y--)for(let x=0;x<COLS;x++)if(state.dirt[y][x]>0&&!(state.owner[y][x]>=0&&state.finds[state.owner[y][x]].sarc))return[x,y]});
+    await page.locator('#pick').tap();const p=await H.cellXY(page,c[0],c[1]);await H.clearWay(page,p);await H.tapXY(page,p.x,p.y);
+    await page.waitForFunction(()=>!document.getElementById('overlay').hidden&&/forgotten you/.test(document.getElementById('card').textContent),null,{timeout:20000});await page.waitForTimeout(H.GUARD+300);
     await page.locator('#card #go').tap();await page.waitForTimeout(900)}
   const before=await prof(page);const purse=await page.evaluate(()=>run&&run.gold|0),ch=await page.evaluate(()=>state.i+1);
   await page.evaluate(()=>window.dispatchEvent(new Event('pagehide')));await page.waitForTimeout(250);

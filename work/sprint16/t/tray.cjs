@@ -110,14 +110,13 @@ const sealWait=async page=>{await page.evaluate(()=>{Q.speed=4});await page.loca
       await sealWait(page);s=await st(page);const sig=JSON.stringify([s.ex,s.tray,s.ord,s.lost,s.crack,s.banked,s.ch,s.rs,s.dirt,await H.wallSig(page)]);assert.strictEqual(errors.length,0,errors.join('\n'));await ctx.close();return{sig,s}};
     const a=await run1(),b=await run1();assert.strictEqual(a.sig,b.sig,'two runs differ');return 'banked '+a.s.banked+', crack '+a.s.crack+', rng '+a.s.rs+' both times'});
 
-  await T('Hoard is a full tray; numbers are x3; caps are off; version and tag',async()=>{const {page,errors,ctx}=await fresh('TRAY-H');
+  await T('Hoard is a full tray; numbers are x3; caps are off; version, no test tag, main save keys only',async()=>{const {page,errors,ctx}=await fresh('TRAY-H');
     const r=await page.evaluate(()=>{const fs=state.finds.filter(f=>!f.sarc).slice(0,7);const s6=score(fs.slice(0,6)),s5=score(fs.slice(0,5));
-      return{h6:s6.notes.some(n=>/^Hoard 6/.test(n)),h5:s5.notes.some(n=>/^Hoard/.test(n)),hm:hoardMin(),t:[SKILL.targets[0],SKILL.ch2T1,SKILL.targets[2]],cap:[SKILL.cap.fame,SKILL.cap.reward],ver:GAME_VERSION,tag:document.getElementById('trayTag').textContent,
-        tagVis:(()=>{const b=document.getElementById('trayTag').getBoundingClientRect();return b.width>40&&b.top>=0&&b.bottom<=innerHeight})(),w3:state.finds.every(f=>findWorth(f)%3===0),credit:skillCredit(1e7),
-        keys:Object.keys(localStorage).filter(k=>!/^S15T_/.test(k)&&!/^__/.test(k)&&k!=='rw_train')}});
-    assert(r.h6&&!r.h5&&r.hm===6,'Hoard at six, not five');assert.deepStrictEqual(r.t,[900,1200,9000]);assert.deepStrictEqual(r.cap,[null,null].map(()=>Infinity));assert.strictEqual(r.ver,'v1.0-tray1');assert(/TRAY TEST/.test(r.tag)&&r.tagVis,'tag on screen');
-    assert(r.w3,'every Worth is a multiple of 3');assert.strictEqual(r.credit,1e7,'payout cap off');assert.deepStrictEqual(r.keys,[],'no key outside S15T_: '+r.keys);
-    assert.strictEqual(errors.length,0,errors.join('\n'));await ctx.close();return 'targets '+r.t.join('/')+', Hoard 6, '+r.tag});
+      return{h6:s6.notes.some(n=>/^Hoard 6/.test(n)),h5:s5.notes.some(n=>/^Hoard/.test(n)),hm:hoardMin(),t:[SKILL.targets[0],SKILL.ch2T1,SKILL.targets[2]],cap:[SKILL.cap.fame,SKILL.cap.reward],ver:GAME_VERSION,tag:!!document.getElementById('trayTag'),w3:state.finds.every(f=>findWorth(f)%3===0),credit:skillCredit(1e7),
+        keys:Object.keys(localStorage).filter(k=>!/^rw_/.test(k)&&!/^__/.test(k))}});
+    assert(r.h6&&!r.h5&&r.hm===6,'Hoard at six, not five');assert.deepStrictEqual(r.t,[900,1200,9000]);assert.deepStrictEqual(r.cap,[null,null].map(()=>Infinity));assert.strictEqual(r.ver,'v1.0-rc10');assert(!r.tag,'the TRAY TEST tag is gone');
+    assert(r.w3,'every Worth is a multiple of 3');assert.strictEqual(r.credit,1e7,'payout cap off');assert.deepStrictEqual(r.keys,[],'no key outside rw_: '+r.keys);
+    assert.strictEqual(errors.length,0,errors.join('\n'));await ctx.close();return 'targets '+r.t.join('/')+', Hoard 6, '+r.ver});
 
   console.log('\n| Test | Result | Note |\n|---|---|---|');rows.forEach(r=>console.log('| '+r.join(' | ')+' |'));
   console.log(fail?'TRAY FAIL '+fail:'TRAY PASS '+rows.length);await H.close();process.exit(fail?1:0)})().catch(e=>{console.error('TRAY ERROR',e);process.exit(1)});

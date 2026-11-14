@@ -1,4 +1,4 @@
-// TRAY TEST build. End-to-end at three viewports, real taps for everything a player taps (now with the tray: eight loose finds, a pick, an unpick, a six-find seal):
+// End-to-end at three viewports, real taps for everything a player taps (now with the tray: eight loose finds, a pick, an unpick, a six-find seal):
 // title -> kit -> dig -> seal -> sarcophagus reading (3 taps) -> second bone at the fourth Fever (3 taps) -> chamber cleared -> Market.
 // Checks: zero page errors, document.scrollWidth <= viewport at every stop, the reading's printed record against boneTable().
 const H=require('./h.cjs');const assert=require('assert');
@@ -22,8 +22,8 @@ for(const [w,h] of VPS){
   // the tray: eight loose finds (their last tiles dug by real taps), one tapped off, one tapped on, then Seal
   const last=await page.evaluate(()=>{const out=[];for(const f of state.finds){if(f.sarc||f.banked||f.cells.every(([x,y])=>state.dirt[y][x]===0))continue;if(exposedFinds().length+out.length>=8)break;f.cells.forEach(([x,y],j)=>{state.dirt[y][x]=j===0?1:0});out.push(f.cells[0])}ui();draw();return out});
   for(const [x,y] of last){const p=await H.cellXY(page,x,y);await H.tapXY(page,p.x,p.y);await page.waitForTimeout(90)}
-  const t0=await page.evaluate(()=>({ex:exposedFinds().map(f=>f.id),tray:trayList().map(f=>f.id),seal:document.getElementById('seal').textContent,tag:document.getElementById('trayTag').getBoundingClientRect().width>40}));
-  assert.strictEqual(t0.ex.length,8,'eight loose finds');assert.strictEqual(t0.tray.length,6,'six on the tray');assert(/Tray 6\/6/.test(t0.seal),t0.seal);assert(t0.tag,'TRAY TEST tag');await stop('tray8');
+  const t0=await page.evaluate(()=>({ex:exposedFinds().map(f=>f.id),tray:trayList().map(f=>f.id),seal:document.getElementById('seal').textContent,tag:!document.getElementById('trayTag')}));
+  assert.strictEqual(t0.ex.length,8,'eight loose finds');assert.strictEqual(t0.tray.length,6,'six on the tray');assert(/Tray 6\/6/.test(t0.seal),t0.seal);assert(t0.tag,'no test tag');await stop('tray8');
   const offId=t0.ex.find(i=>t0.tray.indexOf(i)<0),onId=t0.tray[0];
   for(const id of [offId,onId]){ // put a left-out find on (the least valuable default drops out), then take one of the six off (the next most valuable steps in)
   const c=await page.evaluate(id=>state.finds[id].cells[0],id);const p=await H.cellXY(page,c[0],c[1]);

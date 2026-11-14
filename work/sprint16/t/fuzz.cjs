@@ -1,4 +1,4 @@
-// TRAY TEST build. After every action the tray rules are checked: never more than nine loose finds, never more than six on the tray, every loose find has an age, no two share one,
+// After every action the tray rules are checked: never more than nine loose finds, never more than six on the tray, every loose find has an age, no two share one,
 // a crumbled find is banked and lost, and the Seal button agrees with the tray. Taps on loose finds (tray taps) are part of the mix.
 // Random-action fuzz with real touchscreen taps. node fuzz.cjs [runs=5] [actions=1500] [build] [seed0]
 // Fails on: any page error; a stuck state (nothing about the game changes for 120 actions in a row and no way forward is found).
@@ -25,7 +25,7 @@ const ctxOf=page=>page.evaluate(()=>{const ov=document.getElementById('overlay')
 const fp=c=>[c.title,c.ov,c.panel,c.pause,c.over,c.i,c.crack,c.banked,c.lives,c.taps,c.dirtSum,c.card,c.menu,c.share,c.tool,c.lk].join('|');
 (async()=>{const report={runs:[],nodig:[],stuck:[],errors:[],inv:[]};
   for(let r=0;r<RUNS;r++){
-    const [w,h]=VPS[r%VPS.length];const {page,errors,ctx}=await H.open(FILE,{w,h,init:PDLOG});
+    const [w,h]=VPS[r%VPS.length];const {page,errors,ctx}=await H.open(FILE,{w,h,init:PDLOG,won:r%3!==2}); // two profiles in three have cleared a tomb; the third plays under the first-tomb rules
     let s=(SEED0+r)*2654435761>>>0;const R=()=>(s=(Math.imul(s,1664525)+1013904223)>>>0)/4294967296;
     await page.waitForTimeout(1200);
     const kinds={},stat={digTaps:0,dug:0,nodig:0,bones:0,runsEnded:0,chambers:new Set(),maxI:0};let lastFp='',same=0,stuckHit=false;

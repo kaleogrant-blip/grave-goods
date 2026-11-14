@@ -17,7 +17,8 @@ const hit=(a,b)=>a&&b&&a.l<b.r&&b.l<a.r&&a.t<b.b&&b.t<a.b;
   for(const [w,h] of [[390,844],[360,640],[844,390]])await T('a coaching toast does not cover a tool button ('+w+'x'+h+')',async()=>{const {page,errors,ctx}=await fresh('POL-T'+w,{w,h});
     const c=await almost(page,9);for(const q of c)await tapCell(page,q.x,q.y);await page.waitForTimeout(250);
     const t=await box(page,'#uitoast');assert(t,'the nine-finds toast is up');const txt=await page.evaluate(()=>document.getElementById('uitoast').textContent);assert(/Nine loose finds/.test(txt),txt);
-    const over=[];for(const s of ['#pick','#hammer','#special','#seal','#walk','#pouch','#looseTag'])if(hit(t,await box(page,s)))over.push(s);
+    const over=[];const btns=await page.evaluate(()=>[...document.querySelectorAll('button')].filter(b=>b.offsetParent!==null&&!b.closest('#overlay')).filter(b=>{const r=b.getBoundingClientRect(),e=r.width&&r.height?document.elementFromPoint(r.left+r.width/2,r.top+r.height/2):null;return !!e&&(e===b||b.contains(e))}).map(b=>{const r=b.getBoundingClientRect();return{id:b.id||b.textContent.trim().slice(0,12),l:r.left,t:r.top,r:r.right,b:r.bottom}})); // every button on screen: tools, Seal, Pouch, pause, speed, sound
+    assert(btns.length>=7,'buttons found: '+btns.length);for(const q of btns)if(hit(t,q))over.push(q.id);if(hit(t,await box(page,'#looseTag')))over.push('#looseTag');
     assert.deepStrictEqual(over,[],'toast overlaps '+over.join(', ')+' '+JSON.stringify(t));assert(t.l>=0&&t.r<=w+.5&&t.t>=0&&t.b<=h+.5,'toast on screen '+JSON.stringify(t));
     const wall=await box(page,'#c');assert(t.b<=wall.b+1&&t.t>=wall.t-1,'toast sits over the wall');
     const under=await page.evaluate(([x,y])=>{const e=document.elementFromPoint(x,y);return e&&e.id},[(t.l+t.r)/2,(t.t+t.b)/2]);assert.strictEqual(under,'c','taps pass through the toast to the wall');
@@ -45,7 +46,7 @@ const hit=(a,b)=>a&&b&&a.l<b.r&&b.l<a.r&&a.t<b.b&&b.t<a.b;
     assert(near.every(v=>!v),'5 px outside: '+JSON.stringify(near));assert.strictEqual(errors.length,0,errors.join('\n'));await ctx.close();return 'tile '+cellPx+' px'});
 
   for(const [w,h] of [[390,844],[844,390]])await T('a relic about to crumble is unmistakable, and the crumble has its own sound ('+w+'x'+h+')',async()=>{const {page,errors,ctx}=await fresh('POL-R'+w,{w,h});
-    const c=await almost(page,10,'relic');assert(c[0].relic,'a relic on this wall');for(const q of c.slice(0,9))await tapCell(page,q.x,q.y);await page.waitForTimeout(300);
+    const c=await almost(page,10,'relic');assert(c[0].relic,'a relic on this wall');for(const q of c.slice(0,9))await tapCell(page,q.x,q.y);await page.waitForFunction(()=>/is the oldest of nine loose finds/.test(document.getElementById('log').textContent),null,{timeout:3000}).catch(()=>{});
     const a=await page.evaluate(()=>({toast:document.getElementById('uitoast').textContent,up:!document.getElementById('uitoast').hidden,warned:state.relicWarned,old:trayOldest()&&trayOldest().id,log:document.getElementById('log').textContent,loose:document.getElementById('looseTag').textContent}));
     assert.strictEqual(a.old,c[0].id,'the relic is the oldest');assert.strictEqual(a.warned,c[0].id);assert(a.up&&new RegExp('The '+c[0].name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+' is your oldest loose find\\. Uncover one more and it crumbles\\. Seal it first\\.').test(a.toast),a.toast);
     assert(/is the oldest of nine loose finds/.test(a.log),a.log);assert(/Loose 9\/9/.test(a.loose));

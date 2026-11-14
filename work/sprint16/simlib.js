@@ -26,7 +26,8 @@ function start(o){
   if(!o.keep)profile(o.pol==='novice'||o.fresh);
   try{if(_title)_title.done()}catch(e){}
   try{LK.log.length=0}catch(e){}
-  cls=CLASSES[o.cls];gear=GEAR[0];relic=null;PROG.sel={tomb:o.tomb||1,stake:o.stake||1,tool:'standard'};
+  cls=CLASSES[o.cls];gear=GEAR[0];relic=o.relic?{name:o.relic,state:'hungry'}:null; // o.relic: one Vault relic equipped, never fed (the cheapest piece of a real player's kit to add)
+PROG.sel={tomb:o.tomb||1,stake:o.stake||1,tool:'standard'};
   statsStart(o.cls);TARGETS.length=3;run=newRun(o.seed);run.train=false;$('overlay').hidden=true;
   try{if(typeof _kit2==='object'&&_kit2)_kit2.tool='standard';if(typeof kitRunInit==='function')kitRunInit()}catch(e){}
   s10RunStart({fresh:false,g:gear,tl:'standard',k:o.cls,st:PROG.sel.stake,tb:PROG.sel.tomb,daily:false});
@@ -175,7 +176,7 @@ SIM.run=function(o){ // one whole run. o: {seed,cls,tomb,stake,pol}
     step(o,R);
   }
   const r=SIM.res||{win:false,timeout:true};
-  return{ei:state?state.i:-1,ef:state&&TARGETS[state.i]?Math.min(1,chBank()/TARGETS[state.i]):0,et:state?TARGETS[state.i]:0,w:r.win?1:0,ch:r.win?CHN():maxI,c1:maxI>=1||r.win?1:0,c2:maxI>=2||r.win?1:0,best:SIM.best,seals:SIM.seals,strikes:SIM.strikes,walls:SIM.walls,cr:(RS().cr|0),bare:SIM.ends.bare,col:SIM.ends.col,walk:SIM.ends.walk,banked:run.banked,stuck:r.stuck?1:0,to:r.timeout?1:0,lives:run.lives};
+  return{eb:state?Math.round(chBank()):0,ei:state?state.i:-1,ef:state&&TARGETS[state.i]?Math.min(1,chBank()/TARGETS[state.i]):0,et:state?TARGETS[state.i]:0,w:r.win?1:0,ch:r.win?CHN():maxI,c1:maxI>=1||r.win?1:0,c2:maxI>=2||r.win?1:0,best:SIM.best,seals:SIM.seals,strikes:SIM.strikes,walls:SIM.walls,cr:(RS().cr|0),bare:SIM.ends.bare,col:SIM.ends.col,walk:SIM.ends.walk,banked:run.banked,stuck:r.stuck?1:0,to:r.timeout?1:0,lives:run.lives};
 };
 SIM.start=start;
 SIM.batch=function(o,seeds){const out=[];for(const s of seeds){
