@@ -3078,7 +3078,7 @@ const ORE_POOL=["gold","gold","quick","quick","lode","flint","amber","nitre","ma
 const ORE_REAL=ORE_POOL.filter(t=>t!=="pyrite");
 const SKILL={ // sprint 8 · B, C, D, F. Every number the Balance seat may turn is here.
   targets:[900,2700,9000],            // rc10: 300 / 900 / 3,000 (was 4,500), then every Worth and target x3           // PER-CHAMBER targets for Tomb 1 (counted from state.bankedThisChamber). Tomb and stake scaling is unchanged (progTargets).
-  deepMul:1.6, long4:0.75,                      // 'Descend further': depth N asks round(targets[2] * deepMul^(N-3) / 500) * 500, x0.45 for the Long Dark's fourth chamber
+  deepMul:1.6, long4:0.5,                      // 'Descend further': depth N asks round(targets[2] * deepMul^(N-3) / 500) * 500, x0.45 for the Long Dark's fourth chamber
   seals:{free:3,sack:2,memory:1},   // seals per wall before the next one costs; the Sack keeps its own cap; Memories a paid seal costs
   order:{pay:.5,floorFrom:'timeline'}, // a scattered Timeline pays this share of its bonus above x1; floor = top age of the Timelines already sealed ('any' = of every find sealed)
   hint:{frac:.5,min:3},             // "A Greek Dynasty is close": share of a buried set's tiles that must be open, and the finds of one civ that make a set
@@ -3193,7 +3193,7 @@ function exposedFinds(){return state.finds.filter(f=>!f.banked&&!f.sarc&&f.cells
 // ===================== THE FINDS TRAY (v1.0-rc10): a finds tray holds six, and the wall has room for nine loose finds =====================
 // f.ord  = the find's place in the order of uncovering on this wall (1 = first). Saved with the find, so a resumed dig keeps every age.
 // f.tray = the player's own choice: 1 on the tray, 0 left on the wall, absent = the default (the six worth most go on).
-const TRAY={n:6,loose:9,x:3,coach:3,tap:44};
+const TRAY={n:6,loose:9,x:3,coach:3,tap:44,edge:.15};
 const trayByOrd=(a,b)=>(a.ord|0)-(b.ord|0)||a.id-b.id;
 function trayRank(f){return f.fake?findWorth(Object.assign({},f,{fake:false})):findWorth(f)} // a Pyrite relic is ranked as the relic it pretends to be, so the default pick never gives it away
 function trayList(ex){ // the finds the next seal takes: the ones tapped on first, then the most valuable of the rest, six at most
@@ -3225,8 +3225,10 @@ function trayAt(cx,cy){ // the loose find under a tap, when a tap there means "m
   if(!state||state.over||state.sealing||state.train||feedMode||tool==='xray'||tool==='lode'||tool==='blast')return null;
   const row=state.owner[cy],o=row?row[cx]:-1;if(!(o>=0))return null;const f=state.finds[o];
   return f&&!f.banked&&!f.sarc&&f.cells.every(([x,y])=>state.dirt[y][x]===0)?f:null}
-function trayNear(px,py,x,y){ // rc10: the loose find a tap at wall pixel (px,py) was meant for, when it landed up to (44 - tile)/2 px outside it. A tap inside a find, a shut sarcophagus or off the wall is never moved.
-  try{const m=(TRAY.tap-cell)/2;if(!(m>0)||!state||!state.finds||x<0||y<0||x>=COLS||y>=ROWS||trayAt(x,y)||sarcAt(x,y))return null;
+function trayNear(px,py,x,y){ // rc10: the loose find a tap at wall pixel (px,py) was meant for, when it landed just outside it. A tap inside a find, a shut sarcophagus or off the wall is never moved.
+  // Where the tap fell on a tile a strike could do nothing with, the find's box grows to 44 px. Where it fell on a tile that can be dug, the find takes only a thin strip (15% of a tile), so digging next to a find stays easy.
+  try{let m=(TRAY.tap-cell)/2;if(!(m>0)||!state||!state.finds||x<0||y<0||x>=COLS||y>=ROWS||trayAt(x,y)||sarcAt(x,y))return null;
+    {let idle=false;if(state.dirt[y][x]===0){const p=strikePlan(x,y);idle=!p||!p.hit||!!p.idle}if(!idle)m=Math.min(m,cell*TRAY.edge)}
     let best=null,bd=1e9;
     for(let yy=Math.max(0,y-1);yy<=Math.min(ROWS-1,y+1);yy++)for(let xx=Math.max(0,x-1);xx<=Math.min(COLS-1,x+1);xx++){if(!trayAt(xx,yy))continue;
       const dx=Math.abs(px-(xx+.5)*cell),dy=Math.abs(py-(yy+.5)*cell),d=Math.max(dx,dy);if(d<=cell/2+m&&d<bd){bd=d;best=[xx,yy]}}

@@ -63,11 +63,13 @@ rep("const SND_HI=new Set(['relic',", "const SND_HI=new Set(['crumble','relic',"
 rep("if(gone.length){try{sfx('dig',{mat:3,big:true,n:2});hap([30,40,60]);", "if(gone.length){try{sfx('crumble',{n:gone.length});hap([30,40,60]);")
 
 # 3b. a loose find is at least 44 px to tap: a tap just outside a find that is drawn smaller than that (28 px tiles in landscape) still moves it on or off the tray
-rep("const TRAY={n:6,loose:9,x:3,coach:3};", "const TRAY={n:6,loose:9,x:3,coach:3,tap:44};")
+rep("const TRAY={n:6,loose:9,x:3,coach:3};", "const TRAY={n:6,loose:9,x:3,coach:3,tap:44,edge:.15};")
 rep("function pos(e){const r=cv.getBoundingClientRect();return{x:Math.floor((e.clientX-r.left)/cell),y:Math.floor((e.clientY-r.top)/cell)-TOP}}",
     "function pos(e){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top-TOP*cell;let x=Math.floor(px/cell),y=Math.floor(py/cell);const n=trayNear(px,py,x,y);return n?{x:n[0],y:n[1],near:1}:{x,y}}")
-rep("function trayTap(cx,cy){", """function trayNear(px,py,x,y){ // rc10: the loose find a tap at wall pixel (px,py) was meant for, when it landed up to (44 - tile)/2 px outside it. A tap inside a find, a shut sarcophagus or off the wall is never moved.
-  try{const m=(TRAY.tap-cell)/2;if(!(m>0)||!state||!state.finds||x<0||y<0||x>=COLS||y>=ROWS||trayAt(x,y)||sarcAt(x,y))return null;
+rep("function trayTap(cx,cy){", """function trayNear(px,py,x,y){ // rc10: the loose find a tap at wall pixel (px,py) was meant for, when it landed just outside it. A tap inside a find, a shut sarcophagus or off the wall is never moved.
+  // Where the tap fell on a tile a strike could do nothing with, the find's box grows to 44 px. Where it fell on a tile that can be dug, the find takes only a thin strip (15% of a tile), so digging next to a find stays easy.
+  try{let m=(TRAY.tap-cell)/2;if(!(m>0)||!state||!state.finds||x<0||y<0||x>=COLS||y>=ROWS||trayAt(x,y)||sarcAt(x,y))return null;
+    {let idle=false;if(state.dirt[y][x]===0){const p=strikePlan(x,y);idle=!p||!p.hit||!!p.idle}if(!idle)m=Math.min(m,cell*TRAY.edge)}
     let best=null,bd=1e9;
     for(let yy=Math.max(0,y-1);yy<=Math.min(ROWS-1,y+1);yy++)for(let xx=Math.max(0,x-1);xx<=Math.min(COLS-1,x+1);xx++){if(!trayAt(xx,yy))continue;
       const dx=Math.abs(px-(xx+.5)*cell),dy=Math.abs(py-(yy+.5)*cell),d=Math.max(dx,dy);if(d<=cell/2+m&&d<bd){bd=d;best=[xx,yy]}}

@@ -29,38 +29,40 @@ const hit=(a,b)=>a&&b&&a.l<b.r&&b.l<a.r&&a.t<b.b&&b.t<a.b;
     const c=await almost(page,8,'one');assert.strictEqual(c[0].n,1,'a one-tile find on this wall');for(const q of c)await tapCell(page,q.x,q.y);
     const one=c[0],cellPx=await page.evaluate(()=>cell),m=(44-cellPx)/2;assert(m>=3,'tile '+cellPx+' px');
     const s=()=>page.evaluate(id=>({pick:state.finds[id].tray==null?null:state.finds[id].tray,on:trayList().some(f=>f.id===id),crack:state.crack,dirt:JSON.stringify(state.dirt)}),one.id);
-    // a neighbour to tap toward: prefer a tile still covered (the harder case: the tap must not dig it)
-    const nb=await page.evaluate(([x,y])=>{const o=[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>({dx,dy,x:x+dx,y:y+dy})).filter(q=>q.x>=0&&q.y>=0&&q.x<COLS&&q.y<ROWS&&!(state.owner[q.y][q.x]>=0&&state.finds[state.owner[q.y][q.x]]&&!state.finds[state.owner[q.y][q.x]].banked&&state.dirt[q.y][q.x]===0));
-      o.forEach(q=>q.d=state.dirt[q.y][q.x]);o.sort((a,b)=>b.d-a.d);return o[0]},[one.x,one.y]);
-    const p=await H.cellXY(page,one.x,one.y),a=await s();
-    const out=Math.min(m-1,cellPx/2+m-1-cellPx/2); // just inside the 44 px box, outside the tile
-    await H.clearWay(page,p);await H.tapXY(page,p.x+nb.dx*(cellPx/2+out),p.y+nb.dy*(cellPx/2+out));await page.waitForTimeout(120);const b=await s();
-    assert.notStrictEqual(b.on,a.on,'the tap '+out.toFixed(1)+' px outside the tile moved the find');assert.strictEqual(b.crack,a.crack,'no crack');assert.strictEqual(b.dirt,a.dirt,'no dirt moved');
-    await H.tapXY(page,p.x,p.y);await page.waitForTimeout(120);const b2=await s();assert.strictEqual(b2.on,a.on,'a tap on the tile itself moves it back');
-    let dug='neighbour already open';
-    if(nb.d>0){const q=await H.cellXY(page,nb.x,nb.y);await H.tapXY(page,q.x,q.y);await page.waitForTimeout(150);const d=await s();assert.notStrictEqual(d.dirt,b2.dirt,'a tap in the middle of the next tile still digs it');assert.strictEqual(d.on,b2.on);dug='the middle of the next tile still digs'}
-    assert.strictEqual(errors.length,0,errors.join('\n'));await ctx.close();return 'tile '+cellPx+' px, tap '+out.toFixed(1)+' px outside it moves the find; '+dug});
+    const p=await H.cellXY(page,one.x,one.y);const notes=[];
+    // every side of the find: a tile that can still be dug gives up a thin strip (15% of a tile), a tile a strike can do nothing with gives up the whole 44 px box
+    await page.evaluate(([x,y])=>{const q=[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>[x+dx,y+dy]).filter(([a,b])=>a>=0&&b>=0&&a<COLS&&b<ROWS&&state.owner[b][a]<0&&state.dirt[b][a]>0);if(q.length>1){state.dirt[q[0][1]][q[0][0]]=0;ui();draw()}},[one.x,one.y]); // setup: one empty neighbour is dug out, so both kinds of side are there
+    const sides=await page.evaluate(([x,y])=>[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>({dx,dy,x:x+dx,y:y+dy})).filter(q=>q.x>=0&&q.y>=0&&q.x<COLS&&q.y<ROWS&&!trayAt(q.x,q.y)&&!sarcAt(q.x,q.y)).map(q=>{const d=state.dirt[q.y][q.x],pl=d===0?strikePlan(q.x,q.y):null;return Object.assign(q,{d,idle:d===0&&(!pl||!pl.hit||!!pl.idle)})}),[one.x,one.y]);
+    const dirtSide=sides.find(q=>q.d>0),idleSide=sides.find(q=>q.idle);assert(dirtSide||idleSide,'a side to test');
+    for(const [nb,out,kind] of [[idleSide,m-1,'open tile'],[dirtSide,Math.min(m,cellPx*.15)-1,'dirt tile']]){if(!nb||out<1)continue;const a=await s();
+      await H.clearWay(page,p);await H.tapXY(page,p.x+nb.dx*(cellPx/2+out),p.y+nb.dy*(cellPx/2+out));await page.waitForTimeout(120);const b=await s();
+      assert.notStrictEqual(b.on,a.on,kind+': the tap '+out.toFixed(1)+' px outside the find moved it');assert.strictEqual(b.crack,a.crack,'no crack');assert.strictEqual(b.dirt,a.dirt,'no dirt moved');
+      await H.tapXY(page,p.x,p.y);await page.waitForTimeout(120);const b2=await s();assert.strictEqual(b2.on,a.on,'a tap on the tile itself moves it back');notes.push(kind+' side: '+out.toFixed(1)+' px outside still moves the find')}
+    if(dirtSide){const a=await s(),edge=Math.min(m,cellPx*.15)+2; // just past the strip, still on the dirt tile: that is a dig
+      await H.tapXY(page,p.x+dirtSide.dx*(cellPx/2+edge),p.y+dirtSide.dy*(cellPx/2+edge));await page.waitForTimeout(160);const d=await s();assert.notStrictEqual(d.dirt,a.dirt,'a tap '+edge.toFixed(1)+' px into the dirt tile digs it');assert.strictEqual(d.on,a.on,'and the find is not moved');notes.push(edge.toFixed(1)+' px into the dirt tile digs')}
+    assert.strictEqual(errors.length,0,errors.join('\n'));await ctx.close();return 'tile '+cellPx+' px; '+notes.join('; ')});
   await T('portrait 390: tiles are 42 px, so a tap 5 px outside a find is not taken for it',async()=>{const {page,errors,ctx}=await fresh('POL-N390',{});
     const c=await almost(page,8,'one');for(const q of c)await tapCell(page,q.x,q.y);const one=c[0],cellPx=await page.evaluate(()=>cell);
     const near=await page.evaluate(([x,y,c])=>{const r=[];for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){r.push(!!trayNear((x+.5+dx*.5)*c+dx*5,(y+.5+dy*.5)*c+dy*5,x+dx,y+dy))}return r},[one.x,one.y,cellPx]);
     assert(near.every(v=>!v),'5 px outside: '+JSON.stringify(near));assert.strictEqual(errors.length,0,errors.join('\n'));await ctx.close();return 'tile '+cellPx+' px'});
 
   for(const [w,h] of [[390,844],[844,390]])await T('a relic about to crumble is unmistakable, and the crumble has its own sound ('+w+'x'+h+')',async()=>{const {page,errors,ctx}=await fresh('POL-R'+w,{w,h});
-    const c=await almost(page,10,'relic');assert(c[0].relic,'a relic on this wall');for(const q of c.slice(0,9))await tapCell(page,q.x,q.y);await page.waitForFunction(()=>/is the oldest of nine loose finds/.test(document.getElementById('log').textContent),null,{timeout:3000}).catch(()=>{});
+    const c=await almost(page,10,'relic');assert(c[0].relic,'a relic on this wall');for(const q of c.slice(0,9))await tapCell(page,q.x,q.y);const lg=await page.waitForFunction(()=>{const t=document.getElementById('log').textContent;return /is the oldest of nine loose finds/.test(t)?t:false},null,{timeout:3000}).then(h=>h.jsonValue()).catch(()=>''); // read in the same breath: a once-a-profile hint about sets may take the log line over a moment later
     const a=await page.evaluate(()=>({toast:document.getElementById('uitoast').textContent,up:!document.getElementById('uitoast').hidden,warned:state.relicWarned,old:trayOldest()&&trayOldest().id,log:document.getElementById('log').textContent,loose:document.getElementById('looseTag').textContent}));
     assert.strictEqual(a.old,c[0].id,'the relic is the oldest');assert.strictEqual(a.warned,c[0].id);assert(a.up&&new RegExp('The '+c[0].name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+' is your oldest loose find\\. Uncover one more and it crumbles\\. Seal it first\\.').test(a.toast),a.toast);
-    assert(/is the oldest of nine loose finds/.test(a.log),a.log);assert(/Loose 9\/9/.test(a.loose));
+    assert(/is the oldest of nine loose finds/.test(lg),'log line: '+(lg||a.log));assert(/Loose 9\/9/.test(a.loose));
     // the words are painted on the wall: look for the label's dark red plate next to the relic
     const px=await page.evaluate(id=>{const f=state.finds[id],xs=f.cells.map(q=>q[0]),ys=f.cells.map(q=>q[1]),x0=Math.min(...xs)*cell,x1=(Math.max(...xs)+1)*cell,y0=Math.min(...ys)*cell,y1=(Math.max(...ys)+1)*cell,fs=Math.max(10,Math.round(cell*.3)),ly=y0>=fs*1.7?y0-fs*.85:y1+fs*.85;
       const cv=document.getElementById('c'),k=cv.width/cv.getBoundingClientRect().width,g=cv.getContext('2d');let red=0,n=0;for(let dx=-20;dx<=20;dx+=4){const d=g.getImageData(Math.round(((x0+x1)/2+dx)*k),Math.round((ly+TOP*cell-fs*.55)*k),1,1).data;n++;if(d[0]>90&&d[1]<60&&d[2]<70)red++}return{red,n}},c[0].id);
     assert(px.red>=px.n*.5,'RELIC CRUMBLES NEXT plate painted: '+JSON.stringify(px));
+    await page.evaluate(()=>{const s=document.getElementById('strip');if(s&&s.getAttribute('aria-expanded')==='true')s.click()});await page.waitForTimeout(500); // for the picture only: the score sheet is shut so the top rows show
     await page.screenshot({path:path.join(SHOTS,'relic-crumbles-next-'+w+'x'+h+'.png')});
     await page.evaluate(()=>{window.__snd.length=0});await tapCell(page,c[9].x,c[9].y);await page.waitForTimeout(200);
     const b=await page.evaluate(id=>({lost:!!state.finds[id].lost,snd:window.__snd.slice(),cr:RS().cr|0,n:exposedFinds().length,has:typeof SND.crumble==='function'}),c[0].id);
     assert(b.lost&&b.cr===1&&b.n===9,'the relic crumbled: '+JSON.stringify(b));assert(b.has&&b.snd.indexOf('crumble')>=0,'crumble sound played: '+b.snd.join(','));assert(!b.snd.some((n,i)=>n==='dig'&&i>b.snd.indexOf('crumble')),'no second dig thud after it');
     assert.strictEqual(errors.length,0,errors.join('\n'));await ctx.close();return 'toast, log and painted label for the '+c[0].name+'; sounds on the tenth find: '+b.snd.join(', ')});
   await T('an ordinary oldest find is labelled too',async()=>{const {page,errors,ctx}=await fresh('POL-O',{});const c=await almost(page,9);for(const q of c)await tapCell(page,q.x,q.y);await page.waitForTimeout(300);
-    const old=await page.evaluate(()=>trayOldest().id);assert.strictEqual(old,c.slice().sort((a,b)=>0)[0]&&old);await page.screenshot({path:path.join(SHOTS,'crumbles-next-390x844.png')});
+    const old=await page.evaluate(()=>trayOldest().id);assert.strictEqual(old,c.slice().sort((a,b)=>0)[0]&&old);await page.evaluate(()=>{const s=document.getElementById('strip');if(s&&s.getAttribute('aria-expanded')==='true')s.click();const t=document.getElementById('uitoast');if(t)t.hidden=true});await page.waitForTimeout(500);await page.screenshot({path:path.join(SHOTS,'crumbles-next-390x844.png')});
     assert.strictEqual(errors.length,0,errors.join('\n'));await ctx.close();return 'screenshot crumbles-next-390x844.png'});
   console.log('\n| Test | Result | Note |\n|---|---|---|');rows.forEach(r=>console.log('| '+r.join(' | ')+' |'));
   console.log(fail?'POLISH FAIL '+fail:'POLISH PASS '+rows.length);await H.close();process.exit(fail?1:0)})().catch(e=>{console.error('POLISH ERROR',e);process.exit(1)});

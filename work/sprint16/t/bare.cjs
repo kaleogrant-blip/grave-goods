@@ -29,14 +29,14 @@ const next=async page=>{await page.waitForTimeout(H.GUARD+200);await page.locato
     assert.strictEqual(r.after.lives,3,'no Memory lost');assert.strictEqual(r.after.bx,'{"0":1}');assert.strictEqual(r.mid.bare,1);
     assert(/The wall was bare/.test(r.after.h2)&&/first bare wall of a chamber costs nothing/.test(r.after.h2),r.after.h2);
     assert(/A bare wall costs nothing once a chamber\. The next one costs a Memory\./.test(r.mid.toast)&&r.mid.toastUp,'coaching line: '+r.mid.toast);
-    assert(r.after.ch>0,'the sealed find stays banked in the chamber');return 'Memories 3, card: '+r.after.h2.replace(/\s+/g,' ').slice(0,90)});
+    assert(r.after.ch>0,'the sealed find stays banked in the chamber');await o.page.screenshot({path:path.join(__dirname,'..','shots','bare-wall-free-390x844.png')});return 'Memories 3, card: '+r.after.h2.replace(/\s+/g,' ').slice(0,90)});
   await T('the count is saved: app closed and reopened on the next wall',async()=>{await next(o.page);const a=await info(o.page);assert.strictEqual(a.i,0);
     await o.page.evaluate(()=>{state.dirt[0][0]=Math.max(1,state.dirt[0][0]);ui()});await o.page.waitForTimeout(800);
     const n=await H.relaunch(o,FILE,{init:USED});await H.resumeFromTitle(n.page);o=n;const b=await info(o.page);
     assert.strictEqual(b.bx,'{"0":1}','run.bx after resume: '+b.bx);assert.strictEqual(b.i,0);assert.strictEqual(b.ch,a.ch);return 'run.bx '+b.bx+' after relaunch'});
   await T('second bare wall of the same chamber costs a Memory',async()=>{const r=await goBare(o.page);
     assert.strictEqual(r.after.lives,2,'one Memory lost: '+r.after.lives);assert.strictEqual(r.mid.bare,2);assert.strictEqual(r.after.bx,'{"0":2}');
-    assert(/second bare wall costs a Memory/.test(r.after.h2),r.after.h2);assert(/has had its free bare wall, so this one costs a Memory/.test(r.mid.log),r.mid.log);
+    assert(/second bare wall costs a Memory/.test(r.after.h2),r.after.h2);assert(/has had its free bare wall, so this one costs a Memory/.test(r.mid.log),r.mid.log);await o.page.screenshot({path:path.join(__dirname,'..','shots','bare-wall-costs-390x844.png')});
     return 'Memories 3 to 2, card: '+r.after.h2.replace(/\s+/g,' ').slice(0,90)});
   await T('the wall before it says what an empty wall will cost',async()=>{await next(o.page);const c=await almostBare(o.page);await o.page.locator('#pick').tap();const p=await H.cellXY(o.page,c[0],c[1]);await H.clearWay(o.page,p);await H.tapXY(o.page,p.x,p.y);await o.page.waitForTimeout(200);
     const log=await o.page.evaluate(()=>document.getElementById('log').textContent);assert(/No dirt is left on this wall/.test(log)&&/an empty wall now costs a Memory/.test(log),log);return log.slice(-90)});

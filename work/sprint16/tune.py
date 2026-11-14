@@ -12,4 +12,4 @@ TW_KNOSSOS = .05   # Tomb VI
 TW_ARMY = -.15     # Tomb VII
 # Stake target multipliers, Stakes 1..6 (tray1: 1, 1, 1, 1.05, 1.10, 1.15) and the Long Dark's fourth chamber (share of the deep step; tray1: 0.75)
 STAKE_T = [1, 1, 1, 1.05, 1.10, 1.15]
-LONG4 = .75
+LONG4 = .5
