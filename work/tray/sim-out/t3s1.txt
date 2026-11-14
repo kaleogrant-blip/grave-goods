@@ -1,0 +1,31 @@
+  370 runs, 48 s
+  750 runs, 92 s
+  1130 runs, 142 s
+  1510 runs, 190 s
+  1890 runs, 246 s
+  2270 runs, 294 s
+  2650 runs, 343 s
+  3030 runs, 399 s
+  3410 runs, 447 s
+  3790 runs, 494 s
+  4170 runs, 542 s
+  4550 runs, 593 s
+  4930 runs, 637 s
+  5310 runs, 682 s
+  5690 runs, 725 s
+  6070 runs, 774 s
+  6450 runs, 817 s
+  6830 runs, 858 s
+  7210 runs, 903 s
+
+1500 runs a cell (5 classes), 944 s. Tomb clear rate.
+| Tomb:Stake | early | hold | pick | pick9 | hammer |
+|---|---|---|---|---|---|
+| 3:1 | 20.1% | 13.5% | 29.8% | 42.5% | 7.1% |
+
+detail: win, cleared ch1, cleared ch2, best seal median / 95th pct, seals a run, walls a run, crumbles a run, bare walls / collapses / walk-aways a run, strikes a run, by class
+3:1|early     20.1% 100.0%  99.5%   4104 / 10368  11.7  5.8  0.00  0.27/3.33/0.02  128  {"scholar":16.3,"brute":6.3,"medium":54,"fence":8,"cartographer":15.7}
+3:1|hold      13.5% 100.0%  92.4%   3672 / 10584  14.1  6.7  8.02  0.90/3.69/0.06  182  {"scholar":10,"brute":2.3,"medium":38.7,"fence":5.7,"cartographer":11}
+3:1|pick      29.8% 100.0%  99.1%   4968 / 11988  11.9  6.0  6.26  0.51/3.18/0.03  155  {"scholar":34,"brute":7,"medium":55,"fence":16,"cartographer":37}
+3:1|pick9     42.5% 100.0%  99.9%   6372 / 12960  10.2  5.4  0.26  0.16/2.76/0.02  118  {"scholar":59.7,"brute":7.3,"medium":56,"fence":29.3,"cartographer":60}
+3:1|hammer     7.1%  99.6%  94.1%   3726 /  9045  9.8  6.2  6.89  0.45/3.72/0.00  58  {"scholar":2.3,"brute":3,"medium":16.7,"fence":5.3,"cartographer":8.3}

@@ -205,28 +205,28 @@ My holder lands on the proposal's holder (92% against 90%), so the two simulator
 
 ### Other tombs and Stakes
 
-Tomb clear rate. Rows marked (300) are a first pass of 300 runs a player (±5 points); rows marked (1,500) are full runs (±2.5).
+Tomb clear rate. Every row is 1,500 runs a player (±2.5 points or better). A first pass at 300 runs a player is in `sim-out/quick-rows.*` and agrees with these.
 
 | | Early sealer | Holder | Holder who chooses | Chooser at nine | Hammer bot |
 |---|---|---|---|---|---|
 | Tomb I, Stake 1 (1,500) | 56.3% | 24.1% | 45.2% | 77.2% | 41.7% |
 | Tomb I, Stake 3 (1,500) | 26.9% | 8.9% | 23.7% | 55.3% | 13.2% |
-| Tomb III, Stake 1 (300) | 14.7% | 10.0% | 29.7% | 40.3% | 9.3% |
-| Tomb V, Stake 1 (300) | 3.0% | 1.7% | 4.0% | 13.7% | 2.0% |
-| Tomb V, Stake 6 (300) | 0.0% | 0.0% | 0.0% | 0.7% | 0.0% |
+| Tomb III, Stake 1 (1,500) | 20.1% | 13.5% | 29.8% | 42.5% | 7.1% |
+| Tomb V, Stake 1 (1,500) | 3.4% | 1.2% | 4.4% | 11.3% | 2.1% |
+| Tomb V, Stake 6 (1,500) | 0.0% | 0.0% | 0.1% | 0.4% | 0.0% |
 
 The proposal's predictions for the same rows (early sealer / holder / hammer bot / holder who chooses): Tomb I Stake 3: 36 / 53 / 44 / 60. Tomb III Stake 1: 40 / 59 / 74 / 64. Tomb V Stake 1: 25 / 28 / 28 / 32. Tomb V Stake 6: 1 / 2 / 6 / 2.
 
 What the rows say:
 - The order of the players is the same in every row: the chooser at nine is best, the red-bar holder and the hammer bot are worst.
 - Everything past Tomb I is harder for these players than the proposal predicted. Part of that is the players: they carry no relic, use no ore and skip the Market, and those matter more the deeper you go. Part of it is real: the guardian chambers of Tombs III and V were tuned for one giant seal.
-- Tomb V at Stake 1 is 14% for the best player and 3% for the early sealer. Its guardian chamber asks 11,700 on a wall that holds 30% less crack.
-- The Tomb III hammer bot is at 9%, not the proposal's 74%. The proposal itself flagged that 74% as unexplained.
+- Tomb V at Stake 1 is 11% for the best player and 3% for the early sealer. Its guardian chamber asks 11,700 on a wall that holds 30% less crack.
+- The Tomb III hammer bot is at 7%, not the proposal's 74%. The proposal itself flagged that 74% as unexplained.
 - Chambers 1 and 2 are cleared in nearly every run in every row. The whole difficulty is the last chamber (and the fourth at Stake 6).
 
 ### Tomb V, Stake 6 and the Stake retune
 
-Tomb V, Stake 6 as built (the proposal's method, Stake multipliers untouched): targets 1,040 / 3,100 / 13,450 / 12,070, and **nobody clears it**: 0 of 300 for four players, 2 of 300 for the chooser at nine. The proposal predicted 1 to 6% and said the Stake multipliers "must come down". This is how far I got, in the simulator only (`sim-retune.sh`; 300 runs a cell, ±4; early sealer and chooser at nine):
+Tomb V, Stake 6 as built (the proposal's method, Stake multipliers untouched): targets 1,040 / 3,100 / 13,450 / 12,070, and **nobody clears it**: 1 run in 6,000 for four players together, 6 in 1,500 for the chooser at nine. The proposal predicted 1 to 6% and said the Stake multipliers "must come down". This is how far I got, in the simulator only (`sim-retune.sh`; 300 runs a cell, ±4; early sealer and chooser at nine):
 
 | Setting tried | Targets at Tomb V, Stake 6 | Early sealer | Chooser at nine |
 |---|---|---|---|
@@ -240,7 +240,7 @@ Plainly:
 - Taking the Stake multipliers away is not enough (A, B). The targets have to drop by about a third before anyone gets through.
 - **C is where I would start.** It puts the best player at 17% and the early sealer at 3%. For scale, the proposal's figures for today's rules at Tomb V Stake 6 are 14% for the holder and 1% for the early sealer.
 - **None of this is in the build.** The build has today's multipliers.
-- Not done: Stakes 4 and 5 were not run with the new multipliers (only Stake 6). No tomb other than V was run at Stake 6. The Stake cards still say "Targets +5% / +10% / +15%" and would need new words. And the real problem may be the Ur guardian chamber itself, not the Stake: Tomb V at Stake 1 is already 3 to 14%. A retune of the guardian twists (target +30%, wall 30% weaker) was not tried.
+- Not done: Stakes 4 and 5 were not run with the new multipliers (only Stake 6). No tomb other than V was run at Stake 6. The Stake cards still say "Targets +5% / +10% / +15%" and would need new words. And the real problem may be the Ur guardian chamber itself, not the Stake: Tomb V at Stake 1 is already 1 to 11%. A retune of the guardian twists (target +30%, wall 30% weaker) was not tried.
 
 ### How far to trust the simulator
 - The rules are the build's own, and the fake-clock runs match real-time runs tap for tap (table above). That part is solid.
