@@ -50,7 +50,7 @@ test('events are anonymous, carry the config version and build, and keep the gam
   const r = rig(); await r.tel.ingest(ev(1, { chapter: 3 })); await r.tel.flush(true);
   const e = r.calls[0].body.batch[0], p = e.properties;
   assert.equal(e.event, 'seal');
-  assert.equal(p.remote_config_version, 7); assert.equal(p.app_build, 'v1.0-rc5a'); assert.equal(p.chapter, 3); assert.equal(p.run_id, 'r1');
+  assert.equal(p.remote_config_version, 7); assert.equal(p.app_build, 'v1.0-rc10'); assert.equal(p.config_version, 11); assert.equal(p.build, 'v1.0-rc10'); assert.equal(p.chapter, 3); assert.equal(p.run_id, 'r1');
   assert.equal(p.$geoip_disable, true); assert.equal(p.$process_person_profile, false);
   assert.match(p.distinct_id, /^[0-9a-f-]{20,}$/);
   assert.equal(p.event, undefined, 'event name is not duplicated into properties');
