@@ -24,24 +24,37 @@ Any element with the attribute `data-gg-ad` is a slip. Use a real `<button type=
 
 ## 2. The two slips
 
-| `data-gg-ad` | Reward | Where the game draws it (rc9a) | Cap | Survives a relaunch |
+| `data-gg-ad` | Reward | Where the game draws it (v1.0-rc10) | Cap | Survives a relaunch |
 |---|---|---|---|---|
-| `memory` | **+1 Memory** (`run.lives`, never above 3) | The card after a wall collapses | `ads.memoryPerRun` per run (shipped 1), keyed by `run.tid` | Yes: the count is in Preferences, so a relaunch does not give a second one. If the app closes after the Memory is granted but before the game's next autosave, the Memory is given back on resume. |
-| `seal` | **+1 free seal in the next chamber** (`state.xs`) | The chamber-cleared card | `ads.sealBonus` banked at a time (shipped 1) | Yes. A banked seal is in Preferences and lands exactly once, in the chamber **after** the one it was earned in (so resuming the cleared chamber does not spend it). Every wall of that chamber carries it. The wrapper marks the chamber with `state.adxs` and `state.adxsT`, which the game saves with the wall; do not strip unknown fields from the saved wall. |
+| `memory` | **+1 Memory** (`run.lives`, never above 3) | The card after a wall collapses, a walk-away, or a bare wall (all three are the game's collapse card), whenever the run has fewer than three Memories and is still alive | `ads.memoryPerRun` per run (shipped 1), keyed by `run.tid` | Yes: the count is in Preferences, so a relaunch does not give a second one. If the app closes after the Memory is granted but before the game's next autosave, the Memory is given back on resume. |
+| `seal` | **+1 free seal in the next chamber** (`state.xs`): one more tray of up to six finds, four seals where there were three | The chamber-cleared card. Hidden while the Looter's Sack is packed (see 2a) | `ads.sealBonus` banked at a time (shipped 1) | Yes. A banked seal is in Preferences and lands exactly once, in the chamber **after** the one it was earned in (so resuming the cleared chamber does not spend it). Every wall of that chamber carries it. The wrapper marks the chamber with `state.adxs` and `state.adxsT`, which the game saves with the wall; do not strip unknown fields from the saved wall. |
 
-`GG_NATIVE.ads.canOffer(kind)` returns `''` when a tap would be served, otherwise why not: `off`, `not_ready` (caps still loading, first moments after launch), `training`, `cooldown`, `run_cap`, `full`, `unknown_kind`. Hide the slip for anything except `cooldown`. `GG_NATIVE.ads.pending()` gives `{ seal, memory, run, adFree }`.
+`GG_NATIVE.ads.canOffer(kind)` returns `''` when a tap would be served, otherwise why not: `off`, `not_ready` (caps still loading, first moments after launch), `training`, `cooldown`, `run_cap`, `full`, `not_applicable` (the seal slip with the Looter's Sack packed), `unknown_kind`. Hide the slip for anything except `cooldown`. `GG_NATIVE.ads.pending()` gives `{ seal, memory, run, adFree }`.
 
 After a reward the wrapper fires `gg:ad-reward` with `{ kind: 'memory', applied: true }` for the Memory (it has already changed `run.lives` and repainted `#lives`). The seal fires nothing; it is simply there in the next chamber.
 
+## 2a. The slips under the rc10 rules (tray of six, nine loose finds, bare walls)
+
+Checked on the real build with real taps (`tests/rc10-rules.test.mjs`, `tests/ad-slips.test.mjs`, `tests/real-game-ads.test.mjs`).
+
+* **The extra seal and the tray.** The reward is one more seal in the next chamber, so one more tray of up to six finds. It changes the seal budget only (the button reads `Seal 1/4`). The tray size, the nine loose finds and the crumble are untouched.
+* **The extra seal and the first tomb.** On a profile's first tomb the game holds the Seal button until six finds are on the tray (it lets go in the red, at nine loose finds, or with no dirt left). The game checks that before it counts seals, so the bonus and the guard do not meet: the button is still held under six finds, and the fourth seal is still free.
+* **The extra seal and the Looter's Sack.** The Sack fixes a chamber at two seals and ignores `state.xs`. The game's own Market does not sell its extra seal to a Sack carrier. The wrapper now does the same: `canOffer('seal')` answers `not_applicable`, the game hides the slip, and no video is played for a reward that would do nothing. The wrapper page hands the game's `gear` to the bridge for this.
+* **The Memory and the bare-wall rule.** The first bare wall of a chamber costs nothing. The next one costs a Memory, through the collapse card ("The wall was bare ... a second bare wall costs a Memory"). That card carries the Memory slip like any collapse card. It is still once per run: a third bare wall shows no slip. The cap and the game's bare-wall count (`run.bx`) both survive a relaunch.
+* **A new profile's free collapses.** The first two collapses of a profile cost no Memory (and can cover a bare-wall charge), so the Memory slip does not appear on those cards: the run still has three Memories.
+* **Resume.** The game's saved-dig record is version 2 in rc10. The wrapper reads only its run id and time. A version 1 record left by rc9b is closed by the game's own upgrade before any run exists, and the caps that belonged to it never match a new run.
+
+One thing for the game team to decide: a seal is scarcer under the tray rule (it banks six finds, not the whole wall), so "+1 free seal" is worth more than it was. The wrapper's `ads.sealBonus` (shipped 1) is the only dial.
+
 ## 3. Retired slips: `reroll` and `chestpick`
 
-The Market reroll and chest re-pick videos are cut from v1, and rc9a no longer draws them. The wrapper still guards against a game build that does:
+The Market reroll and chest re-pick videos are cut from v1, and the game has not drawn them since rc9a. The wrapper still guards against a game build that does:
 
 * wrapper CSS hides `[data-gg-ad="reroll"]` and `[data-gg-ad="chestpick"]` always;
 * `canOffer('reroll')` / `offer('chestpick')` return `unknown_kind`, never touch AdMob and never fire `gg:ad-reward`, so the game's old listeners simply never run;
 * there are no `adReroll` / `adChestPick` flags any more; a remote config that carries them is rejected.
 
-One thing for the game team: rc9a's own tap handler throws if it is ever handed a slip kind it has no label for (`AD_LBL[kind]` is undefined). It cannot happen with the two slips the game draws; a guard there would make it impossible.
+One thing for the game team: the game's own tap handler (rc9a to rc10) throws if it is ever handed a slip kind it has no label for (`AD_LBL[kind]` is undefined). It cannot happen with the two slips the game draws; a guard there would make it impossible.
 
 ## 4. Ad-free owners
 
@@ -82,7 +95,7 @@ There is nothing else to configure: no interstitial keys, no frequency caps, no 
 
 ## 7. Checklist for the game team
 
-1. Two slips with the markup above (`memory` on the collapse card, `seal` on the chamber-cleared card).
+1. Two slips with the markup above (`memory` on the collapse card, which is also the bare-wall card; `seal` on the chamber-cleared card).
 2. Keep the label and aria-label patterns from section 1.
 3. Screenshots with the slips **present**, **absent**, and as an **owner** ("Claim").
 4. Tell the Platform seat if a slip moves to another card: `store/review-notes.md` names the cards.

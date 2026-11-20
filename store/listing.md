@@ -11,12 +11,14 @@ Everything here is copy-paste ready for App Store Connect. Limits are Apple's; *
 | App icon, 1024x1024, no alpha (App Store Connect rejects alpha) | [store/icon/app-icon-1024.png](icon/app-icon-1024.png). Original with alpha, for reference: [app-icon-1024-source.png](icon/app-icon-1024-source.png). Art source: `team/art/icon/app-icon-1024.png` |
 | Screenshot 1, "Dig. Seal. Don't fall." | [screenshots/01-title.png](screenshots/01-title.png) |
 | Screenshot 2, "Fever. Dynasties. Timelines." | [screenshots/02-dig.png](screenshots/02-dig.png) |
-| Screenshot 3, "Seal what glows." | [screenshots/03-seal.png](screenshots/03-seal.png) |
+| Screenshot 3, "Fill the tray. Seal six." | [screenshots/03-seal.png](screenshots/03-seal.png) |
 | Screenshot 4, "Real relics. Real history." | [screenshots/04-relic.png](screenshots/04-relic.png) |
 | Screenshot 5, "Fill the Collection." | [screenshots/05-collection.png](screenshots/05-collection.png) |
 | Screenshot 6, "The odds are printed." | [screenshots/06-knucklebone.png](screenshots/06-knucklebone.png) |
 
 **Screenshot order (owner ruling 6).** The store page must not lead with "Finders keepers." Frame 1 is the title screen, and the game's title screen prints that line. Until the frames are re-captured, upload them in this order: 02, 03, 04, 05, 06, 01. When they are re-captured (they are stale anyway: see below), make the first frame a dig, not the title.
+
+**All six frames are stale and must be re-captured before submission.** They show build v1.0-rc7b. The game is now v1.0-rc10: a seal takes a tray of six finds at most (the frames show seals that took everything on the wall), every score and target is three times the old digits (the frames show the old ones), the Seal button reads `Tray n/6`, and there is a `Loose n/9` tag over the wall. Frame 3 is the worst: its old caption was "Seal what glows.", which is no longer the rule; the caption above is the new one and needs a new picture (a wall with more than six loose finds, six of them ringed on the tray). Frame 6 shows a knucklebone offered at the old score size. This repo has no script that makes these frames (the two scripts named below belong to the game team's tree and are not here), so they were not regenerated in sprint 17. The same six files under `store/play/screenshots/` are stale in the same way.
 
 The six frames are 1290x2796 (the 6.7-inch iPhone size), RGB, no alpha. Apple currently wants the largest iPhone size you have; 6.7-inch frames are scaled for smaller phones **(verify in the current UI: if it asks for 6.9-inch, 1320x2868, the art team re-renders)**. They were captured from build v1.0-rc7b on the new HUD (title screen with the Daily strip, a mid-dig with Fever and a Greece Dynasty, a seal landing on the Context Sheet, a relic card, the Collection, the knucklebone card) by `team/sprint13b/t/store.js` and `t/frames.js`. Re-run both if the screens change. LAUNCH.md also asks for a 30-second preview video (not yet made; optional for TestFlight, wanted for launch). iPad: the app is built as iPhone-and-iPad by default. Either supply iPad screenshots (13-inch) or restrict to iPhone in Xcode's "Targeted device families", which needs a one-line change in the project: ask the developer.
 
@@ -42,12 +44,14 @@ Do not put another company's game name in the keywords (for example "Balatro"). 
 ```
 The wall hides the hoard. You have a hammer, a pick, three seals and a ceiling that is thinking about it.
 
-GRAVE GOODS is a free roguelike about digging up the dead's belongings and getting out with the good ones. Every chamber is a wall of dirt and stone. Strike it, uncover finds, and SEAL what glows to bank it. Push too far and the wall cracks, and what you hadn't sealed is gone.
+GRAVE GOODS is a free roguelike about digging up the dead's belongings and getting out with the good ones. Every chamber is a wall of dirt and stone. Strike it, uncover finds, put the best of them on your tray, and SEAL the tray to bank it. Push too far and the wall cracks, and what you hadn't sealed is gone.
 
 HOW A RUN GOES
 - Hammer the wall. Bigger tools open more tiles and cost more crack.
-- Finds combine. Match a civilization, build a timeline, complete a set, and the seal multiplies.
-- Seal early and be safe, or hold on for a bigger tally and risk the collapse.
+- A seal takes one tray, and a tray holds six finds. You choose which six.
+- The wall has room for nine loose finds. Uncover a tenth and the oldest crumbles.
+- Finds combine. Match a civilization, build a timeline, complete a set, and the seal multiplies. A full tray doubles it again.
+- Seal early and be safe, or hold on for a better six and risk the collapse.
 - Each chamber asks for a target. Clear it and the tomb goes deeper.
 - Fever builds as you dig well, and a Fever streak pays.
 
@@ -88,6 +92,9 @@ On first launch the game asks once whether you want to share anonymous play stat
 | "VoiceOver labels" (never in this description, but in LAUNCH.md and the press kit) | not claimed anywhere | Nobody has used the app with VoiceOver. The buttons have `aria-label`s; that is not the same as a tested VoiceOver experience. |
 | "every line fact-checked" (LAUNCH.md, posts) | not claimed anywhere | Four history lines were found wrong in review. Say "a line of real history" and fix errors as they are reported. |
 | "a short ad can appear between runs" | removed | There is no interstitial in v1 (owner ruling 1). |
+| "SEAL what glows to bank it" (the seal took every uncovered find) | "put the best of them on your tray, and SEAL the tray", plus the three tray lines under HOW A RUN GOES | From rc10 a seal takes a tray of six finds at most, the wall holds nine loose finds, and a tenth crumbles the oldest (owner ruling, 13 Nov). Do not use the old line with rc10 or later. |
+| "hold on for a bigger tally" | "hold on for a better six" | Holding no longer makes a seal bigger without limit; it lets you choose a better tray, and holding past nine loses finds. |
+| Any score, target or "cap" figure | none in the description | rc10 multiplied every Worth and target by three (Tomb I asks 900, 1,200 and 9,000; a new player's first tomb asks 7,500 in its last chamber) and switched off both caps (the Fame ceiling and the pay-out ceiling). The description quotes no number, so nothing in it went stale. Keep it that way. |
 
 **Odds only change with an app update.** The chances of the knucklebone, Press Your Luck and the Streak Jackpot are not in the remote config and cannot be changed from a server (`www/remote-config.js` rejects any document that tries; test: `tests/remote-config.test.mjs`). rc9a removes the staged near-miss on the reels (owner ruling 3).
 
@@ -124,9 +131,9 @@ Apple replaced the questionnaire in 2025 and may have reworded it again; answer 
 | Loot boxes | None | Nothing is sold in random bundles. LAUNCH.md rules out loot boxes for money |
 
 **Simulated gambling rationale** (keep this; Review may ask):
-**Owner ruling (10 Nov 2026): the knucklebone stays as it is, a triple-or-nothing wager, and the listing says so honestly.** After a big seal the player may throw it, at most once a chamber. It stakes that seal's points (in-game score, not Gold and not money): one face, 32%, pays the seal three times over; the other three faces take the seal back. Slightly worse than a fair bet, the card prints the chance of each face, and it can be switched off in Settings. That is a simulated wager, so the answer to the simulated-gambling question is **yes, infrequent**, never "None". The player can never wager real money, cannot buy Gold or any currency with real money, and wins nothing of real-world value. The chances cannot be changed from a server; they change only with an app update.
+**Owner ruling (10 Nov 2026): the knucklebone stays as it is, a triple-or-nothing wager, and the listing says so honestly.** After a big seal the player may throw it, at most once a chamber. It stakes that seal's points (in-game score, not Gold and not money): one face, 32%, pays the seal three times over; the other three faces take the seal back. Slightly worse than a fair bet, the card prints the chance of each face, and it can be switched off in Settings. In rc10 it is offered from a seal of 2,700 points (the old 900, in the new digits); the chance and the pay-out are unchanged, so the age-rating position is unchanged. That is a simulated wager, so the answer to the simulated-gambling question is **yes, infrequent**, never "None". The player can never wager real money, cannot buy Gold or any currency with real money, and wins nothing of real-world value. The chances cannot be changed from a server; they change only with an app update.
 
-The other luck presentation has changed. rc9b (the game build in this repo) shows an oracle-bone reading on sarcophagi and after a Fever streak, with no reels and no wheel; nothing is staked on it, and the result is decided before the reading. rc9a and older builds still show reels and a wheel. So: the public description below names neither the reels and wheel (gone from rc9b) nor the oracle-bone reading (in rc9b, wording not yet approved); it only says that a chest is decided before it is shown, which is true of both. Describe the new reveal in public text only once it is in the build being submitted.
+The other luck presentation has changed. From rc9b on (rc10, the game build in this repo, included) the game shows an oracle-bone reading on sarcophagi and after a Fever streak, with no reels and no wheel; nothing is staked on it, and the result is decided before the reading. rc9a and older builds still show reels and a wheel. So: the public description above names neither the reels and wheel (gone since rc9b) nor the oracle-bone reading (in the build, wording not yet approved); it only says that a chest is decided before it is shown, which is true of both. Describe the new reveal in public text only once it is in the build being submitted.
 
 Expected result, and it is accepted: **13+ on Apple's current scale, and R18+ in Australia**, where any simulated gambling is rated R18+ whatever the frequency **(verify both in the current UI when the questionnaire is run; save the result as a screenshot)**. Do not soften the answer to get a lower number, and decide knowingly whether to keep Australia in the availability list at R18+.
 

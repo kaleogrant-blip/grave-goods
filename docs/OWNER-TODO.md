@@ -51,7 +51,7 @@ Video offers are **off** in every build until these exist. v1 is rewarded video 
 | 3.6 | `[ON / OFF]` and `[If test mode: these are Google's sample ads.]` | `store/review-notes.md` | State of the video offers in the build you submit |
 | 3.7 | Tagline | `store/listing.md` | Proposed: "Things buried with the dead. Nobody asked the dead." Yours to confirm or replace (ruling 6: not "Finders keepers.") |
 | 3.8 | Final price tier for Ad-free (placeholder $2.99) | `config/products.json`, App Store Connect | It now buys free claims of two small bonuses, not ad removal; price it as that |
-| 3.9 | New screenshots, first frame not the title screen | `store/screenshots/` | Current frames are from older builds |
+| 3.9 | New screenshots, first frame not the title screen | `store/screenshots/` (six) and `store/play/screenshots/` (six) | All twelve are from v1.0-rc7b: old seal rule, old score sizes. They must be re-captured from rc10 (tray of six, `Loose n/9` tag, new digits). The repo has no script for it; the game team's capture scripts are not in this tree. Details in `store/listing.md` |
 | 3.10 | Age-rating questionnaire, run for real | App Store Connect | Save the result as a screenshot. Simulated gambling answer and its consequences: `store/listing.md` |
 | 3.11 | Paid Apps agreement, bank and tax forms | App Store Connect > Business | TRACK-B step 11. Without it the purchase never works |
 | 3.12 | Untick the 27 EU countries | App Store Connect > Pricing and Availability | `docs/AVAILABILITY.md` |
@@ -80,18 +80,38 @@ All in `store/privacy-policy.md`. Host the finished page on the developer websit
 | 5.1 | `POSTHOG_KEY` (`phc_...`) | GitHub secret | Blank = no statistics at all, and the first-launch question is not shown. It is a public write-only key, but keep it in secrets anyway |
 | 5.2 | `POSTHOG_HOST` | GitHub secret | US or EU cloud |
 | 5.3 | In PostHog: IP capture off, retention set | PostHog project settings | Must match 4.6 and 4.7 |
-| 5.4 | `CONFIG_URL` and a public https place for `config/config.json` with CORS `*` | GitHub secret; your host | Needed to switch video offers on without a new build |
+| 5.4 | `CONFIG_URL` and a public https place for `config/config.json` with CORS `*` | GitHub secret; your host | Needed to switch video offers on without a new build. The file must be the rc10 one (`"schema": 2`). The app refuses a file written for rc9b (`"schema": 1`, old targets) and plays on its built-in numbers; an rc9b app refuses the new file the same way. So one address cannot serve both builds: if testers are ever on both, give each build its own address |
 
 ## 6. Decisions waiting on you
 
 | # | Decision | Where it shows |
 |---|---|---|
-| 6.1 | Decided 10 Nov: the knucklebone wager stays; the chest reveal becomes an oracle-bone reading (no reels, no wheel). Built in rc9b (13 Nov) | When it is in the build you submit, fill `[CHEST REVEAL: describe what the submitted build shows. Nothing is staked on it and the outcome is decided before it is shown.]` in `store/review-notes.md` from that build, and only then mention the new reveal in public text |
+| 6.1 | Decided 10 Nov: the knucklebone wager stays; the chest reveal becomes an oracle-bone reading (no reels, no wheel). Built in rc9b (13 Nov), unchanged in rc10 | When it is in the build you submit, fill `[CHEST REVEAL: describe what the submitted build shows. Nothing is staked on it and the outcome is decided before it is shown.]` in `store/review-notes.md` from that build, and only then mention the new reveal in public text |
 | 6.1a | Age rating: answer simulated gambling "yes, infrequent". Expect Apple 13+ and R18+ in Australia | Run the questionnaire, screenshot the result, and decide whether Australia stays in the availability list at R18+ |
 | 6.2 | The Daily fix (same tomb, raider and kit for everyone) is in the game from rc9a | Nothing to do unless an older game build is ever submitted |
 | 6.3 | iPhone only, or iPad too | Screenshots, Xcode device families |
 | 6.4 | Whether to mention cloud saves at all | Only after a tester has seen a save cross two devices |
 | 6.5 | When public posts go out | `marketing/social/POSTS.md`: the "is out" post is held until a store link exists |
+
+## 6a. Open questions from rc10
+
+The game team ended v1.0-rc10 with six questions (`work/sprint16/LOG.md`). You answered five on 20 Nov 2026 (`work/design/DECISIONS.md`); all five keep rc10 as built, so no game change is needed. One is still open.
+
+| # | Question | Status |
+|---|---|---|
+| 1 | Relics count toward the nine loose finds and can crumble, with a loud warning. Keep? | **Decided 20 Nov: keep.** |
+| 2 | The first-tomb seal guard is a hard rule (no seal under six finds, except in the red, at nine loose, or with no dirt left). Hard rule, or advice only? | **Decided 20 Nov: stays a hard rule.** |
+| 3 | The Mystic clears 62% for a player who chooses and 3% for one who does not. Leave it as the expert class? | **Decided 20 Nov: stays the expert class, as it is.** |
+| 4 | Old best scores are marked "old rule" and new bests start from zero. Or scale them by three? | **Decided 20 Nov: marked "old rule", new bests restart from zero.** |
+| 5 | Brute and Fence are at 0 to 4% on Stake 6 for the best simulated player. Fine for the top rung? | **Decided 20 Nov: fine. "We want a challenge."** |
+| 6 | Tomb VII's guardian now asks 15% less (it used to ask 60% less, which made the last tomb the easiest), and its slip lost the words "so few of them". Is the new line right for the fiction? | **Open. Yours to answer.** |
+
+Two more came out of fitting the app around rc10. Neither blocks a test build:
+
+| # | Question | Why it is yours |
+|---|---|---|
+| 7 | "+1 free seal" is worth more under the tray rule (a seal banks six finds, not the whole wall). Keep it at one per chamber-cleared card? | It is the reward a video buys; the dial is `ads.sealBonus` |
+| 8 | Remote config can change the Stake target multipliers and the number of free bare walls, but the game's Stake cards ("Targets +5%") and bare-wall lines ("once a chamber") are fixed text. Leave those two numbers alone until the game writes its text from them? | Changing them from the server would make the on-screen text wrong |
 
 ## 7. Later: Android (not in v1)
 

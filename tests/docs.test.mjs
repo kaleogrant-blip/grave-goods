@@ -82,3 +82,24 @@ test('the public repo carries no email address and no key material in its docs, 
     assert.ok(!/BEGIN (EC |RSA )?PRIVATE KEY/.test(t) || /BEGIN and END lines|-----BEGIN PRIVATE KEY-----\\n|fake|test/i.test(t), `${f} must not contain key material`);
   }
 });
+
+test('rc10: the public text describes the tray rule and no old claim; the docs name the build in the repo; the rc10 questions are recorded with their status', () => {
+  const ver = /const GAME_VERSION='([^']+)'/.exec(rd('game/current.html'))[1]; assert.equal(ver, 'v1.0-rc10');
+  assert.ok(readme.includes('`game/current.html`, ' + ver), 'README names the game build that is in the repo');
+  // the description: a seal is a tray of six, nine fit loose, the tenth crumbles the oldest; nothing about sealing everything, score sizes or caps
+  assert.match(description, /a tray holds six finds/); assert.match(description, /room for nine loose finds/); assert.match(description, /the oldest crumbles/);
+  assert.ok(!/SEAL what glows|seal everything|everything you (have )?uncovered/i.test(description), 'no line says a seal takes everything');
+  assert.ok(!/\b\d{1,3}(,\d{3})+\b|\b\d{3,}\b/.test(description.replace(/\b48 relics\b/, '')), 'the description quotes no score or target, so none can go stale');
+  assert.ok(!/\bcap(s|ped)?\b|ceiling\b(?! that is thinking)/i.test(description.replace('a ceiling that is thinking about it', '')), 'no cap is described');
+  assert.ok(!/Seal what glows\.\"? \|/.test(listing.split('## Text')[0]), 'the screenshot caption that described the old seal rule is gone');
+  assert.match(listing, /All six frames are stale/);
+  // review notes: how to find each offer under the rc10 rules
+  assert.match(reviewBlock, /waits until six finds are on the tray/); assert.match(reviewBlock, /first two\s+collapses cost no Memory/); assert.match(reviewBlock, /or is dug bare/);
+  // owner checklist: the six rc10 questions, five decided on 20 Nov, the sixth open
+  const sec = todo.split('## 6a. Open questions from rc10')[1].split('## 7.')[0];
+  assert.equal((sec.match(/\*\*Decided 20 Nov/g) || []).length, 5); assert.equal((sec.match(/\*\*Open\./g) || []).length, 1); assert.match(sec, /\| 6 \| Tomb VII's guardian[^\n]*\*\*Open\./);
+  const dec = rd('work/design/DECISIONS.md'); assert.match(dec, /## 20 Nov 2026: owner rulings on rc10/);
+  // remote config: the docs say schema 2 and do not list the removed caps as changeable
+  assert.match(readme, /schema 2/); assert.ok(!/long4, seals, fever, cap, mercy/.test(readme)); assert.match(adsui, /not_applicable/);
+  for (const [name, text] of [['README', readme], ['ADS-UI', adsui], ['OWNER-TODO', todo], ['listing', listing], ['review-notes', notes]]) assert.ok(!/—/.test(text), name + ' has no em dash');
+});

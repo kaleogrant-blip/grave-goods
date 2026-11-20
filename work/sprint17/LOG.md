@@ -9,11 +9,11 @@ Resume by reading this file. Branch `sprint-17` (from `origin/sprint-16`). Game 
 - [x] 3. Save adapter / iCloud: no shell change needed; `tests/rc10-upgrade.test.mjs` (A, B, C) and a unit test
 - [x] 4. Telemetry: no shell change needed; test in `tests/rc10-rules.test.mjs`
 - [ ] 5. Tests updated and added, full run
-- [ ] 6. Documents and store text
+- [x] 6. Documents and store text (README, ADS-UI, OWNER-TODO with 6a, LAUNCH, listing, review notes; docs test added). Store screenshots NOT regenerated: no script in this repo; all twelve are stale
 - [ ] 7. Merge to main, CI green
 
 ## State right now
-Items 0 to 4 done and pushed. Next: item 6 documents (README, docs/ADS-UI.md, docs/OWNER-TODO.md with only question 6 open and the other five marked decided per `work/design/DECISIONS.md`, docs/LAUNCH.md, store/listing.md, store/review-notes.md, screenshots check), then the full test run, then merge to main and watch CI.
+Items 0 to 4 and 6 done and pushed. Next: item 5's full test run (`npm test`, expect only the known local Android failure), fix anything, then item 7: merge `sprint-17` into `main` with `--no-ff`, push, watch CI.
 
 ## How to run the tests here
 Scratch dir S with `S/chromium_headless_shell-1194/chrome-linux -> /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64` and `S/chromium-1194 -> /opt/pw-browsers/chromium-1243`, then `PLAYWRIGHT_BROWSERS_PATH=S GG_REQUIRE_BROWSER=1 npm test`.
