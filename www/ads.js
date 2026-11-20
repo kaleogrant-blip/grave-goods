@@ -6,7 +6,9 @@
  *
  * Slips (the game draws them as <button data-gg-ad="memory|seal">):
  *   memory   +1 Memory (run.lives, max 3), at most ads.memoryPerRun (default 1) per run
- *   seal     +1 free seal in the NEXT chamber (state.xs, the game's own extra-seal counter), at most ads.sealBonus banked at a time
+ *   seal     +1 free seal in the NEXT chamber (state.xs, the game's own extra-seal counter), at most ads.sealBonus banked at a time.
+ *            Not offered while the Looter's Sack is packed: the Sack fixes the chamber at two seals whatever state.xs says (the game's
+ *            own Market does not sell its extra seal to a Sack carrier either), so the reward would be a video watched for nothing.
  * Any other kind (older game builds drew "reroll" and "chestpick") is refused with 'unknown_kind' and never touches AdMob.
  *
  * Ad-free (gg_adfree): adfree.js adds flags().adFree = true. The owner keeps both slips, but a tap is a free claim: same reward,
@@ -17,6 +19,15 @@
  *
  * Tracking: the app never asks for App Tracking Transparency and requests non-personalised ads (npa) only.
  * Consent (UK and US-state forms): the AdMob plugin's UMP calls run before the first initialise, when the plugin has them.
+ *
+ * v1.0-rc10 (the finds tray: a seal takes six finds at most, nine loose finds fit on the wall, the tenth crumbles the oldest):
+ *   - the extra seal is one more TRAY in the next chamber. It adds to the seal budget only; it does not touch the tray, the nine, or the
+ *     first-tomb rule that holds the Seal button until the tray is full (the game checks that before it counts seals).
+ *   - a bare wall that costs a Memory (the second one in a chamber) goes through the game's collapse card, so the Memory slip is on that
+ *     card exactly as on a collapse, under the same once-per-run cap. The first bare wall of a chamber is free: no Memory is lost, and
+ *     the slip only shows there if the run was already below three.
+ *   - the game's saved-dig record is version 2. This file never reads the record itself (native.js reads its run id and time); a version 1
+ *     record from rc9b is closed by the game's own upgrade before any run exists, and the caps of that old run can never match a new run id.
  *
  * Caps survive a relaunch: they live in Preferences (gg_ad_caps_v1) keyed by the run id (run.tid, which the game's resume keeps).
  *   - the per-run Memory count is restored, so a relaunch does not hand out a second one;
@@ -38,7 +49,7 @@
   function blank(runId) { return { v: 1, run: runId || '', memory: 0, owed: 0, owedAt: 0, seal: 0, sealFrom: null, sealAt: null, sealN: 0 }; }
 
   /* deps: { admob, prefs, flags():{ads,adMemory,adSeal,adFree}, adsCfg():{memoryPerRun,sealBonus,cooldownSec}, config:{rewardedId|rewardedIdIos, testing},
-             platform, env():{run,state}, emit(name,data), dispatch(name,detail), setActive(on, owner), paintLives(n), now(),
+             platform, env():{run,state,gear}, emit(name,data), dispatch(name,detail), setActive(on, owner), paintLives(n), now(),
              resumeSnap: {tid,t}|null  the game's resume record as it was on disk BEFORE this launch touched it } */
   function createAds(deps) {
     var now = deps.now || Date.now;
@@ -165,7 +176,10 @@
         if (!e.run || c.memory >= max) return 'run_cap';
         if (e.run.lives >= 3) return 'full';
       }
-      if (kind === 'seal') { var sb = cfg.sealBonus == null ? 1 : cfg.sealBonus; if (!e.run || !sb || c.seal >= sb) return 'run_cap'; }
+      if (kind === 'seal') {
+        if (e.gear && e.gear.id === 'sack') return 'not_applicable'; // the Sack seals twice a chamber, no more: an extra seal would do nothing
+        var sb = cfg.sealBonus == null ? 1 : cfg.sealBonus; if (!e.run || !sb || c.seal >= sb) return 'run_cap';
+      }
       return '';
     }
 

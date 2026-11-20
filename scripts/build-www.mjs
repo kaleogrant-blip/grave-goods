@@ -161,6 +161,7 @@ ${body.trimEnd()}
     TELCFG: g(function(){return TELCFG}), S10: g(function(){return S10}),
     settings: function(){return g(function(){return SETTINGS})},
     run: function(){return g(function(){return run})},
+    gear: function(){return g(function(){return gear})},
     state: function(){return g(function(){return state})},
     store: g(function(){return Store})
   });
