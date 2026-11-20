@@ -6,14 +6,14 @@ Resume by reading this file. Branch `sprint-17` (from `origin/sprint-16`). Game 
 - [x] 0. Branch pushed, rc10 copied over `game/current.html`
 - [x] 1. Remote config: schema 2, new cache key, rc9b cache and rc9b documents rejected, config.json version 3, unit and real-game tests
 - [x] 2. Ads and rewards against the tray rule, the first-tomb guard, the bare-wall Memory, resume record v2 (Sack fix; tests converted to real taps; `tests/rc10-rules.test.mjs`)
-- [ ] 3. Save adapter / iCloud (new keys, rc9b cloud copy on rc10, rc10 cloud copy on an older build)
-- [ ] 4. Telemetry (cfgVer 11, event shapes)
+- [x] 3. Save adapter / iCloud: no shell change needed; `tests/rc10-upgrade.test.mjs` (A, B, C) and a unit test
+- [x] 4. Telemetry: no shell change needed; test in `tests/rc10-rules.test.mjs`
 - [ ] 5. Tests updated and added, full run
 - [ ] 6. Documents and store text
 - [ ] 7. Merge to main, CI green
 
 ## State right now
-Items 0, 1, 2 done and pushed (item 4's telemetry test is already in `tests/rc10-rules.test.mjs`). Next: item 3 (`tests/rc10-upgrade.test.mjs`: rc9b cloud copy onto rc10, rc10 cloud copy onto rc9b, using `work/sprint15b/build.html` = rc9b), then docs (item 6: OWNER-TODO lists only question 6 as open, the other five decided per `work/design/DECISIONS.md`), full run, merge.
+Items 0 to 4 done and pushed. Next: item 6 documents (README, docs/ADS-UI.md, docs/OWNER-TODO.md with only question 6 open and the other five marked decided per `work/design/DECISIONS.md`, docs/LAUNCH.md, store/listing.md, store/review-notes.md, screenshots check), then the full test run, then merge to main and watch CI.
 
 ## How to run the tests here
 Scratch dir S with `S/chromium_headless_shell-1194/chrome-linux -> /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64` and `S/chromium-1194 -> /opt/pw-browsers/chromium-1243`, then `PLAYWRIGHT_BROWSERS_PATH=S GG_REQUIRE_BROWSER=1 npm test`.
@@ -36,3 +36,14 @@ Checked on the real build with real taps (scratch scripts, then tests):
 - **Rewarded Memory and the bare-wall cost:** the second bare wall of a chamber goes through the collapse card, and that card carries the Memory slip (if the run is under three Memories and alive). Tapped once it is gone for the run; a third bare wall shows no slip (`run_cap`). The cap and the bare-wall count both survive a relaunch. No shell change needed.
 - **Saved-dig record version 2:** `native.js` reads only the run id and time; resume tests pass on the v2 record.
 - **Game-side bug found (not fixable in the shell, reported):** `s10TelBoot` (game line 10225) still tests `rz.v===1`. Since the record is now version 2, after every relaunch the game's own play log turns the provisional `run_end` "interrupted" of a run that is about to resume into a final one (`recovered:true`). What reaches PostHog is unchanged (the boot runs before the shell listens). Fix: `rz.v===2`.
+
+## Item 3: save adapter and iCloud (done, no shell change)
+The game keeps every `rw_*` key in its snapshot, and the adapter passes every string key except `rw_ua`, `rw_tel`, `rw_tel_open`. So `rw_rc10`, `rw_rc9`, `rw_rc10note`, `rw_traycoach` and the version 2 `rw_resume` sync like the rest. Proved on the real games (rc10 and rc9b = `work/sprint15b/build.html`), both wrapped by this shell:
+- **A. Same phone, app updated:** the game's upgrade runs once at load. Because the game does not count what it does while loading as a player change, nothing is sent to iCloud until the first real change (putting the note away is one). After that iCloud and the Preferences mirror hold `rw_rc10` and `rw_rc9` and no old dig. The rewarded-ad caps of the closed rc9b dig (a banked seal, an owed Memory) do not reach the first rc10 run.
+- **B. rc9b cloud copy onto a fresh rc10 install:** adopted, upgraded once (dig closed, purse paid once, old bests set aside, one note), sent back upgraded. Not upgraded again at the next launch, nor after the Preferences mirror is lost.
+- **C. rc10 cloud copy onto a phone still on rc9b:** no error, nothing corrupted. rc9b adopts it; Gold, Vault, rank, tombs, settings are as rc10 left them. rc9b keeps `rw_rc10` and `rw_rc9` as unknown keys and sends them back, so rc10 does not upgrade a second time. Two things to know: (1) rc9b cannot read a version 2 dig, so it drops it; an rc10 dig left open on the other phone is then gone on both (its purse too) once rc9b's copy wins. (2) rc9b shows best haul 0 (the rc10 value) and cannot show the old-rule scores. Any score rc9b then sets is in old digits and will sit under the rc10 ones.
+
+## Item 4: telemetry (done, no shell change)
+- Every event the game emits carries `build: v1.0-rc10` and `config_version: 11`; the shell forwards it untouched and adds `app_build` and `remote_config_version` (now the schema 2 document's version; shipped file is version 3).
+- rc10 adds no event name. It emits nothing for a crumble, a tray pick, a held seal or a bare-wall charge, so analytics cannot see the new rule except through `seal.finds` (now at most 6) and `chamber_end`. Whether to add events is a game-side decision.
+- The game-side bug in item 2 (`s10TelBoot` still tests record version 1) is the only telemetry fault found.

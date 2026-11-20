@@ -17,11 +17,11 @@ function rig(over = {}) {
   const tel = createTelemetry({
     fetch: fetchSpy, prefs, ls, key: 'phc_test', host: 'https://us.i.posthog.com/', now: () => t, online: () => online,
     setInterval: (f, ms) => { timers.push({ f, ms }); return timers.length; }, clearInterval: () => {},
-    meta: () => ({ app_build: 'v1.0-rc5a', remote_config_version: 7, platform: 'ios' }), ...over.deps
+    meta: () => ({ app_build: 'v1.0-rc10', remote_config_version: 7, platform: 'ios' }), ...over.deps
   });
   return { tel, prefs, ls, calls, fetchAll, timers, setStatus: s => (status = s), setOnline: v => (online = v), tick: ms => (t += ms), now: () => t };
 }
-const ev = (n, extra = {}) => ({ event: 'seal', event_id: 's-' + n, run_id: 'r1', session_id: 's', ts_client: 1_700_000_000_000 + n, config_version: 10, build: 'v1.0-rc5a', ...extra });
+const ev = (n, extra = {}) => ({ event: 'seal', event_id: 's-' + n, run_id: 'r1', session_id: 's', ts_client: 1_700_000_000_000 + n, config_version: 11, build: 'v1.0-rc10', ...extra });
 
 test('flushes at 50 events, in one batch, to the PostHog /batch/ endpoint', async () => {
   const r = rig();
