@@ -188,3 +188,25 @@ test('no content gate in the build: no gg_full, no Drops, no Deeper Tombs sheet,
   assert.ok(fs.existsSync(path.join(ROOT, 'www/legacy-premium/README.md')) && /dormant, not wired/.test(read('www/legacy-premium/README.md')));
   assert.ok(fs.existsSync(path.join(ROOT, 'www/legacy-premium/monetization-extract.js')));
 });
+
+// ---- store screenshots (scripts/store-shots.mjs): the files on disk have the sizes the stores want, no alpha, and the captions the listing gives
+test('store screenshots: twelve PNGs at 1290x2796 (App Store) and 1080x2340 (Play), RGB without alpha, named and captioned as store/listing.md says', async () => {
+  const { FRAMES, TARGETS } = await import('../scripts/store-shots.mjs');
+  assert.deepEqual(TARGETS.map(t => [t.dir, t.w, t.h]), [['store/screenshots', 1290, 2796], ['store/play/screenshots', 1080, 2340]]);
+  assert.deepEqual(FRAMES.map(f => f.n + '-' + f.name), ['01-title', '02-dig', '03-seal', '04-relic', '05-collection', '06-knucklebone']);
+  const listing = read('store/listing.md');
+  for (const f of FRAMES) {
+    const cap = f.head.replace('\u2019', "'");
+    assert.ok(listing.includes(`| Screenshot ${+f.n}, "${cap}" | [screenshots/${f.n}-${f.name}.png]`), `listing caption for frame ${f.n}: ${cap}`);
+    assert.ok(listing.includes(`| ${f.n} | ${f.sub} |`), `listing line for frame ${f.n}`);
+    assert.ok(!/finders keepers/i.test(f.head + f.sub));
+  }
+  for (const t of TARGETS) {
+    assert.deepEqual(fs.readdirSync(path.join(ROOT, t.dir)).sort(), FRAMES.map(f => `${f.n}-${f.name}.png`));
+    for (const f of FRAMES) {
+      const b = fs.readFileSync(path.join(ROOT, t.dir, `${f.n}-${f.name}.png`));
+      assert.equal(b.subarray(1, 4).toString(), 'PNG'); assert.deepEqual([b.readUInt32BE(16), b.readUInt32BE(20)], [t.w, t.h], `${t.dir}/${f.n}`);
+      assert.equal(b[25], 2, 'colour type 2: RGB, no alpha channel (App Store Connect rejects alpha)'); assert.ok(b.length > 150000, 'not an empty picture');
+    }
+  }
+});

@@ -92,7 +92,7 @@ test('rc10: the public text describes the tray rule and no old claim; the docs n
   assert.ok(!/\b\d{1,3}(,\d{3})+\b|\b\d{3,}\b/.test(description.replace(/\b48 relics\b/, '')), 'the description quotes no score or target, so none can go stale');
   assert.ok(!/\bcap(s|ped)?\b|ceiling\b(?! that is thinking)/i.test(description.replace('a ceiling that is thinking about it', '')), 'no cap is described');
   assert.ok(!/Seal what glows\.\"? \|/.test(listing.split('## Text')[0]), 'the screenshot caption that described the old seal rule is gone');
-  assert.match(listing, /All six frames are stale/);
+  assert.ok(!/frames are stale/.test(listing), 'the frames were re-made from rc10a in sprint 18'); assert.match(listing, /scripts\/store-shots\.mjs/); assert.match(listing, /02, 03, 04, 05, 06, 01/);
   // review notes: how to find each offer under the rc10 rules
   assert.match(reviewBlock, /waits until six finds are on the tray/); assert.match(reviewBlock, /first two\s+collapses cost no Memory/); assert.match(reviewBlock, /or is dug bare/);
   // owner checklist: the six rc10 questions, five decided on 20 Nov, the sixth open

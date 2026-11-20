@@ -241,7 +241,7 @@ Everything to paste is in `store/listing.md`. The blanks:
 
 Then, in App Store Connect:
 
-1. **Screenshots:** upload the six files in `store/screenshots/`, in file-name order. They were made from rc10a by `scripts/store-shots.mjs`; the first frame is a dig, not the title screen. Look at each one before you upload it: you are the first person to judge them.
+1. **Screenshots:** upload the six files in `store/screenshots/` in this order: 02, 03, 04, 05, 06, 01. That puts a dig first and the title screen last (the title screen prints "Finders keepers.", which the store page must not lead with). They were made from rc10a by `scripts/store-shots.mjs`. Look at each one before you upload it: you are the first person to judge them.
 2. **Age rating:** run the questionnaire for real and answer simulated gambling "yes, infrequent" (the answers are in `store/listing.md`). Save a screenshot of the result. Then decision D4.
 3. **Pricing and Availability:** untick the 27 EU countries (`docs/AVAILABILITY.md` has the list and the reason).
 4. **App Privacy:** fill it from the tables in `store/listing.md` (Tracking: No).

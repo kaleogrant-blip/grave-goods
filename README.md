@@ -53,6 +53,7 @@ scripts/png-flatten.mjs           minimal PNG re-encoder (icon must have no alph
 scripts/extract-config.mjs        dump the game's shipped SKILL/LUCK/ECON into config/config.json
 scripts/gen-storekit.mjs          products.json -> ios/App/GraveGoods.storekit (Xcode/local testing; --check mode)
 scripts/asc-products.mjs          create/verify the IAP in App Store Connect (dry run by default, --apply)
+scripts/store-shots.mjs          re-makes the twelve store screenshots from the game in the repo (see "Store screenshots")
 scripts/asc-setup.mjs            bundle id + iCloud, app-record check, optional purchase, plain-English job summary (run by asc-setup.yml)
 scripts/lib/territories.mjs       the 27 EU territory codes (EU is excluded from availability)
 scripts/asc-promo-codes.mjs       Apple offer codes for gifts (dry run by default; see docs/GIFTING.md)
@@ -118,6 +119,15 @@ work/                             the game team's logs and builds (sprint16 = rc
 10b. **Fixed in v1.0-rc10a (four game-side items from the rc10 fitting).** The game's play log no longer closes a dig that is about to resume as "interrupted" (its boot check reads saved-dig record version 2). The game now emits four small events for the tray rule through its normal `gg:tel` path: `crumble` (kind, relic, chamber, loose), `tray_pick` (one per seal, only when the tray was changed: tray, loose, put_on, held_back), `seal_held` (the first-tomb guard refused a seal: tray, loose, crack_pct) and `bare_wall` (charged, nth); `seal` gained `loose` and `chamber_end` gained `crumbled`. The shell has no allow-list of event names, so they pass through the same queue and the same consent gate (`tests/telemetry.test.mjs`, `tests/rc10-rules.test.mjs`). The Stake cards and the bare-wall lines are written from `SKILL.stakeT` and `SKILL.bare.free`, so changing those two numbers by remote config keeps the text true (`tests/smoke.test.mjs`). The game writes no seal slip for a Looter's Sack carrier; the shell's `not_applicable` answer stays as a backstop.
 10d. **Two phones on different builds** share one cloud save without damage, with the two losses listed under Save above (an open rc10 dig, and old-rule scores not visible on rc9b). Before public launch every tester will be on one build, so this matters only during TestFlight.
 11. **Dormant premium code.** `www/legacy-premium/` is unloaded. If cosmetics ever come back, read its README first (ownership persistence caveat).
+
+## Store screenshots
+
+`node scripts/store-shots.mjs` re-makes all twelve store frames from `game/current.html`: six at 1290x2796 in `store/screenshots/` (App Store) and the same six at 1080x2340 in `store/play/screenshots/` (Google Play): title, dig, seal with a full tray chosen, relic, Collection, knucklebone. It opens the real game in headless Chromium at phone size, plays to six seeded moments (setup written directly, then real taps for every uncovering, tray choice and seal), photographs each and sets it in the store frame with its caption. Captions are in `FRAMES` at the top of the script and must match `store/listing.md`; seeds are in `SEEDS`.
+
+- `--only 03,06` re-makes just those frames; `--out some/folder` writes elsewhere (sub-folders `ios/` and `play/`).
+- It needs the Playwright Chromium that `npm test` uses, and no network (fonts come from `www/fonts`).
+- Frame 01 prints today's date and a countdown, so it is never byte-identical twice.
+- **Look at every frame after a run.** A seed that makes a good picture on one game build may not on the next. The script fails loudly when a moment cannot be reached (for example, no wall worth a knucklebone offer), but it cannot tell a dull picture from a good one.
 
 ## What is still manual
 
