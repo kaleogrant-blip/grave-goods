@@ -201,6 +201,10 @@ T('remote config: fetched, applied to the live game objects, version stamped on 
     long4: SKILL.long4, ft: FT.t3, bare: BARE.free, stake6: SKILL.stakeT[5], cap: [SKILL.cap.fame, SKILL.cap.reward].map(String), red: FT.red, tray: FT.tray }));
   assert.deepEqual(live, { chest: 21, t: [930, 2730, 9030], BASE: [930, 2730, 9030], v: 9, long4: .6, ft: 7200, bare: 2, stake6: 1.1, cap: ['Infinity', 'Infinity'], red: .8, tray: 6 },
     'the rc10 balance numbers reach the objects the game reads (FT and BARE are the game\'s own handles on SKILL.first and SKILL.bare); caps, red line and tray size are out of reach');
+  // rc10a: the words on screen are written from those numbers, so a remote change cannot make them false
+  const words = await r.page.evaluate(() => ({ s6: STAKES[5].rule, s5: STAKES[4].rule, led: UNLOCKS.find(u => u.kind === 'stake' && u.stake === 6).line, coach: bareTxt('coach'), how: HOW.find(c => /Memories and walking away/.test(c.h)).t }));
+  assert.match(words.s6, /^Targets \+10%, the knucklebone is off/); assert.match(words.s5, /Targets \+10%\.$/); assert.equal(words.led, words.s6, 'the Ledger line too');
+  assert.equal(words.coach, 'A bare wall costs nothing twice a chamber. The next one costs a Memory.'); assert.match(words.how, /comes down free twice a chamber/); assert.ok(!/once a chamber/.test(words.how));
   // and the game plays by them: the next chamber 1 wall of a seasoned profile asks the new base, Stake 6 asks 10% more
   assert.deepEqual(await r.page.evaluate(() => { const out = []; ST.chambers = 9; run.train = false; run.tomb = 1;
     for (const st of [1, 6]) { run.stake = st; newChamber(0); out.push(TARGETS[0]); } return out; }), [930, 1020], 'newChamber builds its target from the remote values (Tomb II chamber 1: 930, and 930 x 1.1 at Stake 6)');
@@ -238,7 +242,9 @@ for (const [how, routes] of [['the config host is unreachable', {}], ['the confi
     const kv = newKV(); kv.prefs.set('gg_remote_config_v1', JSON.stringify(RC9B_CACHED));
     const r = await open({ file: WIRED, kv, routes });
     await r.page.waitForFunction(() => GG_NATIVE.rcLoaded, null, { timeout: 20000 });
-    const live = await r.page.evaluate(() => { ST.chambers = 9; run.train = false; run.tomb = 0; run.stake = 1; const t = [0, 1, 2].map(i => { newChamber(i); return TARGETS[i]; });
+    const live = await r.page.evaluate(() => { ST.chambers = 9; run.train = false; run.tomb = 0; run.stake = 1;
+      for (let k = 0; k < 200; k++) { run.seed = 'CFG-' + k; if ([0, 1, 2].every(i => !luckTell(i))) break; } // setup: a seed whose three walls carry no tell (a Hollow wall asks 15% more, about one chamber in thirty)
+      const t = [0, 1, 2].map(i => { newChamber(i); return TARGETS[i]; });
       const first3 = t[2]; bestPut(Object.assign(bestGet(), { wins: 1 })); newChamber(2); t[2] = TARGETS[2]; // a profile that has cleared a tomb asks the full sum
       return { first3, skill: SKILL.targets.slice(), base: TARGETS_BASE.slice(), tombI: t, ch2T1: SKILL.ch2T1, firstReal: SKILL.firstReal, long4: SKILL.long4, cap: [SKILL.cap.fame, SKILL.cap.reward].map(String), sealDiv: ECON.gold.sealDiv,
         v: GG_NATIVE.remoteConfig.state.version, src: GG_NATIVE.remoteConfig.state.source, ads: GG_NATIVE.ads.enabled(), flags: GG_NATIVE.flags }; });

@@ -1,0 +1,17 @@
+== results/bare.txt: BARE PASS 8
+== results/build-md5.txt: d3cd2b1d562af3b10c59b745c9c1d0d7
+== results/check.txt: node --check OK 964447 bytes
+== results/daily.txt: DAILY PASS: started from the title, tray pick and seal worked, same wall and kit on a second launch, 0 page errors
+== results/extras.txt: EXTRAS PASS
+== results/first.txt: FIRST PASS 7
+== results/fixes.txt: FIXES PASS: 19 of 19
+== results/flow.txt: FLOW PASS: 3 viewports, 0 page errors, no horizontal scroll
+== results/fuzz-hold.txt: FUZZ PASS: 3 runs x 1200 actions, 0 page errors, 0 tray-rule breaks, 0 stuck (0 false alarms probed), 576 no-dig taps (0 unexplained)
+== results/fuzz.txt: FUZZ PASS: 3 runs x 1200 actions, 0 page errors, 0 tray-rule breaks, 0 stuck (0 false alarms probed), 1122 no-dig taps (0 unexplained)
+== results/polish.txt: POLISH PASS 9
+== results/rc9b-fork.txt: FORK PASS
+== results/rc9b-resume.txt: RESUME PASS: 28 reloads mid-reading + 3 mid-dig, every one ends in the same state as the uninterrupted run
+== results/seeds.txt: SEEDS PASS: 60 walls over 20 seeds identical to rc10 (dirt, finds, ores, tell, generator state)
+== results/shots.txt: 844x390 how-to shots, scroll ok true errors 0 cards 13
+== results/tray.txt: TRAY PASS 9
+== results/upgrade.txt: UPGRADE PASS 11

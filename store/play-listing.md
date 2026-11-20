@@ -13,7 +13,7 @@ Copy-paste for Play Console when that time comes. Limits are Google's. **(verify
 | Phone screenshots (2 to 8) | [play/screenshots/](play/screenshots/) 01 to 06 | 1080x2340 (19.5:9). Check Play Console's current aspect-ratio rule before upload: older guidance capped the long side at 2x the short side (2160 px for 1080), in which case use the 1398x2796 frames from git history or re-render. Each side 320 to 3840 px |
 | 7-inch and 10-inch tablet screenshots | not made | Optional; needed only to be featured on tablets |
 
-The screenshots and the feature graphic (drawn from the title scene) were captured from rc7b. Re-run the capture if the screens changed (see `store/listing.md`).
+The six screenshots were made from v1.0-rc10a by `scripts/store-shots.mjs` (see `store/listing.md`); re-run it if the screens change. The feature graphic (drawn from the title scene) is still the rc7b one; the title scene has not changed since.
 
 ## Text
 

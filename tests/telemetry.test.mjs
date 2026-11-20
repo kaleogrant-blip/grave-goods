@@ -17,11 +17,11 @@ function rig(over = {}) {
   const tel = createTelemetry({
     fetch: fetchSpy, prefs, ls, key: 'phc_test', host: 'https://us.i.posthog.com/', now: () => t, online: () => online,
     setInterval: (f, ms) => { timers.push({ f, ms }); return timers.length; }, clearInterval: () => {},
-    meta: () => ({ app_build: 'v1.0-rc10', remote_config_version: 7, platform: 'ios' }), ...over.deps
+    meta: () => ({ app_build: 'v1.0-rc10a', remote_config_version: 7, platform: 'ios' }), ...over.deps
   });
   return { tel, prefs, ls, calls, fetchAll, timers, setStatus: s => (status = s), setOnline: v => (online = v), tick: ms => (t += ms), now: () => t };
 }
-const ev = (n, extra = {}) => ({ event: 'seal', event_id: 's-' + n, run_id: 'r1', session_id: 's', ts_client: 1_700_000_000_000 + n, config_version: 11, build: 'v1.0-rc10', ...extra });
+const ev = (n, extra = {}) => ({ event: 'seal', event_id: 's-' + n, run_id: 'r1', session_id: 's', ts_client: 1_700_000_000_000 + n, config_version: 11, build: 'v1.0-rc10a', ...extra });
 
 test('flushes at 50 events, in one batch, to the PostHog /batch/ endpoint', async () => {
   const r = rig();
@@ -50,7 +50,7 @@ test('events are anonymous, carry the config version and build, and keep the gam
   const r = rig(); await r.tel.ingest(ev(1, { chapter: 3 })); await r.tel.flush(true);
   const e = r.calls[0].body.batch[0], p = e.properties;
   assert.equal(e.event, 'seal');
-  assert.equal(p.remote_config_version, 7); assert.equal(p.app_build, 'v1.0-rc10'); assert.equal(p.config_version, 11); assert.equal(p.build, 'v1.0-rc10'); assert.equal(p.chapter, 3); assert.equal(p.run_id, 'r1');
+  assert.equal(p.remote_config_version, 7); assert.equal(p.app_build, 'v1.0-rc10a'); assert.equal(p.config_version, 11); assert.equal(p.build, 'v1.0-rc10a'); assert.equal(p.chapter, 3); assert.equal(p.run_id, 'r1');
   assert.equal(p.$geoip_disable, true); assert.equal(p.$process_person_profile, false);
   assert.match(p.distinct_id, /^[0-9a-f-]{20,}$/);
   assert.equal(p.event, undefined, 'event name is not duplicated into properties');
@@ -180,4 +180,33 @@ test('an ID or queue left by an older build is wiped at launch when there is no 
 test('consent yes but the game\'s Play log is off: still nothing is sent (both must be on)', async () => {
   const r = rig({ ls: memLS({ rw_tel_off: '1' }) }); await r.tel.ingest(ev(1)); await r.tel.flush(true);
   assert.deepEqual(r.fetchAll, []); assert.equal(r.tel.gameLogOff(), true); assert.equal(r.tel.configured(), true);
+});
+
+// v1.0-rc10a: the game's four new rows for the tray rule. The shell has no allow-list of event names: it forwards whatever the game
+// emits on gg:tel, through the same queue and the same gates. These tests pin that for the new names.
+const TRAY_EVENTS = [
+  { event: 'crumble', chamber: 2, wall_index: 1, kind: 'Coin', relic: false, loose: 10 },
+  { event: 'tray_pick', chamber: 1, wall_index: 1, tray: 6, loose: 8, put_on: 1, held_back: 1 },
+  { event: 'seal_held', chamber: 1, wall_index: 1, tray: 3, loose: 3, crack_pct: 12 },
+  { event: 'bare_wall', chamber: 1, wall_index: 2, charged: true, nth: 2 }
+];
+test('rc10a tray events (crumble, tray_pick, seal_held, bare_wall): forwarded untouched in the normal batch, with the same envelope as every other event', async () => {
+  const r = rig(); let n = 0;
+  for (const e of TRAY_EVENTS) assert.equal(await r.tel.ingest(ev(++n, e)), 'queued');
+  assert.equal(r.calls.length, 0, 'batched, not sent one by one'); await r.tel.flush(true);
+  assert.equal(r.calls.length, 1); const b = r.calls[0].body.batch;
+  assert.deepEqual(b.map(x => x.event), ['crumble', 'tray_pick', 'seal_held', 'bare_wall']);
+  b.forEach((x, i) => { const p = x.properties, src = TRAY_EVENTS[i];
+    for (const k of Object.keys(src)) if (k !== 'event') assert.deepEqual(p[k], src[k], x.event + '.' + k);
+    assert.equal(p.build, 'v1.0-rc10a'); assert.equal(p.config_version, 11); assert.equal(p.$process_person_profile, false); assert.equal(p.$geoip_disable, true);
+    assert.ok(!JSON.stringify(x).includes('@')); });
+});
+test('rc10a tray events: nothing is queued or sent before a yes (not asked, or "no"), with the Play log off, or without a project key', async () => {
+  for (const consent of [null, 'no']) {
+    const r = rig({ consent }); let n = 0;
+    for (const e of TRAY_EVENTS) assert.equal(await r.tel.ingest(ev(++n, e)), 'dropped');
+    await r.tel.flush(true); assert.equal(r.fetchAll.length, 0, 'no request at all'); assert.equal(r.tel.size(), 0); assert.equal(await r.prefs.get(ID_KEY), null, 'no ID is made');
+  }
+  const off = rig(); off.ls.setItem('rw_tel_off', '1'); for (const e of TRAY_EVENTS) assert.equal(await off.tel.ingest(ev(1, e)), 'dropped'); await off.tel.flush(true); assert.equal(off.fetchAll.length, 0);
+  const nokey = rig({ deps: { key: '' } }); for (const e of TRAY_EVENTS) assert.equal(await nokey.tel.ingest(ev(1, e)), 'dropped'); await nokey.tel.flush(true); assert.equal(nokey.fetchAll.length, 0);
 });

@@ -16,11 +16,24 @@ Everything here is copy-paste ready for App Store Connect. Limits are Apple's; *
 | Screenshot 5, "Fill the Collection." | [screenshots/05-collection.png](screenshots/05-collection.png) |
 | Screenshot 6, "The odds are printed." | [screenshots/06-knucklebone.png](screenshots/06-knucklebone.png) |
 
-**Screenshot order (owner ruling 6).** The store page must not lead with "Finders keepers." Frame 1 is the title screen, and the game's title screen prints that line. Until the frames are re-captured, upload them in this order: 02, 03, 04, 05, 06, 01. When they are re-captured (they are stale anyway: see below), make the first frame a dig, not the title.
+**Screenshot order (owner ruling 6).** The store page must not lead with "Finders keepers." Frame 01 is the title screen, and the game's title screen prints that line. So upload the frames in this order: 02, 03, 04, 05, 06, 01. The first thing a visitor sees is then a dig.
 
-**All six frames are stale and must be re-captured before submission.** They show build v1.0-rc7b. The game is now v1.0-rc10: a seal takes a tray of six finds at most (the frames show seals that took everything on the wall), every score and target is three times the old digits (the frames show the old ones), the Seal button reads `Tray n/6`, and there is a `Loose n/9` tag over the wall. Frame 3 is the worst: its old caption was "Seal what glows.", which is no longer the rule; the caption above is the new one and needs a new picture (a wall with more than six loose finds, six of them ringed on the tray). Frame 6 shows a knucklebone offered at the old score size. This repo has no script that makes these frames (the two scripts named below belong to the game team's tree and are not here), so they were not regenerated in sprint 17. The same six files under `store/play/screenshots/` are stale in the same way.
+**The frames are current.** All twelve (six here, six under `store/play/screenshots/`) were made on 20 Nov 2026 from v1.0-rc10a, the game in this repository, by `scripts/store-shots.mjs`. They show the tray rule as it is played: frame 03 has eight loose finds with six ticked on the tray, the Seal button reads `Tray 6/6`, the `Loose 8/9` tag is over the wall, and every score is in the current digits. Frame 06 is the knucklebone offer after a seal of 6,210 with the chance of each face printed on the card. Re-run the script whenever the screens change (`node scripts/store-shots.mjs`; README, "Store screenshots"), and look at every frame it writes before uploading: nobody but the script's author has judged these.
 
-The six frames are 1290x2796 (the 6.7-inch iPhone size), RGB, no alpha. Apple currently wants the largest iPhone size you have; 6.7-inch frames are scaled for smaller phones **(verify in the current UI: if it asks for 6.9-inch, 1320x2868, the art team re-renders)**. They were captured from build v1.0-rc7b on the new HUD (title screen with the Daily strip, a mid-dig with Fever and a Greece Dynasty, a seal landing on the Context Sheet, a relic card, the Collection, the knucklebone card) by `team/sprint13b/t/store.js` and `t/frames.js`. Re-run both if the screens change. LAUNCH.md also asks for a 30-second preview video (not yet made; optional for TestFlight, wanted for launch). iPad: the app is built as iPhone-and-iPad by default. Either supply iPad screenshots (13-inch) or restrict to iPhone in Xcode's "Targeted device families", which needs a one-line change in the project: ask the developer.
+Each frame carries its caption from the table above and one line under it:
+
+| Frame | Line under the caption |
+|---|---|
+| 01 | A roguelike of real relics and cracking walls. |
+| 02 | Match a civilization and the seal multiplies. |
+| 03 | A tray holds six finds. You choose which six. |
+| 04 | Every relic is a real object, with its story. |
+| 05 | Forty-eight relics from six civilizations. |
+| 06 | Every chance is on the card before you choose. |
+
+Two things to know about what is in the pictures. The profile is a made-up one (17 relics found, written in before the game starts), and each wall is set up so a find is one tap from open; the uncovering, the tray choice and the seal are then real taps, and every number, mark and card on screen is drawn by the game. Frame 01 prints the day's date and a countdown, so it differs a little each time it is made.
+
+The iPhone frames are 1290x2796 (the 6.7-inch iPhone size), the Play frames 1080x2340; all RGB, no alpha. Apple currently wants the largest iPhone size you have; 6.7-inch frames are scaled for smaller phones **(verify in the current UI: if it asks for 6.9-inch, 1320x2868, add that size to `TARGETS` in the script)**. LAUNCH.md also asks for a 30-second preview video (not yet made; optional for TestFlight, wanted for launch). iPad: the app is built as iPhone-and-iPad by default. Either supply iPad screenshots (13-inch) or restrict to iPhone in Xcode's "Targeted device families", which needs a one-line change in the project: ask the developer seat.
 
 ## Text
 

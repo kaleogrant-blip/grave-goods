@@ -84,7 +84,7 @@ test('the public repo carries no email address and no key material in its docs, 
 });
 
 test('rc10: the public text describes the tray rule and no old claim; the docs name the build in the repo; the rc10 questions are recorded with their status', () => {
-  const ver = /const GAME_VERSION='([^']+)'/.exec(rd('game/current.html'))[1]; assert.equal(ver, 'v1.0-rc10');
+  const ver = /const GAME_VERSION='([^']+)'/.exec(rd('game/current.html'))[1]; assert.equal(ver, 'v1.0-rc10a');
   assert.ok(readme.includes('`game/current.html`, ' + ver), 'README names the game build that is in the repo');
   // the description: a seal is a tray of six, nine fit loose, the tenth crumbles the oldest; nothing about sealing everything, score sizes or caps
   assert.match(description, /a tray holds six finds/); assert.match(description, /room for nine loose finds/); assert.match(description, /the oldest crumbles/);
@@ -92,7 +92,7 @@ test('rc10: the public text describes the tray rule and no old claim; the docs n
   assert.ok(!/\b\d{1,3}(,\d{3})+\b|\b\d{3,}\b/.test(description.replace(/\b48 relics\b/, '')), 'the description quotes no score or target, so none can go stale');
   assert.ok(!/\bcap(s|ped)?\b|ceiling\b(?! that is thinking)/i.test(description.replace('a ceiling that is thinking about it', '')), 'no cap is described');
   assert.ok(!/Seal what glows\.\"? \|/.test(listing.split('## Text')[0]), 'the screenshot caption that described the old seal rule is gone');
-  assert.match(listing, /All six frames are stale/);
+  assert.ok(!/frames are stale/.test(listing), 'the frames were re-made from rc10a in sprint 18'); assert.match(listing, /scripts\/store-shots\.mjs/); assert.match(listing, /02, 03, 04, 05, 06, 01/);
   // review notes: how to find each offer under the rc10 rules
   assert.match(reviewBlock, /waits until six finds are on the tray/); assert.match(reviewBlock, /first two\s+collapses cost no Memory/); assert.match(reviewBlock, /or is dug bare/);
   // owner checklist: the six rc10 questions, five decided on 20 Nov, the sixth open

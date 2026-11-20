@@ -1,0 +1,26 @@
+PASS A, dig in progress: rc9b profile made by playing rc9b 21 rw_ keys, best haul 6100, best seal 126, dig in progress: true
+PASS A, dig in progress: the build opens on it with no error and offers no broken dig note {"v":1,"dig":{"ch":1,"gold":18}}, old bests set aside 6100 / 126
+PASS A, dig in progress: everything else came over unchanged Vault Ankh, Heart Scarab; rank 7 (5055 XP); Gold 158; 1 runs, 2 tombs; tombs {"1.1":2,"2.1":1}; Reduce Motion kept; chart bars x3
+PASS A, dig in progress: the note is shown once, in plain words, and the menu follows dig paragraph with chamber and purse
+PASS A, dig in progress: Stats shows the old bests as old; a new dig, seal and resume work new best seal 405; resumed the same wall; old bests still 6100
+PASS B, no dig in progress: rc9b profile made by playing rc9b 20 rw_ keys, best haul 6100, best seal 114, dig in progress: false
+PASS B, no dig in progress: the build opens on it with no error and offers no broken dig note {"v":1}, old bests set aside 6100 / 114
+PASS B, no dig in progress: everything else came over unchanged Vault Ankh, Heart Scarab; rank 7 (5056 XP); Gold 158; 1 runs, 2 tombs; tombs {"1.1":2,"2.1":1}; Reduce Motion kept; chart bars x3
+PASS B, no dig in progress: the note is shown once, in plain words, and the menu follows no dig paragraph
+PASS B, no dig in progress: Stats shows the old bests as old; a new dig, seal and resume work new best seal 369; resumed the same wall; old bests still 6100
+PASS a brand-new profile is not treated as an old one {"flag":"1","old":null,"note":null}
+
+| Test | Result | Note |
+|---|---|---|
+| A, dig in progress: rc9b profile made by playing rc9b | PASS | 21 rw_ keys, best haul 6100, best seal 126, dig in progress: true |
+| A, dig in progress: the build opens on it with no error and offers no broken dig | PASS | note {"v":1,"dig":{"ch":1,"gold":18}}, old bests set aside 6100 / 126 |
+| A, dig in progress: everything else came over unchanged | PASS | Vault Ankh, Heart Scarab; rank 7 (5055 XP); Gold 158; 1 runs, 2 tombs; tombs {"1.1":2,"2.1":1}; Reduce Motion kept; chart bars x3 |
+| A, dig in progress: the note is shown once, in plain words, and the menu follows | PASS | dig paragraph with chamber and purse |
+| A, dig in progress: Stats shows the old bests as old; a new dig, seal and resume work | PASS | new best seal 405; resumed the same wall; old bests still 6100 |
+| B, no dig in progress: rc9b profile made by playing rc9b | PASS | 20 rw_ keys, best haul 6100, best seal 114, dig in progress: false |
+| B, no dig in progress: the build opens on it with no error and offers no broken dig | PASS | note {"v":1}, old bests set aside 6100 / 114 |
+| B, no dig in progress: everything else came over unchanged | PASS | Vault Ankh, Heart Scarab; rank 7 (5056 XP); Gold 158; 1 runs, 2 tombs; tombs {"1.1":2,"2.1":1}; Reduce Motion kept; chart bars x3 |
+| B, no dig in progress: the note is shown once, in plain words, and the menu follows | PASS | no dig paragraph |
+| B, no dig in progress: Stats shows the old bests as old; a new dig, seal and resume work | PASS | new best seal 369; resumed the same wall; old bests still 6100 |
+| a brand-new profile is not treated as an old one | PASS | {"flag":"1","old":null,"note":null} |
+UPGRADE PASS 11
