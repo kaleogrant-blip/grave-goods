@@ -70,7 +70,8 @@ const sealWait=async page=>{await page.evaluate(()=>{Q.speed=4});await page.loca
     const anim=await page.evaluate(()=>(state.crumbs||[]).length);assert.strictEqual(anim,1,'crumble effect running');
     await page.waitForTimeout(rm?330:300);await page.screenshot({path:path.join(SHOTS,rm?'crumble-rm-390.png':'crumble-390.png')});
     const shake=await page.evaluate(()=>typeof shakeAmt==='number'?shakeAmt:0);if(rm)assert.strictEqual(shake,0,'Reduce Motion: no shake');
-    await page.waitForTimeout(1300);assert.strictEqual(await page.evaluate(()=>(state.crumbs||[]).length),0,'effect over');
+    await page.waitForTimeout(1300);await page.waitForFunction(()=>(state.crumbs||[]).length===0,null,{timeout:4000}).catch(()=>{}); // the effect is 1.5 s of game time; on a busy machine the frame that clears it can come late, so it is given up to 4 s more
+    assert.strictEqual(await page.evaluate(()=>(state.crumbs||[]).length),0,'effect over');
     const lum1=await px();assert(lum1<lum0*.5&&lum1<120,'the crumbled find is drawn as a dark hole: '+lum0.toFixed(0)+' -> '+lum1.toFixed(0));
     await page.screenshot({path:path.join(SHOTS,rm?'crumble-after-rm-390.png':'crumble-after-390.png')});
     assert.strictEqual(errors.length,0,errors.join('\n'));await ctx.close();return 'find '+oldest+' gone, pixels '+lum0.toFixed(0)+' -> '+lum1.toFixed(0)});

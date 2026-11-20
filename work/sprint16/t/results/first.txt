@@ -1,0 +1,18 @@
+PASS first tomb: Seal with three finds is held, and says why (390x844) held at 3, sealed at 6 for 480
+PASS first tomb: Seal with three finds is held, and says why (844x390) held at 3, sealed at 6 for 480
+PASS first tomb: in the red the seal is let go two finds sealed at 80% crack
+PASS first tomb: at nine loose finds the seal is let go even with finds tapped off the tray tray 4 with eight loose (held: true), free at nine
+PASS first tomb: chamber 3 asks 7,500; after a cleared tomb it asks the full sum; the Daily is never eased first tomb 7500, after a win 9000, Daily 9000; log: Your first tomb: this chamber asks 7,500, not 9,000. Once you have cle
+PASS a profile that has cleared a tomb is never held two finds sealed at once
+PASS first tomb: the rule survives closing the app mid-dig still held after resume, 3 loose
+
+| Test | Result | Note |
+|---|---|---|
+| first tomb: Seal with three finds is held, and says why (390x844) | PASS | held at 3, sealed at 6 for 480 |
+| first tomb: Seal with three finds is held, and says why (844x390) | PASS | held at 3, sealed at 6 for 480 |
+| first tomb: in the red the seal is let go | PASS | two finds sealed at 80% crack |
+| first tomb: at nine loose finds the seal is let go even with finds tapped off the tray | PASS | tray 4 with eight loose (held: true), free at nine |
+| first tomb: chamber 3 asks 7,500; after a cleared tomb it asks the full sum; the Daily is never eased | PASS | first tomb 7500, after a win 9000, Daily 9000; log: Your first tomb: this chamber asks 7,500, not 9,000. Once you have cle |
+| a profile that has cleared a tomb is never held | PASS | two finds sealed at once |
+| first tomb: the rule survives closing the app mid-dig | PASS | still held after resume, 3 loose |
+FIRST PASS 7

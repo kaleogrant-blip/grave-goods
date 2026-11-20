@@ -1,3 +1,35 @@
   20 runs, 3 s
   50 runs, 8 s
   80 runs, 11 s
+  110 runs, 15 s
+  140 runs, 19 s
+  170 runs, 25 s
+  200 runs, 29 s
+  230 runs, 35 s
+  260 runs, 40 s
+  290 runs, 45 s
+  320 runs, 49 s
+  350 runs, 54 s
+  380 runs, 60 s
+  410 runs, 67 s
+  420 runs, 68 s
+
+60 runs a cell (6 classes: scholar, brute, medium, fence, cartographer, mystic), 68 s. Tomb clear rate.
+| Tomb:Stake | pick9 |
+|---|---|
+| 1:1 | 80.0% |
+| 2:1 | 71.7% |
+| 3:1 | 78.3% |
+| 4:1 | 60.0% |
+| 5:1 | 53.3% |
+| 6:1 | 55.0% |
+| 7:1 | 46.7% |
+
+detail: win, cleared ch1, cleared ch2, best seal median / 95th pct, seals a run, walls a run, crumbles a run, bare walls / collapses / walk-aways a run, strikes a run, by class
+1:1|pick9     80.0% 100.0% 100.0%   4536 /  8532  9.8  5.1  1.17  0.83/1.08/0.40  120  {"scholar":80,"brute":60,"medium":90,"fence":80,"cartographer":100,"mystic":70} died@ch [0,0,20,0] frac [0,0,0.81,0]
+2:1|pick9     71.7% 100.0% 100.0%   4752 / 11124  11.7  5.7  1.35  1.27/1.23/0.43  136  {"scholar":100,"brute":40,"medium":90,"fence":80,"cartographer":60,"mystic":60} died@ch [0,0,28.3,0] frac [0,0,0.81,0]
+3:1|pick9     78.3% 100.0% 100.0%   5760 / 10530  9.3  5.1  0.50  0.33/1.93/0.05  110  {"scholar":80,"brute":60,"fence":80,"medium":70,"mystic":90,"cartographer":90} died@ch [0,0,21.7,0] frac [0,0,0.83,0]
+4:1|pick9     60.0% 100.0% 100.0%   4608 / 10584  11.6  5.6  1.25  0.78/2.08/0.15  147  {"scholar":60,"brute":50,"medium":50,"fence":50,"cartographer":80,"mystic":70} died@ch [0,0,40,0] frac [0,0,0.71,0]
+5:1|pick9     53.3% 100.0% 100.0%   5400 / 10368  10.7  5.4  0.80  0.35/2.37/0.12  121  {"scholar":60,"brute":30,"medium":50,"fence":70,"cartographer":60,"mystic":50} died@ch [0,0,46.7,0] frac [0,0,0.74,0]
+6:1|pick9     55.0% 100.0% 100.0%   4770 /  9288  12.2  5.8  0.70  0.68/2.42/0.17  158  {"scholar":70,"brute":40,"medium":70,"fence":30,"cartographer":60,"mystic":60} died@ch [0,0,45,0] frac [0,0,0.79,0]
+7:1|pick9     46.7% 100.0% 100.0%   4482 /  9720  10.5  6.1  0.52  1.92/1.62/0.07  162  {"scholar":60,"brute":20,"fence":60,"medium":40,"mystic":50,"cartographer":50} died@ch [0,0,53.3,0] frac [0,0,0.67,0]

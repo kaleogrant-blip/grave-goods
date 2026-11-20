@@ -2,7 +2,7 @@
  {
   "vp": "390x844",
   "errors": 0,
-  "taps_dug": 10,
+  "taps_dug": 7,
   "tray": [
    2,
    3,
@@ -11,7 +11,7 @@
    6,
    7
   ],
-  "sealed": 2916,
+  "sealed": 972,
   "res": {
    "sarc": "ore",
    "fever": "nothing"
@@ -30,7 +30,7 @@
    7,
    8
   ],
-  "sealed": 990,
+  "sealed": 1485,
   "res": {
    "sarc": "relic",
    "fever": "ore"

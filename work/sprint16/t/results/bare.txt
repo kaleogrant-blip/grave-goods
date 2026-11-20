@@ -1,0 +1,20 @@
+PASS first bare wall of a chamber costs nothing, and says so Memories 3, card: The wall was bare3 Memories left · the first bare wall of a chamber costs nothing
+PASS the count is saved: app closed and reopened on the next wall run.bx {"0":1} after relaunch
+PASS second bare wall of the same chamber costs a Memory Memories 3 to 2, card: The wall was bare2 Memories left · a second bare wall costs a Memory
+PASS the wall before it says what an empty wall will cost lk away (−1 ♥). This chamber has had its free bare wall: an empty wall now costs a Memory.
+PASS a new chamber has its own free bare wall Memories 2 kept
+PASS a bare wall that costs the last Memory ends the run summary card shown
+PASS a new profile: its free collapses cover a second bare wall The wall was bare3 Memories left · the first one is on the house
+PASS a seal that clears the chamber on an empty wall is a clear, not a bare wall chamber cleared, run.bx {}
+
+| Test | Result | Note |
+|---|---|---|
+| first bare wall of a chamber costs nothing, and says so | PASS | Memories 3, card: The wall was bare3 Memories left · the first bare wall of a chamber costs nothing |
+| the count is saved: app closed and reopened on the next wall | PASS | run.bx {"0":1} after relaunch |
+| second bare wall of the same chamber costs a Memory | PASS | Memories 3 to 2, card: The wall was bare2 Memories left · a second bare wall costs a Memory |
+| the wall before it says what an empty wall will cost | PASS | lk away (−1 ♥). This chamber has had its free bare wall: an empty wall now costs a Memory. |
+| a new chamber has its own free bare wall | PASS | Memories 2 kept |
+| a bare wall that costs the last Memory ends the run | PASS | summary card shown |
+| a new profile: its free collapses cover a second bare wall | PASS | The wall was bare3 Memories left · the first one is on the house |
+| a seal that clears the chamber on an empty wall is a clear, not a bare wall | PASS | chamber cleared, run.bx {} |
+BARE PASS 8

@@ -1,0 +1,11 @@
+== tray: TRAY FAIL 1
+== bare: BARE PASS 8
+== first: FIRST PASS 7
+== polish: POLISH PASS 9
+== upgrade: UPGRADE PASS 11
+== flow: FLOW PASS: 3 viewports, 0 page errors, no horizontal scroll
+== extras: EXTRAS PASS
+== seeds: SEEDS PASS: 60 walls over 20 seeds identical to rc9b (dirt, finds, ores, tell, generator state)
+== daily: DAILY PASS: started from the title, tray pick and seal worked, same wall and kit on a second launch, 0 page errors
+== rc9b-resume: RESUME PASS: 28 reloads mid-reading + 3 mid-dig, every one ends in the same state as the uninterrupted run
+== rc9b-fork: FORK PASS
