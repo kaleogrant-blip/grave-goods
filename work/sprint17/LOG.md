@@ -10,10 +10,10 @@ Resume by reading this file. Branch `sprint-17` (from `origin/sprint-16`). Game 
 - [x] 4. Telemetry: no shell change needed; test in `tests/rc10-rules.test.mjs`
 - [x] 5. Tests updated and added; full local run: 206 tests, 205 pass, 1 fail (the known local-only Android one), 0 skipped
 - [x] 6. Documents and store text (README, ADS-UI, OWNER-TODO with 6a, LAUNCH, listing, review notes; docs test added). Store screenshots NOT regenerated: no script in this repo; all twelve are stale
-- [ ] 7. Merge to main, CI green
+- [x] 7. Merged to `main` (merge commits 09a286c and 2bb4a5a); CI run 44764194744 on 2bb4a5a is green
 
 ## State right now
-Items 0 to 6 done and pushed on `sprint-17`. Item 7 in progress: merge into `main` (`git checkout main && git merge --no-ff sprint-17`), push, watch CI (`gh run list --branch main --limit 3`). If this file still says "in progress", check whether `origin/main` contains the merge and whether its CI run is green.
+Finished. `main` is at merge commit 2bb4a5a and its CI run is green. Nothing is running. The iOS TestFlight and ASC setup workflows were not triggered. A scratch page (`www/index.x1.html`, a wrapped copy of the game with no keys in it) was committed by mistake in the documents commit and removed in the next one; it is still in history.
 
 ## How to run the tests here
 Scratch dir S with `S/chromium_headless_shell-1194/chrome-linux -> /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64` and `S/chromium-1194 -> /opt/pw-browsers/chromium-1243`, then `PLAYWRIGHT_BROWSERS_PATH=S GG_REQUIRE_BROWSER=1 npm test`.
