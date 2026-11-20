@@ -8,12 +8,12 @@ Resume by reading this file. Branch `sprint-17` (from `origin/sprint-16`). Game 
 - [x] 2. Ads and rewards against the tray rule, the first-tomb guard, the bare-wall Memory, resume record v2 (Sack fix; tests converted to real taps; `tests/rc10-rules.test.mjs`)
 - [x] 3. Save adapter / iCloud: no shell change needed; `tests/rc10-upgrade.test.mjs` (A, B, C) and a unit test
 - [x] 4. Telemetry: no shell change needed; test in `tests/rc10-rules.test.mjs`
-- [ ] 5. Tests updated and added, full run
+- [x] 5. Tests updated and added; full local run: 206 tests, 205 pass, 1 fail (the known local-only Android one), 0 skipped
 - [x] 6. Documents and store text (README, ADS-UI, OWNER-TODO with 6a, LAUNCH, listing, review notes; docs test added). Store screenshots NOT regenerated: no script in this repo; all twelve are stale
 - [ ] 7. Merge to main, CI green
 
 ## State right now
-Items 0 to 4 and 6 done and pushed. Next: item 5's full test run (`npm test`, expect only the known local Android failure), fix anything, then item 7: merge `sprint-17` into `main` with `--no-ff`, push, watch CI.
+Items 0 to 6 done and pushed on `sprint-17`. Item 7 in progress: merge into `main` (`git checkout main && git merge --no-ff sprint-17`), push, watch CI (`gh run list --branch main --limit 3`). If this file still says "in progress", check whether `origin/main` contains the merge and whether its CI run is green.
 
 ## How to run the tests here
 Scratch dir S with `S/chromium_headless_shell-1194/chrome-linux -> /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64` and `S/chromium-1194 -> /opt/pw-browsers/chromium-1243`, then `PLAYWRIGHT_BROWSERS_PATH=S GG_REQUIRE_BROWSER=1 npm test`.
@@ -47,3 +47,26 @@ The game keeps every `rw_*` key in its snapshot, and the adapter passes every st
 - Every event the game emits carries `build: v1.0-rc10` and `config_version: 11`; the shell forwards it untouched and adds `app_build` and `remote_config_version` (now the schema 2 document's version; shipped file is version 3).
 - rc10 adds no event name. It emits nothing for a crumble, a tray pick, a held seal or a bare-wall charge, so analytics cannot see the new rule except through `seal.finds` (now at most 6) and `chamber_end`. Whether to add events is a game-side decision.
 - The game-side bug in item 2 (`s10TelBoot` still tests record version 1) is the only telemetry fault found.
+
+## Item 5: tests (done)
+Full local run on the final tree: **206 tests, 205 pass, 1 fail, 0 skipped**, about 8 minutes. The one failure is `android-patch.test.mjs` "the committed android project is already patched...": it reads a git-ignored file that `cap sync` makes in CI.
+What changed, and where an assertion was replaced rather than kept:
+- `tests/play.mjs` (new): real-tap helpers. Setup is written directly (one strike of dirt left on a find, the wall one strike from its limit, the bank one point under the target); every uncovering, seal and card button is a touchscreen tap. No test calls `strike()`, `collapse()` or `endChamber()` to play any more.
+- `tests/remote-config.test.mjs`: rc10 numbers and shapes; new tests for the rc10 keys, the removed caps, an rc9b document, the rc9b cache (20 tests, was 16).
+- `tests/smoke.test.mjs`: schema 2 documents and rc10 numbers; two new "first launch of rc10 with rc9b's cached config" tests; the "real run" test is played with real taps. Replaced assertion: the collapse haptics were `['notification:ERROR','impact:HEAVY']` exactly after a direct `collapse()` call; now the wall falls to a real strike, whose own tick may come first, so the test asserts the last two haptics are ERROR then HEAVY, that there are exactly two of that kind, and at most one tick before them.
+- `tests/ad-slips.test.mjs`: runs start from the title through the kit screen (they used to play the practice wall with its training flag switched off by hand); walls fall, clear and go bare by real taps. Replaced assertion: "the next chamber starts with one extra seal" was `newChamber(1); state.xs === 1`; now the player goes through the chest, "Go deeper" and the Market, and the test checks `Seal n/4`, four free seals of a tray each (six of seven loose finds on the first), and that the fifth would be the paid one. New test: the Looter's Sack.
+- `tests/real-game-ads.test.mjs`: practice wall, loss (three real collapses) and win (a tray of six in chamber 3, target 7,500) by real taps; events checked for build rc10 and config version 11. Kept as direct setup, and said so in the file: the jump to the last chamber, and the two places where the app must die in the same instant something happens (no tap can time that).
+- `tests/rc10-rules.test.mjs` (new, 3), `tests/rc10-upgrade.test.mjs` (new, 3), one new test each in `tests/ads.test.mjs`, `tests/save-adapter.test.mjs`, `tests/docs.test.mjs`.
+- Walls differ from run to run. Measured over 150 walls a chamber: Tomb I has 9 to 10 plain finds in chamber 1, 10 to 12 in chamber 2, 12 to 14 in chamber 3. No test asks a wall for more than its smallest count. A visitor card can appear when a chamber opens; the helpers send the visitor away with a tap.
+
+## Item 6: documents (done)
+README, `docs/ADS-UI.md` (new section 2a), `docs/OWNER-TODO.md` (3.9, 5.4, new 6a), `docs/LAUNCH.md`, `store/listing.md` (description, caption 3, the "what changed" table, stale-frames note), `store/review-notes.md` (how to find each offer under rc10).
+**Store screenshots were not regenerated.** There is no script for them in this repo. Stale, all from rc7b: `store/screenshots/01-title.png`, `02-dig.png`, `03-seal.png`, `04-relic.png`, `05-collection.png`, `06-knucklebone.png`, and the same six names under `store/play/screenshots/`.
+
+## For the game team and the owner
+Game-side (cannot be done in the shell):
+1. `s10TelBoot` tests saved-dig record version 1; it should be 2 (game line 10225). Effect: the game's own play log closes a dig as "interrupted" and then resumes it.
+2. No telemetry event for a crumble, a tray pick, a held seal or a bare-wall charge.
+3. Stake cards and bare-wall lines are fixed text while their numbers (`SKILL.stakeT`, `SKILL.bare.free`) are now remotely changeable.
+4. The game still draws the seal slip for a Sack carrier and relies on the wrapper to say `not_applicable`; drawing no slip there would be cleaner.
+Owner: question 6 (Tomb VII's guardian line) is open; questions 7 and 8 in `docs/OWNER-TODO.md` 6a.
