@@ -41,7 +41,7 @@ async function open(flags = { ads: true }, { owner = false } = {}) {
   await ctx.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort());
   await ctx.route('https://us.i.posthog.com/**', r => r.fulfill({ status: 200, body: '{}' }));
   await ctx.route(CFG_URL, r => r.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' },
-    body: JSON.stringify({ schema: 1, version: 21, flags, ads: { memoryPerRun: 1, sealBonus: 1, cooldownSec: 0 } }) }));
+    body: JSON.stringify({ schema: 2, version: 21, flags, ads: { memoryPerRun: 1, sealBonus: 1, cooldownSec: 0 } }) }));
   await ctx.exposeBinding('__kv', (_s, op, a) => {
     switch (op) { case 'p.get': return { value: prefs.has(a.key) ? prefs.get(a.key) : null }; case 'p.set': prefs.set(a.key, a.value); return; case 'p.remove': prefs.delete(a.key); return; case 'i.avail': return { available: false }; default: return { value: null }; }
   });

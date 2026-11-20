@@ -179,7 +179,7 @@ T('RELAUNCH with rewards in hand: the once-per-run Memory cap is not reset, the 
   await page.locator('#overlay:not([hidden]) #go').click(); await page.waitForFunction(() => document.getElementById('overlay').hidden && state && !state.over);
   await page.evaluate(() => { Q.speed = 12; endChamber(true); }); await page.waitForSelector('#card .chest');
   const seal = page.locator('#card [data-gg-ad="seal"]'); await seal.waitFor({ state: 'visible' });
-  await page.evaluate(() => GG_NATIVE.remoteConfig.accept({ schema: 1, version: 50, flags: { ads: true }, ads: { memoryPerRun: 1, sealBonus: 1, cooldownSec: 0 } }, 'remote')); // no 30 s wait in a test
+  await page.evaluate(() => GG_NATIVE.remoteConfig.accept({ schema: 2, version: 50, flags: { ads: true }, ads: { memoryPerRun: 1, sealBonus: 1, cooldownSec: 0 } }, 'remote')); // no 30 s wait in a test
   dev.phase('seal-tap'); await seal.click(); await page.waitForFunction(() => GG_NATIVE.ads.pending().seal === 1);
   const capsBefore = JSON.parse(dev.prefs.get(K_CAPS));
   assert.equal(capsBefore.run, tid); assert.equal(capsBefore.memory, 1); assert.equal(capsBefore.seal, 1, 'both are in Preferences, keyed by the run id');

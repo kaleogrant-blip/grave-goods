@@ -1,6 +1,6 @@
 {
-  "schema": 1,
-  "version": 2,
+  "schema": 2,
+  "version": 3,
   "note": "shipped values of the build this file was extracted from",
   "flags": {
     "ads": false,
@@ -14,14 +14,14 @@
   },
   "skill": {
     "targets": [
-      300,
       900,
-      4500
+      2700,
+      9000
     ],
-    "ch2T1": 400,
-    "firstReal": 200,
+    "ch2T1": 1200,
+    "firstReal": 600,
     "deepMul": 1.6,
-    "long4": 0.75,
+    "long4": 0.5,
     "seals": {
       "free": 3,
       "sack": 2,
@@ -31,18 +31,28 @@
       "grace": 1,
       "decay": 0.15
     },
-    "cap": {
-      "fame": 120,
-      "reward": 1.5
-    },
     "mercy": {
       "free": 2
     },
-    "rel2": 1.5
+    "rel2": 1.5,
+    "first": {
+      "t3": 7500
+    },
+    "bare": {
+      "free": 1
+    },
+    "stakeT": [
+      1,
+      1,
+      1,
+      1.05,
+      1.1,
+      1.15
+    ]
   },
   "econ": {
     "gold": {
-      "sealDiv": 100,
+      "sealDiv": 300,
       "chest": 15,
       "tomb": 5,
       "daily": 50,
