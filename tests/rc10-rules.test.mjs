@@ -2,7 +2,7 @@
 //   1. The first-tomb seal guard and the rewarded "+1 free seal": the bonus adds a seal to the budget and nothing else.
 //   2. The bare-wall rule and the rewarded Memory: the second bare wall of a chamber costs a Memory through the collapse card, the
 //      Memory slip is on that card, once per run, and the cap and the bare-wall count both survive a relaunch (saved-dig record v2).
-//   3. Telemetry: every event carries build v1.0-rc10 and config_version 11, the shapes the shell forwards are unchanged, and a dig
+//   3. Telemetry: every event carries build v1.0-rc10a and config_version 11, the shapes the shell forwards are unchanged, and a dig
 //      that is closed and resumed does not reach the analytics queue as a finished run.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -11,7 +11,7 @@ import path from 'node:path';
 import { chromium } from 'playwright';
 import { ROOT } from './helpers.mjs';
 import { buildWww } from '../scripts/build-www.mjs';
-import { GUARD, tapSel, uncover, seal, sealBtn, collapseByTap, bareByTap, cardUp, cardText, sendVisitorAway } from './play.mjs';
+import { GUARD, tapSel, tapCell, uncover, seal, sealBtn, collapseByTap, bareByTap, cardUp, cardText, sendVisitorAway, forceGear } from './play.mjs';
 
 const OUT = path.join(ROOT, 'www/index.rc10rules.html'), POSTHOG = 'https://us.i.posthog.com/batch/';
 let browser = null, skip = false;
@@ -91,7 +91,7 @@ T('first tomb + the rewarded seal: the Seal button is held until the tray is ful
   await tapSel(page, '#card #go'); await page.waitForSelector('#overlay:not([hidden]) #bmSkip', { timeout: 8000 }); await page.waitForTimeout(GUARD); await tapSel(page, '#bmSkip');
   await page.waitForFunction(() => state && state.i === 1 && !state.over, null, { timeout: 8000 }); await wallUp(page);
   assert.equal(await page.evaluate(() => gear.id), 'knuckle', '"Just dig" packs the Brass Knuckle Pick');
-  assert.deepEqual(await page.evaluate(() => [state.i, state.ft, state.xs | 0, skillBudget(), TARGETS[1]]), [1, 1, 1, 4, 1200], 'chamber 2 of the first tomb: still under the first-tomb rules, four seals, target 1,200');
+  assert.deepEqual(await page.evaluate(() => [state.i, state.ft, state.xs | 0, skillBudget(), TARGETS[1], state.tell === 'hollow']), await page.evaluate(() => [1, 1, 1, 4, state.tell === 'hollow' ? 1380 : 1200, state.tell === 'hollow']), 'chamber 2 of the first tomb: still under the first-tomb rules, four seals, target 1,200 (1,380 when the wall carries the Hollow tell, about one wall in thirty)');
   // the guard still holds with the bonus in hand
   await uncover(page, 4); sb = await sealBtn(page); assert.equal(sb.held, true); assert.match(sb.text, /Tray 4\/6/);
   await tapSel(page, '#seal'); await page.waitForTimeout(700); assert.equal(await page.evaluate(() => state.sealed | 0), 0, 'four finds: still refused');
@@ -140,7 +140,7 @@ T('bare wall + the rewarded Memory: the first bare wall of a chamber is free (no
   assert.deepEqual(dev.errors, []); await dev.ctx.close();
 });
 
-T('telemetry through the shell: rc10 events carry build v1.0-rc10 and config_version 11 with the same shapes; a dig closed and resumed is not sent as a finished run', async () => {
+T('telemetry through the shell: events carry build v1.0-rc10a and config_version 11 with the same shapes; a dig closed and resumed is not sent as a finished run', async () => {
   const dev = await device(); let page = await dev.launch(); await firstRun(page);
   const tid = await page.evaluate(() => run.tid);
   await uncover(page, 7); await page.evaluate(() => { TARGETS[state.i] = 9e6; }); await seal(page); // a tray of six from seven loose finds
@@ -148,10 +148,10 @@ T('telemetry through the shell: rc10 events carry build v1.0-rc10 and config_ver
   await collapseByTap(page); await cardUp(page); await digOn(page);
   let evs = await dev.sent();
   assert.ok(evs.length > 5, 'events reached the analytics endpoint: ' + evs.length);
-  for (const e of evs) { assert.equal(e.properties.build, 'v1.0-rc10', e.event); assert.equal(e.properties.config_version, 11, e.event + ' carries the game\'s telemetry config version'); assert.equal(e.properties.app_build, 'v1.0-rc10'); assert.equal(e.properties.remote_config_version, 50); }
+  for (const e of evs) { assert.equal(e.properties.build, 'v1.0-rc10a', e.event); assert.equal(e.properties.config_version, 11, e.event + ' carries the game\'s telemetry config version'); assert.equal(e.properties.app_build, 'v1.0-rc10a'); assert.equal(e.properties.remote_config_version, 50); }
   const KNOWN = ['run_start', 'run_end', 'run_resume', 'run_continue', 'chamber_start', 'chamber_end', 'seal', 'tutorial_step', 'settings_change', 'coach_shown', 'crt_auto_off', 'relic_found', 'gamble_resolve', 'fourth_seal_offer', 'fourth_seal_resolve',
-    'market_open', 'market_buy', 'ore_use', 'share_card', 'shop_buy', 'audio_recover', 'error', 'ad_offered', 'ad_watched', 'ad_failed', 'ad_free_claim', 'consent_analytics', 'unlock_prompt_shown', 'unlock_result'];
-  assert.deepEqual([...new Set(evs.map(e => e.event))].filter(n => !KNOWN.includes(n)), [], 'rc10 adds no event name the shell has not seen (it emits none for a crumble, a tray pick, a held seal or a bare wall)');
+    'market_open', 'market_buy', 'ore_use', 'share_card', 'shop_buy', 'audio_recover', 'error', 'crumble', 'tray_pick', 'seal_held', 'bare_wall', 'ad_offered', 'ad_watched', 'ad_failed', 'ad_free_claim', 'consent_analytics', 'unlock_prompt_shown', 'unlock_result'];
+  assert.deepEqual([...new Set(evs.map(e => e.event))].filter(n => !KNOWN.includes(n)), [], 'no event name the shell has not seen (rc10a adds crumble, tray_pick, seal_held and bare_wall)');
   const s = evs.find(e => e.event === 'seal' && e.properties.run_id === tid); assert.ok(s, 'the seal event');
   assert.equal(s.properties.finds, 6, 'a seal reports the tray, six finds, not the seven that lay loose'); assert.ok(s.properties.total > 0 && s.properties.total % 1 === 0 && typeof s.properties.fame === 'number' && typeof s.properties.worth === 'number' && s.properties.paid === false);
   const ce = evs.find(e => e.event === 'chamber_end' && e.properties.run_id === tid); assert.ok(ce, 'the collapse sent a chamber_end');
@@ -161,7 +161,69 @@ T('telemetry through the shell: rc10 events carry build v1.0-rc10 and config_ver
   evs = await dev.sent(); const after = evs.slice(before).filter(e => e.properties.run_id === tid);
   assert.ok(after.some(e => e.event === 'run_resume'), 'run_resume was sent');
   assert.deepEqual(evs.filter(e => e.event === 'run_end' && e.properties.run_id === tid && !e.properties.provisional), [], 'no final run_end for a run that is still being played reaches the analytics queue');
-  // Known game-side bug, reported in work/sprint17/LOG.md and not asserted here: the game's OWN play log (GG_TEL) now keeps a final
-  // "interrupted" run_end for this resumed run, because its boot check still looks for saved-dig record version 1 (game line 10225).
+  // Fixed in v1.0-rc10a: the game's OWN play log (GG_TEL) used to keep a final "interrupted" run_end for this resumed run, because its
+  // boot check looked for saved-dig record version 1. It reads version 2 now, so the log shows a resume and no interruption.
+  const own = await page.evaluate(tid => window.GG_TEL.filter(e => e.run_id === tid && (e.event === 'run_end' || e.event === 'run_resume')).map(e => [e.event, e.outcome || '', !!e.recovered]), tid);
+  assert.deepEqual(own, [['run_resume', '', false]], 'the game\'s own play log: one resume, no "interrupted" row');
+  assert.deepEqual(dev.errors, []); await dev.ctx.close();
+});
+
+// ---- v1.0-rc10a: the four new rows for the tray rule, from a real tap to the analytics endpoint
+const TRAY_FIELDS = { crumble: ['chamber', 'wall_index', 'kind', 'relic', 'loose'], tray_pick: ['chamber', 'wall_index', 'tray', 'loose', 'put_on', 'held_back'], seal_held: ['chamber', 'wall_index', 'tray', 'loose', 'crack_pct'], bare_wall: ['chamber', 'wall_index', 'charged', 'nth'] };
+const ENVELOPE = ['event_id', 'run_id', 'session_id', 'seq', 'build', 'config_version', 'ts_client', 'tz_offset_min', 'app_build', 'remote_config_version', 'remote_config_source', 'platform', 'native', 'distinct_id', '$lib', '$geoip_disable', '$process_person_profile'];
+T('rc10a telemetry through the shell: seal_held, tray_pick, crumble and bare_wall reach the analytics endpoint in the normal batch, each with only its own few fields; seal gains "loose", chamber_end gains "crumbled"', async () => {
+  const dev = await device(); const page = await dev.launch(); await firstRun(page);
+  const tid = await page.evaluate(() => run.tid);
+  // seal_held: three finds on a first tomb, Seal tapped twice: one row
+  await uncover(page, 3); await tapSel(page, '#seal'); await page.waitForTimeout(500); await tapSel(page, '#seal'); await page.waitForTimeout(500);
+  // tray_pick: seven loose, one of the default six tapped off (the seventh steps in), then Seal
+  await uncover(page, 4); const off = await page.evaluate(() => trayList()[0].cells[0]); await tapCell(page, off[0], off[1]); await page.waitForTimeout(200);
+  assert.equal(await page.evaluate(() => state.finds.filter(f => f.tray === 0).length), 1, 'a real tap took one find off the tray');
+  await page.evaluate(() => { state.bankedThisChamber = TARGETS[state.i] - 1; state.sealsHere = 1; ui(); }); await seal(page);
+  // the chamber is cleared; on to chamber 2, whose wall always has ten plain finds or more
+  await page.waitForSelector('#overlay:not([hidden]) #card .chest', { timeout: 20000 }); await page.waitForTimeout(GUARD);
+  await tapSel(page, page.locator('#card .chest').nth(1)); await page.waitForSelector('#card #go:not([hidden])', { timeout: 15000 }); await page.waitForTimeout(GUARD);
+  await tapSel(page, '#card #go'); await page.waitForSelector('#overlay:not([hidden]) #bmSkip', { timeout: 8000 }); await page.waitForTimeout(GUARD); await tapSel(page, '#bmSkip');
+  await page.waitForFunction(() => state && state.i === 1 && !state.over, null, { timeout: 8000 }); await wallUp(page);
+  // crumble: a tenth find uncovered
+  const cells = await uncover(page, 9); assert.equal(cells.length, 9);
+  const tenth = await page.evaluate(() => { const f = state.finds.find(f => !f.sarc && !f.relic && !f.banked && f.cells.some(([x, y]) => state.dirt[y][x] > 0)); if (!f) return null; f.cells.forEach(([x, y], j) => { state.dirt[y][x] = j === 0 ? 1 : 0; }); ui(); draw(); return f.cells[0]; });
+  assert.ok(tenth, 'chamber 2 has a tenth plain find'); await tapCell(page, tenth[0], tenth[1]);
+  await page.waitForFunction(() => state.finds.some(f => f.crumb), null, { timeout: 5000 }); assert.equal(await page.evaluate(() => exposedFinds().length), 9, 'the oldest crumbled');
+  // bare_wall: the first of the chamber is free
+  await bareByTap(page); await cardUp(page);
+  const evs = (await dev.sent()).filter(e => e.properties.run_id === tid), of = n => evs.filter(e => e.event === n);
+  for (const n of Object.keys(TRAY_FIELDS)) {
+    assert.equal(of(n).length, 1, n + ': exactly one row');
+    const p = of(n)[0].properties; assert.deepEqual(Object.keys(p).filter(k => !ENVELOPE.includes(k)).sort(), [...TRAY_FIELDS[n]].sort(), n + ' carries only its own fields');
+    assert.equal(p.build, 'v1.0-rc10a'); assert.equal(p.$process_person_profile, false);
+  }
+  assert.deepEqual([of('seal_held')[0].properties.tray, of('seal_held')[0].properties.chamber], [3, 1]);
+  const tp = of('tray_pick')[0].properties; assert.deepEqual([tp.tray, tp.loose, tp.put_on, tp.held_back], [6, 7, 1, 1]);
+  const cr = of('crumble')[0].properties; assert.deepEqual([cr.chamber, cr.relic, cr.loose, typeof cr.kind], [2, false, 10, 'string']);
+  const bw = of('bare_wall')[0].properties; assert.deepEqual([bw.chamber, bw.charged, bw.nth], [2, false, 1]);
+  assert.equal(of('seal')[0].properties.loose, 7, 'seal.loose: what lay loose when the tray of six was sealed'); assert.equal(of('seal')[0].properties.finds, 6);
+  const ce = of('chamber_end').find(e => e.properties.chamber === 2); assert.ok(ce, 'chamber_end for the bare wall'); assert.equal(ce.properties.crumbled, 1);
+  assert.deepEqual(dev.errors, []); await dev.ctx.close();
+});
+
+T('rc10a telemetry and consent: a player who answered "No thanks" sends none of the new rows (no request, no queue, no ID); the game keeps them in its own on-device log only', async () => {
+  const dev = await device(); dev.prefs.set('gg_tel_consent', 'no'); const page = await dev.launch(); await firstRun(page);
+  await uncover(page, 3); await tapSel(page, '#seal'); await page.waitForTimeout(500);
+  await bareByTap(page); await cardUp(page);
+  assert.deepEqual(await page.evaluate(() => window.GG_TEL.filter(e => e.event === 'seal_held' || e.event === 'bare_wall').map(e => e.event)), ['seal_held', 'bare_wall'], 'the on-device play log has them');
+  assert.deepEqual(await dev.sent(), [], 'nothing was posted'); assert.equal(dev.posts.length, 0);
+  assert.equal(dev.prefs.has('gg_distinct_id'), false); assert.ok(!dev.prefs.get('gg_tel_queue_v1') || dev.prefs.get('gg_tel_queue_v1') === '[]');
+  assert.deepEqual(dev.errors, []); await dev.ctx.close();
+});
+
+T('rc10a, the Looter\'s Sack: the game writes no seal slip into the chamber-cleared card, and the shell still refuses the reward as a backstop', async () => {
+  const dev = await device(); const page = await dev.launch(); await firstRun(page);
+  assert.equal(await forceGear(page, 'sack'), 'sack'); // setup: the run carries the Sack
+  await uncover(page, 6); await page.evaluate(() => { state.bankedThisChamber = TARGETS[state.i] - 1; state.sealsHere = 1; ui(); }); await seal(page);
+  await page.waitForSelector('#overlay:not([hidden]) #card .chest', { timeout: 20000 }); await page.waitForTimeout(GUARD);
+  assert.equal(await page.locator('#card [data-gg-ad="seal"]').count(), 0, 'no slip in the card at all');
+  assert.equal(await page.evaluate(() => GG_NATIVE.ads.canOffer('seal')), 'not_applicable'); assert.deepEqual(await page.evaluate(() => GG_NATIVE.ads.offer('seal')), { ok: false, reason: 'not_applicable' });
+  assert.deepEqual(dev.admob.filter(m => /Reward/.test(m)), [], 'no video was prepared or shown');
   assert.deepEqual(dev.errors, []); await dev.ctx.close();
 });

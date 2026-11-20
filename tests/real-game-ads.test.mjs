@@ -107,7 +107,7 @@ T('PLAY: practice wall, abandoned run, lost run, won run, relaunch mid-run. The 
   assert.equal(await page.evaluate(() => GG_NATIVE.ads.canOffer('memory')), 'training', 'no slip can be served on the practice wall');
 
   dev.phase('abandoned'); await beginChamber1(page);
-  assert.deepEqual(await page.evaluate(() => [GAME_VERSION, state.ft, TARGETS[0]]), ['v1.0-rc10', 1, 600], 'the first real wall of a new profile: first-tomb rules on, soft target 600');
+  assert.deepEqual(await page.evaluate(() => [GAME_VERSION, state.ft, TARGETS[0]]), ['v1.0-rc10a', 1, 600], 'the first real wall of a new profile: first-tomb rules on, soft target 600');
   await tapSel(page, '#pause'); await page.waitForSelector('#pAb'); await page.waitForTimeout(GUARD);
   await tapSel(page, '#pAb'); await page.waitForSelector('#pYes'); await page.waitForTimeout(GUARD); await tapSel(page, '#pYes');
   await page.waitForSelector('#mDig', { timeout: 8000 });
@@ -140,7 +140,7 @@ T('PLAY: practice wall, abandoned run, lost run, won run, relaunch mid-run. The 
     'one final run_end per situation, and the practice wall really does report outcome "won" with training:true (the C-1 trap)');
   assert.ok(dev.events.some(x => x.phase === 'relaunch' && x.ev.event === 'run_resume'), 'the relaunch produced the game\'s run_resume');
   assert.ok(!final.some(e => e[0] === 'relaunch'), 'a resumed run is not a finished run');
-  assert.ok(dev.events.every(x => x.ev.config_version === 11 && x.ev.build === 'v1.0-rc10'), 'every event carries the rc10 build and telemetry config version 11');
+  assert.ok(dev.events.every(x => x.ev.config_version === 11 && x.ev.build === 'v1.0-rc10a'), 'every event carries the rc10a build and telemetry config version 11');
   // ---- and what the app did about it
   assert.deepEqual(dev.admob, [], 'no AdMob method of any kind was called in any phase: no init, no interstitial, no tracking request, no video');
   assert.deepEqual(dev.net, [], 'no network request left the device');

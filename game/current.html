@@ -3209,7 +3209,7 @@ function trayTick(){ // after anything that can uncover a find: stamp the new on
   if(!fresh.length)return[];
   fresh.sort((a,b)=>trayRank(a)-trayRank(b)||a.id-b.id).forEach(f=>{state.useq=(state.useq|0)+1;f.ord=state.useq}); // several in one strike: the lowest Worth counts as oldest
   const gone=ex.length>TRAY.loose?ex.slice().sort(trayByOrd).slice(0,ex.length-TRAY.loose):[];
-  gone.forEach(f=>{f.banked=true;f.lost=true;f.crumb=1;delete f.tray;(state.crumbs=state.crumbs||[]).push({id:f.id,t0:performance.now()});RS().cr=(RS().cr|0)+1});
+  gone.forEach(f=>{f.banked=true;f.lost=true;f.crumb=1;delete f.tray;(state.crumbs=state.crumbs||[]).push({id:f.id,t0:performance.now()});RS().cr=(RS().cr|0)+1;telTray('crumble',{kind:String(f.name||''),relic:!!f.relic,loose:ex.length})});
   if(gone.length){try{sfx('crumble',{n:gone.length});hap([30,40,60]);if(!rmEff())shake(7)}catch(e){}
     if(trayCoach('cr'))uiToast('No room on the wall. The '+gone[0].name+', your oldest loose find, crumbled. Seal a tray to make room.',5200);
     trayRelicWarn()}
@@ -3242,6 +3242,11 @@ function trayTap(cx,cy){ // one tap on an uncovered find swaps it on or off the 
   RS().tp=(RS().tp|0)+1;hap(8);sfx('tap');try{juice(f.j,.35,.2)}catch(e){}
   ui();draw();try{S15.touch()}catch(e){}
   return true}
+function telTray(name,d){try{if(run&&run.tid&&state&&!state.train)telEmit(name,Object.assign({chamber:state.i+1,wall_index:state.wn|0},d))}catch(e){}} // rc10a: rows for the tray rule
+function telTrayPick(all,ex){ // rc10a: one row per seal, and only when the tray that is sealed is not the one the game would have laid out
+  try{const def=new Set(trayList(all.map(f=>{const q=Object.assign({},f);delete q.tray;return q})).map(f=>f.id)),on=new Set(ex.map(f=>f.id));
+    let put=0,held=0;on.forEach(id=>{if(!def.has(id))put++});def.forEach(id=>{if(!on.has(id))held++});
+    if(put||held)telTray('tray_pick',{tray:ex.length,loose:all.length,put_on:put,held_back:held})}catch(e){}}
 function traySealed(){state.finds.forEach(f=>{if(f.tray!=null)delete f.tray})} // a seal is made: whatever was held back goes on the next tray by default
 function trayUi(all,L){ // "Loose 7/9" over the wall
   const el=document.getElementById('looseTag');if(!el)return;
@@ -3473,9 +3478,17 @@ function walkAway(){if(PAUSE.on||LK.busy)return; // B12: end the chamber from th
   sfx('walk');const lost=exposedFinds();lost.pouch=0;state.walked=true;statsWalk();
   endChamber(false,lost);
 }
-function bareCheck(){if(state.over||state.sealing||chWon())return false;if(state.dirt.some(r=>r.some(d=>d>0))||exposedFinds().length||state.finds.some(f=>f.sarc&&!f.banked))return false;run.bx=run.bx||{};const paid=!state.train&&(run.bx[state.i]|0)>=BARE.free;run.bx[state.i]=(run.bx[state.i]|0)+1;log(paid?"The wall is bare again. This chamber has had its free bare wall, so this one costs a Memory.":"The wall is bare and there is nothing left to seal. It comes down anyway. The first bare wall of a chamber costs nothing; the next one costs a Memory.");if(!paid&&!state.train&&bareCoach())uiToast('A bare wall costs nothing once a chamber. The next one costs a Memory.',5200);state.bare=paid?2:1;collapse();return true}
+function bareCheck(){if(state.over||state.sealing||chWon())return false;if(state.dirt.some(r=>r.some(d=>d>0))||exposedFinds().length||state.finds.some(f=>f.sarc&&!f.banked))return false;run.bx=run.bx||{};const paid=!state.train&&(run.bx[state.i]|0)>=BARE.free;run.bx[state.i]=(run.bx[state.i]|0)+1;log(bareTxt(paid?'logPaid':'logFree'));if(!paid&&!state.train&&bareCoach())uiToast(bareTxt('coach'),5200);state.bare=paid?2:1;telTray('bare_wall',{charged:paid,nth:run.bx[state.i]|0});collapse();return true}
 const BARE=SKILL.bare; // {free, coach}: bare walls a chamber that cost nothing; times the coaching line is shown to a profile
 function bareCoach(){try{const o=JSON.parse(Store.get('rw_traycoach')||'{}')||{};const n=o.bare|0;if(n>=BARE.coach)return false;o.bare=n+1;Store.set('rw_traycoach',JSON.stringify(o));return true}catch(e){return false}}
+// rc10a: every bare-wall line is written from BARE.free, so the words follow the number (0: every bare wall costs; 1: as rc10; 2 and up: "the first two", "twice")
+function bareTxt(k){const n=Math.max(0,BARE.free|0),W=['no','one','two','three','four'][n]||String(n),X=['','once','twice','three times'][n]||n+' times',O=['','second','third','fourth'][n]||'further';
+  if(n<1)return{logPaid:"The wall is bare and there is nothing left to seal. It comes down, and a bare wall costs a Memory.",logFree:"The wall is bare and there is nothing left to seal. It comes down anyway.",coach:"A bare wall costs a Memory.",
+    cardFree:"a bare wall costs nothing here",cardPaid:"a bare wall costs a Memory",exits:" An empty wall costs a Memory.",how:"A wall dug bare, with nothing left to seal, comes down and costs a Memory."}[k];
+  if(n===1)return{logPaid:"The wall is bare again. This chamber has had its free bare wall, so this one costs a Memory.",logFree:"The wall is bare and there is nothing left to seal. It comes down anyway. The first bare wall of a chamber costs nothing; the next one costs a Memory.",coach:"A bare wall costs nothing once a chamber. The next one costs a Memory.",
+    cardFree:"the first bare wall of a chamber costs nothing",cardPaid:"a second bare wall costs a Memory",exits:" This chamber has had its free bare wall: an empty wall now costs a Memory.",how:"A wall dug bare, with nothing left to seal, comes down free once a chamber. The next bare wall costs a Memory."}[k];
+  return{logPaid:"The wall is bare again. This chamber has had its "+W+" free bare walls, so this one costs a Memory.",logFree:"The wall is bare and there is nothing left to seal. It comes down anyway. The first "+W+" bare walls of a chamber cost nothing; the next one costs a Memory.",coach:"A bare wall costs nothing "+X+" a chamber. The next one costs a Memory.",
+    cardFree:"the first "+W+" bare walls of a chamber cost nothing",cardPaid:"a "+O+" bare wall costs a Memory",exits:" This chamber has had its "+W+" free bare walls: an empty wall now costs a Memory.",how:"A wall dug bare, with nothing left to seal, comes down free "+X+" a chamber. The next bare wall costs a Memory."}[k]}
 function bareLeft(){return !!(state&&run&&!state.train&&((run.bx||{})[state.i]|0)<BARE.free)}
 function nearestRelicDist(cx,cy){
   let d=99;state.finds.filter(f=>f.relic&&!f.banked).forEach(f=>f.cells.forEach(([x,y])=>{d=Math.min(d,Math.abs(x-cx)+Math.abs(y-cy))}));return d;
@@ -3569,11 +3582,13 @@ function seal(){
   const ex=trayList(all);
   if(!ex.length){log("The tray is empty. Tap a find to put it on the tray.");return}
   if(sealHeld()){const n=ex.length;log("Not yet. On your first tomb the Quartermaster stamps a full tray: "+n+" of "+FT.tray+" so far. He lets go when the wall is in the red, when nine finds lie loose, or when the dirt is gone.");
-    if(ftCoach())uiToast("Fill the tray first: six finds make a Hoard, and a Hoard doubles the Fame. In the red you may seal what you have.",5600);hap(6);sfx('tap');return}
+    if(ftCoach())uiToast("Fill the tray first: six finds make a Hoard, and a Hoard doubles the Fame. In the red you may seal what you have.",5600);hap(6);sfx('tap');
+    {const k=(run.tid||'')+':'+state.i+':'+(state.wn|0)+':'+n;if(S10.shK!==k){S10.shK=k;telTray('seal_held',{tray:n,loose:all.length,crack_pct:Math.round(state.crack/maxCrack()*100)})}}return}
   if(skillPaid()){skillPayCard();return}
   sealGo(ex);
 }
 function sealGo(ex){
+  telTrayPick(exposedFinds(),ex);
   const s=score(ex);s.gold=ecoSealG(s);ex.forEach(f=>f.banked=true);traySealed();state.sealed++;skillSealed(s,ex);state.goldDust=false;
   s10Tut('first_seal');statsSeal(s,ex);{const T=RS();T.seals++;if(s.total>T.best){T.best=s.total;T.notes=notesFit(s.notes,120)}}
   state.oneCiv=false;state.gapOre=false;s9Sealed(s);
@@ -3643,7 +3658,7 @@ function endChamber(win,lost){
       if(stakeN()>=5)pool.push(["dust","Dust"]);
       const picks=[pool[rnd(pool.length)],pool[rnd(pool.length)],pool[rnd(pool.length)]];
       const ICON={ore:"✦",life:"♥",gold:"◆",relic:"★",dust:"·"};
-      card.innerHTML=`<div class="tbar">Expedition Log</div><div class="body"><div class="cbanner"><b>${chLong(state.i)}</b><span>CHAMBER CLEARED</span></div><h2>Pick a chest<small>Three chests. Open one.</small></h2><p class="big" data-count="${paidBank()}">${paidBank()}</p><p class="diary">${diaryLine('clear')}</p><p class="cite">${chestOdds(pool)}</p><div class="choices chests"><button class="choice chest" data-i="0"></button><button class="choice chest" data-i="1"></button><button class="choice chest" data-i="2"></button></div><div id="reveal" class="choices" style="margin-top:10px"></div><button id="go" hidden>Go deeper</button>${adSlip('seal')}</div>`;
+      card.innerHTML=`<div class="tbar">Expedition Log</div><div class="body"><div class="cbanner"><b>${chLong(state.i)}</b><span>CHAMBER CLEARED</span></div><h2>Pick a chest<small>Three chests. Open one.</small></h2><p class="big" data-count="${paidBank()}">${paidBank()}</p><p class="diary">${diaryLine('clear')}</p><p class="cite">${chestOdds(pool)}</p><div class="choices chests"><button class="choice chest" data-i="0"></button><button class="choice chest" data-i="1"></button><button class="choice chest" data-i="2"></button></div><div id="reveal" class="choices" style="margin-top:10px"></div><button id="go" hidden>Go deeper</button>${gear&&gear.id==='sack'?'':adSlip('seal')}</div>`;
       adChestHook(card,ad2);adSealCard(card);
       const applyPick=k=>{const [t,label]=picks[k];let msg=label;
         if(t==="ore"){const o=ORE_REAL[rnd(ORE_REAL.length)];if(run.pouch.length<POUCH_N()){run.pouch.push(o);msg=ORES[o].n+" goes in the pouch, wrapped in a handkerchief."}else msg=ORES[o].n+", but the pouch is full. It crumbles."}
@@ -3686,7 +3701,7 @@ function endChamber(win,lost){
     document.getElementById('lives').textContent='♥'.repeat(Math.max(0,run.lives))+'♡'.repeat(Math.max(0,3-run.lives));run.day=(run.day||1)+1;RS().col++;s13bFlush();
     if(relic&&relic.state==='hungry'){relic.state='dormant'}
     if(run.lives>0){
-      card.innerHTML=`<div class="tbar">Expedition Log · Day ${run.day}</div><div class="body"><h2>${state.walked?"You walked away":state.bare?"The wall was bare":"The wall collapsed"}<small><span id="adMl">${run.lives} ${run.lives===1?"Memory":"Memories"} left</span>${saved==='scarab'?" · the Heart Scarab declined to testify":saved==='mercy'?" · "+(mercyUsed()>1?"the second one is on the house too":"the first one is on the house"):saved==='rope'?" · the Rope took the weight":saved==='bare'?" · the first bare wall of a chamber costs nothing":state.bare?" · a second bare wall costs a Memory":""}</small></h2><p class="big">${fmtN(run.banked)}</p><p>${l}${pl}</p><p class="diary">${state.walked?"The log records this as a strategic withdrawal. The log was not consulted.":(state.nearTxt?state.nearTxt+' ':'')+diaryLine('collapse',lost)}</p><p>You come to outside a different tomb, same depth. Sealed finds stay sealed: ${fmtN(chBank())} of ${fmtN(TARGETS[state.i])} banked in this chamber.</p><button id="go">Dig a different wall</button>${run.lives<3&&!run.train?adSlip('memory',{tag:run.lives===1?'Sponsor\'s slip \u00b7 your last Memory':''}):''}</div>`;
+      card.innerHTML=`<div class="tbar">Expedition Log · Day ${run.day}</div><div class="body"><h2>${state.walked?"You walked away":state.bare?"The wall was bare":"The wall collapsed"}<small><span id="adMl">${run.lives} ${run.lives===1?"Memory":"Memories"} left</span>${saved==='scarab'?" · the Heart Scarab declined to testify":saved==='mercy'?" · "+(mercyUsed()>1?"the second one is on the house too":"the first one is on the house"):saved==='rope'?" · the Rope took the weight":saved==='bare'?" · "+bareTxt('cardFree'):state.bare?" · "+bareTxt('cardPaid'):""}</small></h2><p class="big">${fmtN(run.banked)}</p><p>${l}${pl}</p><p class="diary">${state.walked?"The log records this as a strategic withdrawal. The log was not consulted.":(state.nearTxt?state.nearTxt+' ':'')+diaryLine('collapse',lost)}</p><p>You come to outside a different tomb, same depth. Sealed finds stay sealed: ${fmtN(chBank())} of ${fmtN(TARGETS[state.i])} banked in this chamber.</p><button id="go">Dig a different wall</button>${run.lives<3&&!run.train?adSlip('memory',{tag:run.lives===1?'Sponsor\'s slip \u00b7 your last Memory':''}):''}</div>`;
       card.querySelector('#go').onclick=()=>{document.getElementById('overlay').hidden=true;newChamber(state.i)};
       adMemoryCard(card);
     }else showSummary('dead');
@@ -5620,7 +5635,7 @@ function pillOf(note){
 function s15Exits(short){ // Sprint 15 (D-6): what can still be done on a wall with no dirt left
   if(!state||state.over||state.train||dirtLeft()||chWon())return'';
   const a=[];if(sarcShut().length)a.push(short?'open the sarcophagus':'tap the sarcophagus to open it');if(canSeal())a.push(short?'seal':'seal what is uncovered');if(run.pouch.includes('jade'))a.push(short?'use Jade':'use the Jade in your pouch');a.push(short?'walk away':kitWalkLabel().replace(/^Walk away · /,'Walk away (')+')');
-  return short?'No dirt left: '+a.join(' · '):'No dirt is left on this wall. From here: '+a.join(', or ')+'.'+(bareLeft()?'':' This chamber has had its free bare wall: an empty wall now costs a Memory.')}
+  return short?'No dirt left: '+a.join(' · '):'No dirt is left on this wall. From here: '+a.join(', or ')+'.'+(bareLeft()?'':bareTxt('exits'))}
 function nextHint(ex){
   {const x=s15Exits(true);if(x)return x}
   if(!ex.length||ex.length>=8||pw('Rosetta Stone'))return'';
@@ -5753,7 +5768,7 @@ function sumExtras(kind){
 // when they exist (and say "Coming next sprint" when they do not). Render into #card like every other screen and make your Back button call
 // showMenu(). showMenu() is pause-aware: while a run is paused it re-opens the pause card instead, so Settings and How to play opened from
 // Pause come back to Pause. uiToast(text) is a toast that shows above the overlay. window.onRunAbandon(stats) is called (if defined) when a run is abandoned.
-const GAME_VERSION='v1.0-rc10';
+const GAME_VERSION='v1.0-rc10a';
 const PAUSE={on:false,mg:null,cLeft:0};
 function uiReduce(){try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}}
 let _toastT=0;
@@ -6390,7 +6405,7 @@ const HOW=[
    hText(g,'?',216,49,{a:'center',s:26,c:'#fff'});
    hText(g,'12 CRACK',216,86,{a:'center',s:8,bg:1});
   }},
- {h:'Memories and walking away',t:'You have three Memories. A collapse costs one and takes everything unsealed with it; the very first one is on the house. Clearing a chamber gives one back. When the wall is spent, you can walk away: the wall stands, your bank stays, one Memory goes. A wall dug bare, with nothing left to seal, comes down free once a chamber. The next bare wall costs a Memory.',
+ {h:'Memories and walking away',get t(){return 'You have three Memories. A collapse costs one and takes everything unsealed with it; the very first one is on the house. Clearing a chamber gives one back. When the wall is spent, you can walk away: the wall stands, your bank stays, one Memory goes. '+bareTxt('how')},
   d(g){
    g.fillStyle='#17141c';g.fillRect(0,0,264,120);
    hHeart(g,12,14,1);hHeart(g,40,14,1);hHeart(g,68,14,0);hText(g,'MEMORIES',12,44,{s:8,c:'#bcab8c'});
@@ -8079,13 +8094,16 @@ const TOMBS=[
   twist:{id:'army',big:1,fill:9,tgt:-.15,t:"Guardian chamber: the army. Every find is at least 2×2, there are no coins, and the target is 15% lower."}}
 ];
 // Stakes: each stacks all the ones below it. rule = exact rule change; leg / epic = relic tier weights at that stake (base 1 / 2).
+// rc10a: what a Stake does to the targets, as words, from SKILL.stakeT (so a remote change of the number changes the card). '' when it does nothing.
+function stakeTgtTxt(id){const m=+SKILL.stakeT[id-1];if(!(m>0))return'';const p=Math.round((m-1)*1000)/10;return p>0?'Targets +'+p+'%':p<0?'Targets '+(-p)+'% lower':''}
+const stakeRule=(id,base)=>{const t=stakeTgtTxt(id);return t?base+' '+t+'.':base};
 const STAKES=[
- {id:1,n:"Shallow Grave",rule:"The game as it stands.",leg:1,epic:2},
- {id:2,n:"Loose Mortar",rule:`In the red, the chances are ${LUCK.press.w.normal} / ${LUCK.press.w.lucky+SKILL.press2.lucky} / ${LUCK.press.w.tremor+SKILL.press2.tremor} in 100 (steady, loose stone, tremor).`,leg:1,epic:2},
- {id:3,n:"Thin Air",rule:"The wall holds 125 crack, not 150.",leg:2,epic:2},
- {id:4,n:"Hungry Dead",rule:"Relics start Dormant and need one feed to wake. The Blighted finish can turn up. Targets +5%.",leg:2,epic:3},
- {id:5,n:"Gilded Lies",rule:"Every chamber carries a Pyrite decoy relic. Chests hold 2 dust, not 1. Targets +10%.",leg:3,epic:3},
- {id:6,n:"The Long Dark",rule:"Targets +15%, the knucklebone is off, and a fourth chamber is mandatory.",leg:4,epic:3}
+ {id:1,n:"Shallow Grave",get rule(){return stakeRule(1,"The game as it stands.")},leg:1,epic:2},
+ {id:2,n:"Loose Mortar",get rule(){return stakeRule(2,`In the red, the chances are ${LUCK.press.w.normal} / ${LUCK.press.w.lucky+SKILL.press2.lucky} / ${LUCK.press.w.tremor+SKILL.press2.tremor} in 100 (steady, loose stone, tremor).`)},leg:1,epic:2},
+ {id:3,n:"Thin Air",get rule(){return stakeRule(3,"The wall holds 125 crack, not 150.")},leg:2,epic:2},
+ {id:4,n:"Hungry Dead",get rule(){return stakeRule(4,"Relics start Dormant and need one feed to wake. The Blighted finish can turn up.")},leg:2,epic:3},
+ {id:5,n:"Gilded Lies",get rule(){return stakeRule(5,"Every chamber carries a Pyrite decoy relic. Chests hold 2 dust, not 1.")},leg:3,epic:3},
+ {id:6,n:"The Long Dark",get rule(){const t=stakeTgtTxt(6);return t?t+", the knucklebone is off, and a fourth chamber is mandatory.":"The knucklebone is off, and a fourth chamber is mandatory."},leg:4,epic:3}
 ];
 const RANK_TITLES=[[1,"Unpaid Volunteer"],[5,"Field Hand"],[10,"Site Foreman"],[15,"Licensed Excavator"],[20,"Fellow of the Society"],[25,"Keeper of the Ledger"],[30,"The Ancestor"]];
 const PGR=n=>['I','II','III','IV','V','VI','VII','VIII','IX','X'][n-1]||String(n);
@@ -8115,7 +8133,7 @@ UNL({id:'perk:gear',kind:'perk',legacy:'gear',name:'A fourth item on offer',tile
 UNL({id:'perk:pouch',kind:'perk',legacy:'pouch',name:'+1 pouch slot',tile:'+1 pouch',rank:3,line:'The pouch holds four ores.'});
 UNL({id:'perk:vault',kind:'perk',legacy:'vault',name:'A 13th Vault slot',tile:'13th shelf',rank:4,line:'One more shelf for one more relic.'});
 TOMBS.forEach(t=>UNL({id:'tomb:'+t.id,kind:'tomb',tomb:t.id,name:t.n,tile:'Tomb '+PGR(t.id),condition:t.id>1?{tomb:t.id-1,stake:1}:null,line:t.blurb+' '+t.twist.t}));
-STAKES.forEach(s=>UNL({id:'stake:'+s.id,kind:'stake',stake:s.id,name:'Stake '+s.id+': '+s.n,tile:'Stake '+PGR(s.id),condition:s.id>1?{stake:s.id-1,perClass:true}:null,line:s.rule}));
+STAKES.forEach(s=>UNL({id:'stake:'+s.id,kind:'stake',stake:s.id,name:'Stake '+s.id+': '+s.n,tile:'Stake '+PGR(s.id),condition:s.id>1?{stake:s.id-1,perClass:true}:null,get line(){return s.rule}}));
 UNL({id:'class:fence',kind:'class',key:'fence',name:'The Fence (Anzû)',tile:'Fence',rank:6,stub:true,line:'Anzû, the lion-headed storm eagle. One random find seals itself each chamber at half value. Four gear offers, and the gear can be swapped once a run. The hammer is weak: 3×3 for 14 crack.'});
 UNL({id:'class:cartographer',kind:'class',key:'cartographer',name:'The Cartographer (Maize God)',tile:'Cartog.',rank:12,stub:true,line:'The Maize God, risen from the turtle shell. Sees the outline of every find for 3 seconds at the start of a chamber, then the wall darkens. Hammer 3×3 for 10 crack.'});
 UNL({id:'tool:trowel',kind:'tool',key:'trowel',name:'Trowel',tile:'Trowel',rank:3,stub:true,line:'The pick digs 2 deep, 5 wide, for 1 crack.'});
@@ -10132,7 +10150,7 @@ function s10ChamberEnd(win,lost){
     if(win)s10Tut('chamber_clear');
     if(!run.tid)return;
     const o=S10.open;if(o&&o.id===run.tid)telBeat();
-    s13bHold({outcome,chamber:state.i+1,depth:state.i+1,wall_index:state.wn|0,banked_this_wall:wall,banked_chamber_total:tot,target_base:state.tBase,target_effective:T,tell:state.tell||'none',walls_lost_in_chamber:Math.max(0,(state.wn|0)-1)+(win?0:1),seals_free_used:Math.max(0,(state.sealed|0)-(state.paidSeals|0)),seals_paid:state.paidSeals|0,crack_end_pct:Math.round(state.crack/maxCrack()*100),unsealed_lost_value:lv,memories_left:run.lives,first_wall:!!state.firstWall,training:tr,banked_run:run.banked});
+    s13bHold({outcome,chamber:state.i+1,depth:state.i+1,wall_index:state.wn|0,banked_this_wall:wall,banked_chamber_total:tot,target_base:state.tBase,target_effective:T,tell:state.tell||'none',walls_lost_in_chamber:Math.max(0,(state.wn|0)-1)+(win?0:1),seals_free_used:Math.max(0,(state.sealed|0)-(state.paidSeals|0)),seals_paid:state.paidSeals|0,crack_end_pct:Math.round(state.crack/maxCrack()*100),unsealed_lost_value:lv,crumbled:state.finds.filter(f=>f.crumb).length,memories_left:run.lives,first_wall:!!state.firstWall,training:tr,banked_run:run.banked});
     if(win&&tot+1e-6<T)telEmit('error',{code:'clear_below_target',chamber:state.i+1,banked_chamber_total:tot,target_effective:T});
   }catch(e){console.error(e)}
 }
@@ -10222,7 +10240,7 @@ function s10TelBoot(){ // a run left open by a dead tab: close it once, at its l
   let rec=null;try{rec=JSON.parse(localStorage.getItem('rw_tel_open')||'null')}catch(e){}
   if(!rec||!rec.id)return;try{localStorage.removeItem('rw_tel_open')}catch(e){}
   if(!telOn())return;
-  try{const rz=JSON.parse(localStorage.getItem('rw_resume')||'null');if(rz&&rz.v===1&&rz.tid===rec.id&&Date.now()-rz.t<14*864e5)return}catch(e){} // Sprint 11 (T51): the run will resume, so it is not closed
+  try{const rz=JSON.parse(localStorage.getItem('rw_resume')||'null');if(rz&&rz.v===2&&rz.tid===rec.id&&Date.now()-rz.t<14*864e5)return}catch(e){} // Sprint 11 (T51): the run will resume, so it is not closed
   if(TELBUF.some(e=>e.event==='run_end'&&e.run_id===rec.id&&!e.provisional))return;
   const prov=TELBUF.find(e=>e.event==='run_end'&&e.run_id===rec.id&&e.provisional);
   if(prov){prov.provisional=false;prov.recovered=true;telSave();return}
@@ -11327,7 +11345,7 @@ S11.contestLine=function(name){
   luckSealDone=function(s,ex){
     try{
       if(run&&run.tid&&state&&!state.train){
-        telEmit('seal',{chamber:state.i+1,wall_index:state.wn|0,seal_no:state.sealed|0,paid:(state.paidSeals|0)>0&&(state.sealed|0)>skillBudget(),worth:s.worth,fame:s.fame,total:s.total,finds:ex.length,notes:(s.notes||[]).slice(0,6)});
+        telEmit('seal',{chamber:state.i+1,wall_index:state.wn|0,seal_no:state.sealed|0,paid:(state.paidSeals|0)>0&&(state.sealed|0)>skillBudget(),worth:s.worth,fame:s.fame,total:s.total,finds:ex.length,loose:ex.length+exposedFinds().length,notes:(s.notes||[]).slice(0,6)});
         ex.filter(f=>f.relic&&!f.fake&&f.name).forEach(f=>telEmit('relic_found',{relic:f.name,chamber:state.i+1,in_vault:loadColl().includes(f.name)}));
       }
     }catch(e){}

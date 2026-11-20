@@ -104,7 +104,7 @@ async function playRc9b(ph) {
 // What the game's rc10 upgrade must have done to that profile, read from the running rc10 game.
 async function assertUpgraded(page, old, label) {
   const a = await profile(page);
-  assert.equal(a.ver, 'v1.0-rc10', label);
+  assert.equal(a.ver, 'v1.0-rc10a', label);
   assert.equal(await ls(page, 'rw_rc10'), '1', label + ': the upgrade flag is set'); assert.equal(await ls(page, 'rw_resume'), null, label + ': the rc9b dig is closed');
   assert.equal(a.gold, old.before.gold + 17, label + ': wallet + the open dig\'s purse of 17, paid once');
   assert.deepEqual(a.coll, old.before.coll); assert.equal(a.xp, old.before.xp); assert.equal(a.tombs, old.before.tombs); assert.equal(a.rm, true); assert.equal(a.runs, old.before.runs);
@@ -207,7 +207,7 @@ T('C. an rc10 cloud copy arrives on a phone still running rc9b: no error and not
   page = await ph.launch(NEW);
   await page.waitForFunction(g => String(_gold) === String(g), gold10 + 5, { timeout: 25000 });
   const n = await profile(page);
-  assert.equal(n.ver, 'v1.0-rc10'); assert.deepEqual(n.coll, up.a.coll); assert.equal(n.xp, up.a.xp); assert.equal(n.best, 0);
+  assert.equal(n.ver, 'v1.0-rc10a'); assert.deepEqual(n.coll, up.a.coll); assert.equal(n.xp, up.a.xp); assert.equal(n.best, 0);
   assert.equal(JSON.parse(await ls(page, 'rw_rc9')).t, up.t, 'no second upgrade'); assert.equal(await ls(page, 'rw_rc10note'), null, 'no second note');
   assert.equal(await page.evaluate(() => !!S11.peekResume()), false, 'the rc10 dig that was open is gone: the rc9b phone\'s copy, which won, had dropped it');
   assert.deepEqual(ph.errors, []); await oldPhone.ctx.close(); await ph.ctx.close();

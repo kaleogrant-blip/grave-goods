@@ -84,7 +84,7 @@ test('the public repo carries no email address and no key material in its docs, 
 });
 
 test('rc10: the public text describes the tray rule and no old claim; the docs name the build in the repo; the rc10 questions are recorded with their status', () => {
-  const ver = /const GAME_VERSION='([^']+)'/.exec(rd('game/current.html'))[1]; assert.equal(ver, 'v1.0-rc10');
+  const ver = /const GAME_VERSION='([^']+)'/.exec(rd('game/current.html'))[1]; assert.equal(ver, 'v1.0-rc10a');
   assert.ok(readme.includes('`game/current.html`, ' + ver), 'README names the game build that is in the repo');
   // the description: a seal is a tray of six, nine fit loose, the tenth crumbles the oldest; nothing about sealing everything, score sizes or caps
   assert.match(description, /a tray holds six finds/); assert.match(description, /room for nine loose finds/); assert.match(description, /the oldest crumbles/);

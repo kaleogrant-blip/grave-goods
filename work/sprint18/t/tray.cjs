@@ -13,8 +13,9 @@ const tapCell=async(page,x,y)=>{const p=await H.cellXY(page,x,y);await H.tapXY(p
 const st=page=>page.evaluate(()=>({ex:exposedFinds().map(f=>f.id),tray:trayList().map(f=>f.id),ord:state.finds.map(f=>f.ord==null?null:f.ord),pick:state.finds.map(f=>f.tray==null?null:f.tray),useq:state.useq|0,
   crack:state.crack,banked:run.banked,ch:chBank(),sealed:state.sealed,lost:state.finds.filter(f=>f.lost).map(f=>f.id),crumb:state.finds.filter(f=>f.crumb).map(f=>f.id),rs:rngState>>>0,
   seal:document.getElementById('seal').textContent,loose:document.getElementById('looseTag').hidden?'':document.getElementById('looseTag').textContent,chip:document.getElementById('sChip').textContent,
-  total:+document.getElementById('hTotal').dataset.to,score:score(trayList()).total,log:document.getElementById('log').textContent,dirt:JSON.stringify(state.dirt),worth:state.finds.map(f=>findWorth(f))}));
-const fresh=async(seed,o)=>{const r=await H.open(FILE,o||{});await r.page.waitForTimeout(500);await H.startSeeded(r.page,seed);await r.page.waitForTimeout(400);await r.page.locator('#pick').tap();return r};
+  total:+document.getElementById('hTotal').dataset.to,score:score(trayList()).total,log:(window.__logs||[]).slice(-4).join(' || ')+' || '+document.getElementById('log').textContent,dirt:JSON.stringify(state.dirt),worth:state.finds.map(f=>findWorth(f))}));
+const fresh=async(seed,o)=>{const r=await H.open(FILE,o||{});await r.page.waitForTimeout(500);await H.startSeeded(r.page,seed);await r.page.evaluate(()=>{window.__logs=[];const _l=log;log=function(m){try{window.__logs.push(String(m))}catch(e){}return _l.apply(this,arguments)}}); // sprint 18: a coaching line on a timer can land on top of the line a check reads (it did, on rc10 as well, on this machine), so the last few log lines are kept
+  await r.page.waitForTimeout(400);await r.page.locator('#pick').tap();return r};
 const sealWait=async page=>{await page.evaluate(()=>{Q.speed=4});await page.locator('#seal').tap();await page.waitForFunction(()=>!state.sealing&&!Q.busy,null,{timeout:15000});await page.waitForTimeout(500);
   for(let k=0;k<3;k++){const no=page.locator('#lkno');if(await no.count()){await page.waitForTimeout(1300);await no.tap();await page.waitForTimeout(400)}}};
 (async()=>{

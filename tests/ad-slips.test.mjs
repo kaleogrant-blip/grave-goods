@@ -143,7 +143,8 @@ T('ads on: +1 free seal next chamber on the chamber-cleared card', async () => {
 T('ads on, Looter\'s Sack packed: the Sack seals twice a chamber and no more, so the +1 seal slip is not shown on the chamber-cleared card and a forced tap is refused with no video', async () => {
   const r = await open(); const page = r.page; await startRun(page, { gear: 'sack' });
   await clearChamberBySeal(page); await chestCard(page);
-  assert.equal(await slip(page, 'seal').count(), 1, 'the game writes the slip into the card'); assert.equal(await slip(page, 'seal').isVisible(), false, 'and hides it, because the wrapper says it cannot apply');
+  assert.equal(await slip(page, 'seal').count(), 0, 'from v1.0-rc10a the game does not write the seal slip into the card for a Sack carrier');
+  // the wrapper keeps its own guard as a backstop, for any game build that still draws the slip
   assert.equal(await page.evaluate(() => GG_NATIVE.ads.canOffer('seal')), 'not_applicable');
   assert.deepEqual(await page.evaluate(() => GG_NATIVE.ads.offer('seal')), { ok: false, reason: 'not_applicable' });
   assert.deepEqual(await page.evaluate(() => window.__plug.map(p => p[0])), [], 'no AdMob call');

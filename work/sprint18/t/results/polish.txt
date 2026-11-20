@@ -1,0 +1,22 @@
+PASS a coaching toast does not cover a tool button (390x844) toast 366x56 over the foot of the wall
+PASS a coaching toast does not cover a tool button (360x640) toast 312x74 over the foot of the wall
+PASS a coaching toast does not cover a tool button (844x390) toast 240x74 over the foot of the wall
+PASS a one-tile find is 44 px to tap (844x390) tile 28 px; open tile side: 7.0 px outside still moves the find; dirt tile side: 3.2 px outside still moves the find; 6.2 px into the dirt tile digs
+PASS a one-tile find is 44 px to tap (360x640) tile 36 px; open tile side: 3.0 px outside still moves the find; dirt tile side: 3.0 px outside still moves the find; 6.0 px into the dirt tile digs
+PASS portrait 390: tiles are 42 px, so a tap 5 px outside a find is not taken for it tile 42 px
+PASS a relic about to crumble is unmistakable, and the crumble has its own sound (390x844) toast, log and painted label for the Bust of Nefertiti; sounds on the tenth find: dig, crumble, reveal
+PASS a relic about to crumble is unmistakable, and the crumble has its own sound (844x390) toast, log and painted label for the Crystal Skull; sounds on the tenth find: dig, crumble, reveal
+PASS an ordinary oldest find is labelled too screenshot crumbles-next-390x844.png
+
+| Test | Result | Note |
+|---|---|---|
+| a coaching toast does not cover a tool button (390x844) | PASS | toast 366x56 over the foot of the wall |
+| a coaching toast does not cover a tool button (360x640) | PASS | toast 312x74 over the foot of the wall |
+| a coaching toast does not cover a tool button (844x390) | PASS | toast 240x74 over the foot of the wall |
+| a one-tile find is 44 px to tap (844x390) | PASS | tile 28 px; open tile side: 7.0 px outside still moves the find; dirt tile side: 3.2 px outside still moves the find; 6.2 px into the dirt tile digs |
+| a one-tile find is 44 px to tap (360x640) | PASS | tile 36 px; open tile side: 3.0 px outside still moves the find; dirt tile side: 3.0 px outside still moves the find; 6.0 px into the dirt tile digs |
+| portrait 390: tiles are 42 px, so a tap 5 px outside a find is not taken for it | PASS | tile 42 px |
+| a relic about to crumble is unmistakable, and the crumble has its own sound (390x844) | PASS | toast, log and painted label for the Bust of Nefertiti; sounds on the tenth find: dig, crumble, reveal |
+| a relic about to crumble is unmistakable, and the crumble has its own sound (844x390) | PASS | toast, log and painted label for the Crystal Skull; sounds on the tenth find: dig, crumble, reveal |
+| an ordinary oldest find is labelled too | PASS | screenshot crumbles-next-390x844.png |
+POLISH PASS 9

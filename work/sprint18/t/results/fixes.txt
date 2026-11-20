@@ -1,0 +1,42 @@
+PASS 1. relaunch in the middle of a dig: the play log shows a resume, not an interruption run_resume 1, run_end 0, same wall
+PASS 1b. the same steps on rc10 do close it (so the test above can tell the difference) rc10: run_end interrupted, recovered
+PASS 2a. crumble: a tenth find uncovered sends one small row (kind, relic, chamber, loose) {"kind":"Coin","relic":false,"chamber":1,"loose":10}
+PASS 2b. crumble of a relic says so {"kind":"Seated Scribe","relic":true}
+PASS 2c. tray_pick: one row per seal, only when the tray was changed; the seal row gains "loose" {"tray":6,"loose":8,"put_on":1,"held_back":1}
+PASS 2d. seal_held: the first-tomb guard refusing a seal sends one row per tray count, not one per tap rows at tray 3 and tray 4
+PASS 2e. bare_wall: free, then charged; chamber_end gains "crumbled" free nth 1, charged nth 2
+PASS 2f. chamber_end.crumbled counts the finds that crumbled on that wall crumbled 1 on a collapsed wall
+PASS 2g. Play log switched off: none of the new rows is written or handed on 0 rows
+PASS 3a. with the shipped numbers every Stake card and the How to Play card read exactly as in rc10 Targets +5% | Targets +10% | Targets +15%
+PASS 3b. Stake cards follow SKILL.stakeT (kit screen, real taps), for +, 0 and a lower target stake 2 +5% | stake 4 +20% | stake 5 none | stake 6 10% lower, then none
+PASS 3c. the target on the wall and the Stake card agree after a change chamber 1 asks 720 (600 x 1.2)
+PASS 3d. bare-wall lines with SKILL.bare.free = 0 a bare wall costs a Memory
+PASS 3d. bare-wall lines with SKILL.bare.free = 2 the first two bare walls of a chamber cost nothing | the first two bare walls of a chamber cost nothing | a third bare wall costs a Memory
+PASS 3d. bare-wall lines with SKILL.bare.free = 3 the first three bare walls of a chamber cost nothing | the first three bare walls of a chamber cost nothing | the first three bare walls of a chamber cost nothing | a fourth bare wall costs a Memory
+PASS 3e. the "no dirt left" line follows the number too An empty wall costs a Memory.
+PASS 4a. chamber cleared with the Looter's Sack: the chest card has no seal slip in it slips on the card: 0
+PASS 4b. without the Sack the slip is still written into the card slips on the card: 1
+PASS 4c. rc10 wrote the slip for a Sack carrier (so 4a can tell the difference) rc10: 1
+
+| Check | Result | Note |
+|---|---|---|
+| 1. relaunch in the middle of a dig: the play log shows a resume, not an interruption | PASS | run_resume 1, run_end 0, same wall |
+| 1b. the same steps on rc10 do close it (so the test above can tell the difference) | PASS | rc10: run_end interrupted, recovered |
+| 2a. crumble: a tenth find uncovered sends one small row (kind, relic, chamber, loose) | PASS | {"kind":"Coin","relic":false,"chamber":1,"loose":10} |
+| 2b. crumble of a relic says so | PASS | {"kind":"Seated Scribe","relic":true} |
+| 2c. tray_pick: one row per seal, only when the tray was changed; the seal row gains "loose" | PASS | {"tray":6,"loose":8,"put_on":1,"held_back":1} |
+| 2d. seal_held: the first-tomb guard refusing a seal sends one row per tray count, not one per tap | PASS | rows at tray 3 and tray 4 |
+| 2e. bare_wall: free, then charged; chamber_end gains "crumbled" | PASS | free nth 1, charged nth 2 |
+| 2f. chamber_end.crumbled counts the finds that crumbled on that wall | PASS | crumbled 1 on a collapsed wall |
+| 2g. Play log switched off: none of the new rows is written or handed on | PASS | 0 rows |
+| 3a. with the shipped numbers every Stake card and the How to Play card read exactly as in rc10 | PASS | Targets +5% | Targets +10% | Targets +15% |
+| 3b. Stake cards follow SKILL.stakeT (kit screen, real taps), for +, 0 and a lower target | PASS | stake 2 +5% | stake 4 +20% | stake 5 none | stake 6 10% lower, then none |
+| 3c. the target on the wall and the Stake card agree after a change | PASS | chamber 1 asks 720 (600 x 1.2) |
+| 3d. bare-wall lines with SKILL.bare.free = 0 | PASS | a bare wall costs a Memory |
+| 3d. bare-wall lines with SKILL.bare.free = 2 | PASS | the first two bare walls of a chamber cost nothing | the first two bare walls of a chamber cost nothing | a third bare wall costs a Memory |
+| 3d. bare-wall lines with SKILL.bare.free = 3 | PASS | the first three bare walls of a chamber cost nothing | the first three bare walls of a chamber cost nothing | the first three bare walls of a chamber cost nothing | a fourth bare wall costs a Memory |
+| 3e. the "no dirt left" line follows the number too | PASS | An empty wall costs a Memory. |
+| 4a. chamber cleared with the Looter's Sack: the chest card has no seal slip in it | PASS | slips on the card: 0 |
+| 4b. without the Sack the slip is still written into the card | PASS | slips on the card: 1 |
+| 4c. rc10 wrote the slip for a Sack carrier (so 4a can tell the difference) | PASS | rc10: 1 |
+FIXES PASS: 19 of 19
