@@ -5,7 +5,7 @@ Resume by reading this file. Branch `sprint-17` (from `origin/sprint-16`). Game 
 ## Checklist
 - [x] 0. Branch pushed, rc10 copied over `game/current.html`
 - [x] 1. Remote config: schema 2, new cache key, rc9b cache and rc9b documents rejected, config.json version 3, unit and real-game tests
-- [ ] 2. Ads and rewards against the tray rule, the first-tomb guard, the bare-wall Memory, resume record v2
+- [x] 2. Ads and rewards against the tray rule, the first-tomb guard, the bare-wall Memory, resume record v2 (Sack fix; tests converted to real taps; `tests/rc10-rules.test.mjs`)
 - [ ] 3. Save adapter / iCloud (new keys, rc9b cloud copy on rc10, rc10 cloud copy on an older build)
 - [ ] 4. Telemetry (cfgVer 11, event shapes)
 - [ ] 5. Tests updated and added, full run
@@ -13,8 +13,7 @@ Resume by reading this file. Branch `sprint-17` (from `origin/sprint-16`). Game 
 - [ ] 7. Merge to main, CI green
 
 ## State right now
-Steps 0 and 1 done. Item 2 half done: ads.js Sack fix and comments are in, `tests/play.mjs` (real-tap helpers) and `tests/ad-slips.test.mjs` are converted and pass. Still to do in item 2: convert `tests/real-game-ads.test.mjs` and the smoke 'real run' test to real taps, add `tests/rc10-rules.test.mjs` (first-tomb guard with the extra seal, bare-wall Memory slip with relaunch). Then 3, 4, 5, 6, 7.
-Owner rulings of 20 Nov are in `work/design/DECISIONS.md`; `docs/OWNER-TODO.md` must list only question 6 as open (item 6).
+Items 0, 1, 2 done and pushed (item 4's telemetry test is already in `tests/rc10-rules.test.mjs`). Next: item 3 (`tests/rc10-upgrade.test.mjs`: rc9b cloud copy onto rc10, rc10 cloud copy onto rc9b, using `work/sprint15b/build.html` = rc9b), then docs (item 6: OWNER-TODO lists only question 6 as open, the other five decided per `work/design/DECISIONS.md`), full run, merge.
 
 ## How to run the tests here
 Scratch dir S with `S/chromium_headless_shell-1194/chrome-linux -> /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64` and `S/chromium-1194 -> /opt/pw-browsers/chromium-1243`, then `PLAYWRIGHT_BROWSERS_PATH=S GG_REQUIRE_BROWSER=1 npm test`.

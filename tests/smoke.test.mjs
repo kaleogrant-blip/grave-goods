@@ -8,6 +8,7 @@ import { chromium } from 'playwright';
 import { ROOT } from './helpers.mjs';
 import { buildWww } from '../scripts/build-www.mjs';
 import { configFromGame } from '../scripts/extract-config.mjs';
+import { GUARD, tapSel, uncover, collapseByTap } from './play.mjs';
 
 const PLAIN = path.join(ROOT, 'www/index.html');
 const WIRED = path.join(ROOT, 'www/index.smoke.html'); // built with a PostHog key + config URL, for the telemetry and remote-config tests
@@ -289,22 +290,26 @@ T('ads on via remote flag: slips appear, a tap grants +1 Memory (max once per ru
   assert.deepEqual(r.errors, []); await r.ctx.close();
 });
 
-T('real run: Dig -> Just dig -> a real Seal fires the medium impact; a real collapse fires error + heavy; no console errors', async () => {
+T('real run, real taps: Dig -> Just dig -> three finds uncovered with the pick -> a tap on Seal fires the medium impact; a strike that takes the wall past its limit fires error + heavy; no console errors', async () => {
   const r = await open(); const page = r.page;
-  await page.waitForTimeout(600);
-  await page.locator('#title button, #overlay:not([hidden]) button').filter({ hasText: /^Dig/ }).first().click();
-  await page.locator('#overlay:not([hidden]) #just').click({ timeout: 5000 });
+  await page.waitForTimeout(GUARD); await tapSel(page, '#title button.tl-dig');
+  await page.waitForSelector('#overlay:not([hidden]) #just'); await page.waitForTimeout(GUARD); await tapSel(page, '#overlay:not([hidden]) #just');
   await page.waitForFunction(() => typeof state !== 'undefined' && state && document.getElementById('overlay').hidden, null, { timeout: 5000 });
-  await page.evaluate(() => { for (let y = 0; y < 14 && !exposedFinds().length; y++) for (let x = 0; x < 9 && !exposedFinds().length; x++) strike(x, y); window.__plug = []; });
-  assert.ok(await page.evaluate(() => exposedFinds().length > 0), 'dug up something');
-  await page.waitForTimeout(300);
+  await uncover(page, 3);
+  assert.equal(await page.evaluate(() => exposedFinds().length), 3, 'three taps of the pick uncovered three finds');
+  await page.evaluate(() => { TARGETS[state.i] = 9e6; }); // setup: the practice wall must stay up after the seal, for the collapse below
+  await page.waitForTimeout(400);
   await page.evaluate(() => { window.__plug = []; });
-  await page.locator('#seal').click({ force: true }); await page.waitForTimeout(500);
+  await tapSel(page, '#seal'); await page.waitForTimeout(500);
   assert.ok(await page.evaluate(() => state.sealed >= 1), 'the seal landed');
   const h = () => page.evaluate(() => window.__plug.filter(p => /impact|notification/.test(p[0])).map(p => p[0] + ':' + (p[1].style || p[1].type)));
   assert.deepEqual(await h(), ['impact:MEDIUM']);
-  await page.evaluate(() => { window.__plug = []; collapse(); }); await page.waitForTimeout(500);
-  assert.deepEqual(await h(), ['notification:ERROR', 'impact:HEAVY']);
+  await page.waitForFunction(() => !state.sealing && !Q.busy, null, { timeout: 20000 }); await page.waitForTimeout(600);
+  assert.equal(await page.evaluate(() => exposedFinds().length), 0, 'the tray of three was banked');
+  await page.evaluate(() => { window.__plug = []; });
+  await collapseByTap(page); await page.waitForTimeout(500);
+  const hc = await h(); // the strike itself may tick first (it is a real strike now, not a direct call to collapse()); the fall is error then heavy, once, and last
+  assert.deepEqual(hc.slice(-2), ['notification:ERROR', 'impact:HEAVY'], JSON.stringify(hc)); assert.equal(hc.filter(x => /ERROR|HEAVY/.test(x)).length, 2, JSON.stringify(hc)); assert.ok(hc.length <= 3, JSON.stringify(hc));
   assert.deepEqual(r.errors, []); await r.ctx.close();
 });
 
