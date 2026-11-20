@@ -11,10 +11,10 @@ Resume by reading this file. Branch `sprint-18` (from `origin/main` at 4fccc32).
 - [x] B. Promoted into `game/current.html`; shell tests and documents updated
 - [x] C. Store screenshots: `scripts/store-shots.mjs`, twelve frames re-made, each looked at
 - [x] D. `docs/OWNER-TODO.md` rewritten as an ordered hand-off
-- [ ] E. Full `npm test` on the final tree, merge to main, CI green (see "State right now")
+- [x] E. Full local `npm test`: 212 tests, 211 pass, 1 fail (the known local-only Android git-ignored-file test), 0 skipped. Merged to `main` (merge commit 7077d84); CI run 44782502307 on it is green
 
 ## State right now
-All content is committed on `sprint-18`. Left: the last full `npm test`, the merge, and watching CI.
+Finished. `main` is at the sprint-18 merge and its CI run is green. Nothing is running. The iOS TestFlight and ASC setup workflows were not triggered.
 
 ## A. The four fixes (all in `ed.py`)
 1. **Resume and the play log.** `s10TelBoot` tested saved-dig record version 1; the record is version 2. Now `rz.v===2`. A dig closed and reopened leaves one `run_resume` and no `run_end` in the game's log. The same steps on rc10 leave a final "interrupted" row (test 1b).
