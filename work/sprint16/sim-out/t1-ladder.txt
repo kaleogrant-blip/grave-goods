@@ -1,0 +1,37 @@
+  80 runs, 14 s
+  170 runs, 31 s
+  260 runs, 46 s
+  350 runs, 63 s
+  440 runs, 81 s
+  530 runs, 97 s
+  620 runs, 116 s
+  710 runs, 129 s
+  800 runs, 145 s
+  890 runs, 162 s
+  980 runs, 178 s
+  1070 runs, 197 s
+  1160 runs, 216 s
+  1250 runs, 230 s
+  1340 runs, 247 s
+  1430 runs, 265 s
+  1520 runs, 280 s
+  1610 runs, 296 s
+  1700 runs, 315 s
+  1790 runs, 334 s
+  1800 runs, 336 s
+
+300 runs a cell (6 classes: scholar, brute, medium, fence, cartographer, mystic), 337 s. Tomb clear rate.
+| Tomb:Stake | pick9 | early |
+|---|---|---|
+| 1:2 | 79.3% | 45.3% |
+| 1:4 | 52.3% | 17.0% |
+| 1:5 | 45.0% | 10.0% |
+
+detail: win, cleared ch1, cleared ch2, best seal median / 95th pct, seals a run, walls a run, crumbles a run, bare walls / collapses / walk-aways a run, strikes a run, by class
+1:2|pick9     79.3% 100.0% 100.0%   4968 /  9720  10.0  5.2  1.22  0.95/1.17/0.27  120  {"scholar":84,"brute":70,"medium":88,"fence":70,"cartographer":98,"mystic":66} died@ch [0,0,20.7,0] frac [0,0,0.83,0]
+1:2|early     45.3% 100.0% 100.0%   3120 /  7290  12.9  5.8  0.03  1.46/1.65/0.27  139  {"scholar":64,"brute":30,"medium":50,"fence":42,"cartographer":78,"mystic":8} died@ch [0,0,54.7,0] frac [0,0,0.75,0]
+1:4|pick9     52.3% 100.0% 100.0%   4752 /  9990  10.9  5.3  1.03  0.53/2.10/0.17  122  {"scholar":62,"brute":36,"medium":64,"fence":44,"cartographer":64,"mystic":44} died@ch [0,0,47.7,0] frac [0,0,0.79,0]
+1:4|early     17.0% 100.0% 100.0%   2952 /  7470  12.7  5.8  0.02  0.75/2.71/0.13  133  {"scholar":28,"brute":8,"medium":42,"fence":10,"cartographer":12,"mystic":2} died@ch [0,0,83,0] frac [0,0,0.7,0]
+1:5|pick9     45.0% 100.0% 100.0%   4680 /  9180  11.4  5.5  1.22  0.45/2.44/0.15  135  {"scholar":46,"brute":24,"medium":58,"fence":38,"cartographer":60,"mystic":44} died@ch [0,0,55,0] frac [0,0,0.73,0]
+1:5|early     10.0% 100.0% 100.0%   2790 /  6192  13.3  5.9  0.04  0.72/3.00/0.11  147  {"scholar":6,"brute":4,"medium":36,"fence":4,"cartographer":10,"mystic":0} died@ch [0,0,90,0] frac [0,0,0.62,0]
+cards closed by the fallback rule: {"A Cursed Offer|otake,oleave":19}

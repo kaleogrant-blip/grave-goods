@@ -1,0 +1,20 @@
+| early / scholar / Tomb 1 Stake 1 / V-1 | 220 of 461 recorded steps, 115 real taps | 105 | PASS |
+| pick9 / medium / Tomb 1 Stake 1 / V-2 | 220 of 312 recorded steps, 123 real taps | 98 | PASS |
+| hammer / brute / Tomb 1 Stake 1 / V-3 | 147 of 147 recorded steps, 94 real taps | 58 | PASS |
+| hold / fence / Tomb 3 Stake 3 / V-4 | 220 of 421 recorded steps, 117 real taps | 104 | PASS |
+| novice / scholar / Tomb 1 Stake 1 / V-5 | 220 of 484 recorded steps, 114 real taps | 106 | PASS |
+| pick9 / cartographer / Tomb 5 Stake 6 / V-6 | 220 of 471 recorded steps, 118 real taps | 102 | PASS |
+| early / mystic / Tomb 1 Stake 1 / V-7 | 220 of 227 recorded steps, 124 real taps | 96 | PASS |
+| early / scholar / Tomb 1 Stake 1 / V-B2 | 257 of 257 recorded steps, 143 real taps | 119 | PASS |
+
+| Run | Replayed | Fingerprints compared | Result |
+|---|---|---|---|
+| early / scholar / Tomb 1 Stake 1 / V-1 | 220 of 461 recorded steps, 115 real taps | 105 | PASS |
+| pick9 / medium / Tomb 1 Stake 1 / V-2 | 220 of 312 recorded steps, 123 real taps | 98 | PASS |
+| hammer / brute / Tomb 1 Stake 1 / V-3 | 147 of 147 recorded steps, 94 real taps | 58 | PASS |
+| hold / fence / Tomb 3 Stake 3 / V-4 | 220 of 421 recorded steps, 117 real taps | 104 | PASS |
+| novice / scholar / Tomb 1 Stake 1 / V-5 | 220 of 484 recorded steps, 114 real taps | 106 | PASS |
+| pick9 / cartographer / Tomb 5 Stake 6 / V-6 | 220 of 471 recorded steps, 118 real taps | 102 | PASS |
+| early / mystic / Tomb 1 Stake 1 / V-7 | 220 of 227 recorded steps, 124 real taps | 96 | PASS |
+| early / scholar / Tomb 1 Stake 1 / V-B2 | 257 of 257 recorded steps, 143 real taps | 119 | PASS |
+VERIFY PASS: the fake-clock simulator and real-time play with real taps agree at every decision point

@@ -143,3 +143,18 @@ test('claude shim on a brand-new install with an empty localStorage: get() says 
   const prefs = memPrefs(), c = S.createClaudeShim(S.createStore(prefs, memICloud()), memLS(), { prefs });
   const r = await (await c.use('db')).doc('x').get(); assert.equal(r.exists, false);
 });
+
+test('rc10 save keys (rw_rc10, rw_rc9, rw_rc10note, rw_traycoach) and the version 2 dig record sync like every other key: written, chunked, read back, imported from localStorage', async () => {
+  const keys = { rw_gold: '12', rw_rc10: '1', rw_rc9: JSON.stringify({ t: 1, best: 6100, bs: 900, bsw: 30, bsf: 30, bsn: 'x', daily: { 20261101: 4321 } }), rw_rc10note: JSON.stringify({ v: 1, dig: { ch: 1, gold: 17 } }),
+    rw_traycoach: JSON.stringify({ a: 2, bare: 1, ft: 3 }), rw_resume: JSON.stringify({ v: 2, tid: 'r1', run: { bx: { 0: 2 } }, w: { dirt: 'x'.repeat(120000) } }) };
+  const prefs = memPrefs(), ic = memICloud(), st = S.createStore(prefs, ic);
+  await st.write(snap(1000, { ...keys, rw_tel: '[]', rw_ua: '1000' }));
+  assert.deepEqual((await st.readCloud()).keys, keys, 'iCloud holds exactly these (device-local keys left out)'); assert.deepEqual((await st.readPrefs()).keys, keys);
+  assert.ok([...ic.m.keys()].filter(k => /_c\d+$/.test(k)).length >= 2, 'the big dig record is chunked like any big value');
+  // another device with nothing local takes them all
+  const other = S.createStore(memPrefs(), ic); assert.deepEqual((await other.read()).keys, keys);
+  // first native launch over a localStorage profile that already has them
+  const st2 = S.createStore(memPrefs(), memICloud()), lsd = memLS({ ...keys, rw_ua: '77' });
+  assert.equal(await S.migrateIfNeeded(st2, lsd), 'imported'); assert.deepEqual((await st2.read()).keys, keys); assert.equal((await st2.read()).updatedAt, 77);
+  for (const k of ['rw_rc10', 'rw_rc9', 'rw_rc10note', 'rw_traycoach', 'rw_resume']) assert.ok(!S.NOT_SYNCED[k], k + ' is not on the device-local list');
+});

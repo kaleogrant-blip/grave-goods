@@ -1,0 +1,45 @@
+  350 runs, 57 s
+  710 runs, 117 s
+  1070 runs, 164 s
+  1430 runs, 219 s
+  1790 runs, 271 s
+  2150 runs, 325 s
+  2510 runs, 380 s
+  2870 runs, 435 s
+  3230 runs, 492 s
+  3590 runs, 552 s
+  3950 runs, 603 s
+  4310 runs, 655 s
+  4670 runs, 699 s
+  5030 runs, 755 s
+  5390 runs, 811 s
+  5750 runs, 867 s
+  6110 runs, 927 s
+  6470 runs, 979 s
+  6830 runs, 1034 s
+  7190 runs, 1093 s
+  7200 runs, 1095 s
+
+600 runs a cell (6 classes: scholar, brute, medium, fence, cartographer, mystic), 1095 s. Tomb clear rate.
+| Tomb:Stake | pick9 | early |
+|---|---|---|
+| 2:1 | 69.5% | 34.2% |
+| 3:1 | 58.5% | 29.8% |
+| 4:1 | 47.8% | 12.0% |
+| 5:1 | 48.2% | 15.3% |
+| 6:1 | 41.0% | 9.5% |
+| 7:1 | 29.2% | 14.5% |
+
+detail: win, cleared ch1, cleared ch2, best seal median / 95th pct, seals a run, walls a run, crumbles a run, bare walls / collapses / walk-aways a run, strikes a run, by class
+2:1|pick9     69.5% 100.0% 100.0%   4950 / 10260  11.8  5.7  1.35  1.31/1.34/0.39  141  {"scholar":89,"brute":50,"medium":81,"fence":69,"cartographer":81,"mystic":47} died@ch [0,0,30.5,0] frac [0,0,0.82,0]
+2:1|early     34.2% 100.0% 100.0%   3240 /  6768  15.0  6.6  0.03  2.03/1.86/0.32  165  {"scholar":58,"brute":19,"medium":45,"fence":28,"cartographer":53,"mystic":2} died@ch [0,0,65.8,0] frac [0,0,0.72,0]
+3:1|pick9     58.5% 100.0% 100.0%   5760 / 11542  9.9  5.2  0.69  0.32/2.28/0.04  111  {"scholar":75,"brute":34,"medium":59,"fence":55,"cartographer":73,"mystic":55} died@ch [0,0,41.5,0] frac [0,0,0.71,0]
+3:1|early     29.8% 100.0% 100.0%   3888 /  9720  12.4  6.0  0.02  0.61/3.01/0.05  129  {"scholar":32,"brute":18,"medium":66,"fence":27,"cartographer":27,"mystic":9} died@ch [0,0,70.2,0] frac [0,0,0.66,0]
+4:1|pick9     47.8% 100.0% 100.0%   4968 /  9585  11.9  5.7  1.15  0.79/2.26/0.18  151  {"scholar":46,"brute":43,"medium":48,"fence":39,"cartographer":59,"mystic":52} died@ch [0,0,52.2,0] frac [0,0,0.76,0]
+4:1|early     12.0% 100.0% 100.0%   3118 /  6696  14.5  6.4  0.01  1.23/2.85/0.18  170  {"scholar":6,"brute":9,"medium":25,"fence":6,"cartographer":24,"mystic":2} died@ch [0,0,88,0] frac [0,0,0.62,0]
+5:1|pick9     48.2% 100.0% 100.0%   4896 /  9810  11.4  5.6  0.97  0.52/2.43/0.14  126  {"scholar":52,"brute":31,"medium":55,"fence":42,"cartographer":61,"mystic":48} died@ch [0,0,51.8,0] frac [0,0,0.72,0]
+5:1|early     15.3% 100.0% 100.0%   3276 /  7290  13.6  6.1  0.03  0.84/3.02/0.12  141  {"scholar":15,"brute":10,"medium":37,"fence":6,"cartographer":23,"mystic":1} died@ch [0,0,84.7,0] frac [0,0,0.65,0]
+6:1|pick9     41.0% 100.0%  99.8%   5022 /  9180  12.0  5.7  0.92  0.67/2.48/0.13  155  {"scholar":53,"brute":20,"medium":50,"fence":36,"cartographer":50,"mystic":37} died@ch [0,0.2,58.8,0] frac [0,0.96,0.75,0]
+6:1|early      9.5% 100.0% 100.0%   3168 /  6930  14.3  6.3  0.01  1.08/3.02/0.10  173  {"scholar":11,"brute":8,"medium":27,"fence":2,"cartographer":9,"mystic":0} died@ch [0,0,90.5,0] frac [0,0,0.62,0]
+7:1|pick9     29.2% 100.0% 100.0%   4374 /  8316  11.2  6.3  0.37  2.00/1.93/0.04  171  {"scholar":50,"brute":18,"medium":14,"fence":26,"cartographer":38,"mystic":29} died@ch [0,0,70.8,0] frac [0,0,0.65,0]
+7:1|early     14.5% 100.0%  99.8%   3216 /  6804  12.5  6.8  0.00  2.40/2.20/0.01  181  {"scholar":25,"brute":9,"medium":18,"fence":10,"cartographer":22,"mystic":3} died@ch [0,0.2,85.3,0] frac [0,0.89,0.61,0]

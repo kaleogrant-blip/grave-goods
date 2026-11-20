@@ -155,7 +155,7 @@
     var ads = Ads && Ads.createAds({
       admob: G.native ? plug('AdMob') : null, prefs: prefs, config: adCfg, platform: G.platform, resumeSnap: G.resumeSnap,
       flags: adFlags, adsCfg: function () { return (rc && rc.state.ads) || {}; },
-      env: function () { return { run: env.run && env.run(), state: env.state && env.state() }; },
+      env: function () { return { run: env.run && env.run(), state: env.state && env.state(), gear: env.gear && env.gear() }; },
       emit: function (n, d) { var f = web.telEmit; if (typeof f === 'function') safe(function () { return f(n, d); }); },
       dispatch: function (n, d) { web.document.dispatchEvent(new web.CustomEvent(n, { detail: d })); },
       setActive: function (on, owner) { var cl = web.document.body.classList; cl.toggle('gg-ads', !!on); cl.toggle('gg-adfree', !!owner); if (owner && adfree) safe(function () { return adfree.watchSlips(); }); },

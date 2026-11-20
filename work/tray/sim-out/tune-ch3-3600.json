@@ -1,0 +1,61 @@
+{
+ "build": "/home/claude/grave-goods/work/tray/build.html",
+ "set": {
+  "SKILL.targets.2": 10800
+ },
+ "N": 600,
+ "secs": 385.446,
+ "rows": {
+  "1:1|early": {
+   "n": 600,
+   "win": 0.445,
+   "c1": 1,
+   "c2": 1,
+   "best50": 3408,
+   "best95": 7290,
+   "seals": 13.223333333333333,
+   "walls": 5.976666666666667,
+   "cr": 0.0016666666666666668,
+   "bare": 0.965,
+   "col": 2.2183333333333333,
+   "walk": 0.34833333333333333,
+   "strikes": 154.87166666666667,
+   "stuck": 0,
+   "to": 0,
+   "cls": {
+    "scholar": 80,
+    "brute": 6.7,
+    "medium": 42.5,
+    "fence": 15,
+    "cartographer": 78.3
+   }
+  },
+  "1:1|pick9": {
+   "n": 600,
+   "win": 0.6316666666666667,
+   "c1": 1,
+   "c2": 1,
+   "best50": 5130,
+   "best95": 10044,
+   "seals": 10.685,
+   "walls": 5.296666666666667,
+   "cr": 0.635,
+   "bare": 0.49833333333333335,
+   "col": 1.78,
+   "walk": 0.38666666666666666,
+   "strikes": 135.04833333333335,
+   "stuck": 0,
+   "to": 0,
+   "cls": {
+    "scholar": 87.5,
+    "brute": 30.8,
+    "medium": 68.3,
+    "fence": 45,
+    "cartographer": 84.2
+   }
+  }
+ },
+ "errors": [],
+ "unknownCards": {},
+ "stuck": []
+}

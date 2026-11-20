@@ -7,9 +7,11 @@
 // Part 3 taps the real slips, kills the page mid-run and reopens it: the caps and the earned rewards must still be there.
 // Part 4 does the same as an Ad-free owner: the slip is a free claim.
 //
-// How the runs are ended: the practice wall is dug and sealed through the UI; the abandon goes through the real pause menu; the
-// loss calls the game's own collapse() until its Memories are gone; the win calls the game's own endChamber(true) on the last
-// chamber. In every case the run_end event is built and emitted by the game (showSummary / pauseAbandon / s10TrainDone).
+// How it is played (v1.0-rc10 rules, real touchscreen taps, helpers in tests/play.mjs): the practice wall's five finds are uncovered
+// with the pick and sealed as one tray; the abandon goes through the real pause menu; the loss is a wall struck past its limit, three
+// times, until the Memories are gone; the win is a full tray of six sealed in the last chamber. Setup is written directly where a
+// player would need hundreds of taps (one strike of dirt left on a find, the wall one strike from its limit, the chamber's bank just
+// under its target, the jump to the last chamber). In every case the run_end event is built and emitted by the game.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -17,6 +19,7 @@ import path from 'node:path';
 import { chromium } from 'playwright';
 import { ROOT, load, memPrefs } from './helpers.mjs';
 import { buildWww } from '../scripts/build-www.mjs';
+import { tapSel, uncover, seal, collapseByTap, clearChamberBySeal, cardUp, sendVisitorAway } from './play.mjs';
 const { createAds, K_CLEARED, K_CAPS } = load('ads.js');
 
 const OUT = path.join(ROOT, 'www/index.realgame.html');
@@ -63,33 +66,36 @@ async function device({ owner = false } = {}) {
   return dev;
 }
 const GUARD = 1100; // the game ignores taps for a moment after a card opens
-const overlayUp = page => page.evaluate(() => !document.getElementById('overlay').hidden);
-async function digPracticeWall(page) { // a fresh profile: title -> Dig -> Just dig -> the training wall, dug and sealed
-  await page.waitForTimeout(GUARD); await page.locator('#title button, #overlay:not([hidden]) button').filter({ hasText: /^Dig/ }).first().click();
-  await page.waitForSelector('#overlay:not([hidden]) #just'); await page.waitForTimeout(GUARD); await page.locator('#overlay:not([hidden]) #just').click({ timeout: 15000 });
+const wallUp = async page => { await page.waitForFunction(() => state && !state.train && !state.over && run && run.tid, null, { timeout: 8000 }); await sendVisitorAway(page); await page.waitForFunction(() => document.getElementById('overlay').hidden, null, { timeout: 8000 }); await page.evaluate(() => { Q.speed = 6; }); await page.waitForTimeout(400); };
+async function digPracticeWall(page) { // a fresh profile: title -> Dig -> Just dig -> the training wall: five finds uncovered with the pick, sealed as one tray
+  await page.waitForTimeout(GUARD); await tapSel(page, '#title button.tl-dig');
+  await page.waitForSelector('#overlay:not([hidden]) #just'); await page.waitForTimeout(GUARD); await tapSel(page, '#overlay:not([hidden]) #just');
   await page.waitForFunction(() => typeof state !== 'undefined' && state && state.train && document.getElementById('overlay').hidden, null, { timeout: 5000 });
-  for (let k = 0; k < 14 && !(await overlayUp(page)); k++) {
-    const n = await page.evaluate(() => { Q.speed = 12; for (const f of state.finds) if (!f.banked) for (const [x, y] of f.cells) { let g = 0; while (state.dirt[y][x] > 0 && !state.over && g++ < 6) strike(x, y); } return exposedFinds().length; });
-    await page.waitForTimeout(250);
-    if (n > 0 && !(await overlayUp(page))) { await page.locator('#seal').click({ force: true }); await page.waitForTimeout(2500); }
-  }
+  await uncover(page, 5); await seal(page);
   await page.waitForFunction(() => /Training complete/i.test(document.getElementById('card').textContent) && !document.getElementById('overlay').hidden, null, { timeout: 15000 });
   await page.waitForTimeout(GUARD);
 }
+const beginChamber1 = async page => { await tapSel(page, '#overlay:not([hidden]) #go'); await wallUp(page); }; // "Begin chamber 1" on the Training complete card: the first real run
 async function startRunFromCamp(page) {
-  await page.waitForTimeout(GUARD); await page.locator('#mDig').click();
-  await page.waitForSelector('#overlay:not([hidden]) #dig'); await page.waitForTimeout(GUARD); await page.locator('#overlay:not([hidden]) #dig').click({ timeout: 5000 });
-  await page.waitForFunction(() => state && !state.train && !state.over && document.getElementById('overlay').hidden, null, { timeout: 8000 });
-  await page.evaluate(() => { Q.speed = 12; });
+  await page.waitForTimeout(GUARD); await tapSel(page, '#mDig');
+  await page.waitForSelector('#overlay:not([hidden]) #dig'); await page.waitForTimeout(GUARD);
+  const safe = page.locator('#overlay:not([hidden]) .kitgear [data-id="knuckle"]:visible, #overlay:not([hidden]) .kitgear [data-id="compass"]:visible, #overlay:not([hidden]) .kitgear [data-id="dowser"]:visible');
+  if (await safe.count()) await safe.first().tap(); // of the three pieces on offer, one that changes no rule this test leans on (not the Sack, the Candle or the Glass Hammer)
+  await tapSel(page, '#overlay:not([hidden]) #dig'); await wallUp(page);
+  await page.evaluate(() => { if (['sack', 'candle', 'glass'].includes(gear.id)) { gear = GEAR[0]; ui(); } }); // setup, only when none of the three was on offer
 }
+// A new profile's first two collapses cost no Memory. Setup: they have been used, so a falling wall costs what it says.
+const spendMercy = page => page.evaluate(() => { Store.set('rw_mercy', String(SKILL.mercy.free)); _mercy = null; });
+// "Dig a different wall" on the collapse card
+const digOn = async page => { await tapSel(page, '#overlay:not([hidden]) #go'); await wallUp(page); };
 // After a relaunch the game shows its title first; the run resumes when the player taps through it (the game's S11.take()).
 async function resumeFromTitle(page) {
   await page.waitForTimeout(GUARD);
-  await page.locator('#title button').first().click({ timeout: 8000 });
+  await tapSel(page, '#title button.tl-dig');
   await page.waitForFunction(() => typeof run !== 'undefined' && run && run.tid && typeof state !== 'undefined' && state && !state.over && document.getElementById('overlay').hidden, null, { timeout: 8000 });
   await page.evaluate(() => GG_NATIVE.ads.load()); await page.waitForTimeout(300);
 }
-const toCamp = async page => { await page.waitForTimeout(GUARD); await page.locator('#overlay:not([hidden]) #go').click(); await page.waitForSelector('#mDig', { timeout: 8000 }); };
+const toCamp = async page => { await page.waitForTimeout(GUARD); await tapSel(page, '#overlay:not([hidden]) #go'); await page.waitForSelector('#mDig', { timeout: 8000 }); };
 
 let captured = null; // filled by the first test, read by the second
 
@@ -100,24 +106,24 @@ T('PLAY: practice wall, abandoned run, lost run, won run, relaunch mid-run. The 
   dev.phase('practice'); await digPracticeWall(page);
   assert.equal(await page.evaluate(() => GG_NATIVE.ads.canOffer('memory')), 'training', 'no slip can be served on the practice wall');
 
-  dev.phase('abandoned'); await page.locator('#overlay:not([hidden]) #go').click(); // "Begin chamber 1": the first real run
-  await page.waitForFunction(() => state && !state.train && document.getElementById('overlay').hidden, null, { timeout: 8000 });
-  await page.waitForTimeout(400);
-  await page.locator('#pause').click({ force: true }); await page.waitForSelector('#pAb'); await page.waitForTimeout(GUARD);
-  await page.locator('#pAb').click(); await page.waitForSelector('#pYes'); await page.waitForTimeout(GUARD); await page.locator('#pYes').click();
+  dev.phase('abandoned'); await beginChamber1(page);
+  assert.deepEqual(await page.evaluate(() => [GAME_VERSION, state.ft, TARGETS[0]]), ['v1.0-rc10', 1, 600], 'the first real wall of a new profile: first-tomb rules on, soft target 600');
+  await tapSel(page, '#pause'); await page.waitForSelector('#pAb'); await page.waitForTimeout(GUARD);
+  await tapSel(page, '#pAb'); await page.waitForSelector('#pYes'); await page.waitForTimeout(GUARD); await tapSel(page, '#pYes');
   await page.waitForSelector('#mDig', { timeout: 8000 });
 
-  dev.phase('lost'); await startRunFromCamp(page);
-  for (let k = 0; k < 8; k++) { // the wall falls until the Memories run out; the game shows its run summary
-    if (await page.evaluate(() => !!document.querySelector('#card .runsum') && !document.getElementById('overlay').hidden)) break;
-    if (await overlayUp(page)) { await page.waitForTimeout(GUARD); await page.locator('#overlay:not([hidden]) #go').click(); await page.waitForTimeout(900); continue; }
-    await page.evaluate(() => { _mercy = 99; collapse(); }); await page.waitForTimeout(1600);
+  dev.phase('lost'); await startRunFromCamp(page); await spendMercy(page);
+  for (let k = 1; k <= 3; k++) { // the wall is struck past its limit, three times: three Memories, then the run summary
+    await collapseByTap(page);
+    if (k < 3) { await cardUp(page); assert.equal(await page.evaluate(() => run.lives), 3 - k); await digOn(page); }
   }
-  await page.waitForSelector('#card .runsum', { timeout: 8000 }); await page.waitForTimeout(300); await toCamp(page);
+  await page.waitForSelector('#overlay:not([hidden]) #card .runsum', { timeout: 15000 }); await page.waitForTimeout(300); await toCamp(page);
 
   dev.phase('won'); await startRunFromCamp(page);
-  await page.evaluate(() => { state.i = CHN() - 1; endChamber(true); });
-  await page.waitForSelector('#card .runsum', { timeout: 15000 }); await page.waitForTimeout(300); await toCamp(page);
+  await page.evaluate(() => { newChamber(CHN() - 1); }); await wallUp(page); // setup: straight to the last chamber of the tomb
+  assert.deepEqual(await page.evaluate(() => [state.i, TARGETS[2], state.ft]), [2, 7500, 1], 'chamber 3 of a first tomb asks 7,500 and holds the seal for a full tray');
+  await clearChamberBySeal(page); // six finds uncovered by six taps, one tap on Seal
+  await page.waitForSelector('#overlay:not([hidden]) #card .runsum', { timeout: 20000 }); await page.waitForTimeout(300); await toCamp(page);
 
   dev.phase('midrun'); await startRunFromCamp(page);
   const before = await page.evaluate(() => ({ tid: run.tid, i: state.i, resume: JSON.parse(localStorage.getItem('rw_resume')).tid }));
@@ -134,6 +140,7 @@ T('PLAY: practice wall, abandoned run, lost run, won run, relaunch mid-run. The 
     'one final run_end per situation, and the practice wall really does report outcome "won" with training:true (the C-1 trap)');
   assert.ok(dev.events.some(x => x.phase === 'relaunch' && x.ev.event === 'run_resume'), 'the relaunch produced the game\'s run_resume');
   assert.ok(!final.some(e => e[0] === 'relaunch'), 'a resumed run is not a finished run');
+  assert.ok(dev.events.every(x => x.ev.config_version === 11 && x.ev.build === 'v1.0-rc10'), 'every event carries the rc10 build and telemetry config version 11');
   // ---- and what the app did about it
   assert.deepEqual(dev.admob, [], 'no AdMob method of any kind was called in any phase: no init, no interstitial, no tracking request, no video');
   assert.deepEqual(dev.net, [], 'no network request left the device');
@@ -165,22 +172,20 @@ T('REPLAY: the recorded stream fed into www/ads.js. Nothing fires on training or
 
 T('RELAUNCH with rewards in hand: the once-per-run Memory cap is not reset, the banked seal is not lost, and neither can be taken twice', async () => {
   const dev = await device(); let page = await dev.launch();
-  dev.phase('setup'); await digPracticeWall(page); await page.locator('#overlay:not([hidden]) #go').click();
-  await page.waitForFunction(() => state && !state.train && document.getElementById('overlay').hidden, null, { timeout: 8000 });
-  await page.evaluate(() => { Q.speed = 12; });
+  dev.phase('setup'); await digPracticeWall(page); await beginChamber1(page); await spendMercy(page);
   const tid = await page.evaluate(() => run.tid);
-  // the wall falls; the collapse card carries the real Memory slip; the player taps it and the (stubbed) video pays out
-  await page.evaluate(() => { _mercy = 99; collapse(); }); await page.waitForSelector('#card #go');
+  // the wall falls to a real strike; the collapse card carries the real Memory slip; the player taps it and the (stubbed) video pays out
+  await collapseByTap(page); await cardUp(page);
   const mem = page.locator('#card [data-gg-ad="memory"]'); await mem.waitFor({ state: 'visible' });
-  const l0 = await page.evaluate(() => run.lives);
-  dev.phase('memory-tap'); await mem.click(); await page.waitForFunction(n => run.lives === n + 1, l0);
+  const l0 = await page.evaluate(() => run.lives); assert.equal(l0, 2);
+  dev.phase('memory-tap'); await mem.tap(); await page.waitForFunction(n => run.lives === n + 1, l0);
   assert.deepEqual(dev.admob.filter(a => a.phase === 'memory-tap').map(a => a.call), ['admob.requestConsentInfo', 'admob.initialize', 'admob.prepareRewardVideoAd', 'admob.showRewardVideoAd'], 'a tap is the only thing that starts AdMob, and it starts a rewarded video and nothing else');
   // on to a fresh wall, clear the chamber, take the seal slip on the chamber-cleared card
-  await page.locator('#overlay:not([hidden]) #go').click(); await page.waitForFunction(() => document.getElementById('overlay').hidden && state && !state.over);
-  await page.evaluate(() => { Q.speed = 12; endChamber(true); }); await page.waitForSelector('#card .chest');
+  await digOn(page);
+  await clearChamberBySeal(page); await page.waitForSelector('#overlay:not([hidden]) #card .chest', { timeout: 20000 }); await page.waitForTimeout(GUARD);
   const seal = page.locator('#card [data-gg-ad="seal"]'); await seal.waitFor({ state: 'visible' });
-  await page.evaluate(() => GG_NATIVE.remoteConfig.accept({ schema: 1, version: 50, flags: { ads: true }, ads: { memoryPerRun: 1, sealBonus: 1, cooldownSec: 0 } }, 'remote')); // no 30 s wait in a test
-  dev.phase('seal-tap'); await seal.click(); await page.waitForFunction(() => GG_NATIVE.ads.pending().seal === 1);
+  await page.evaluate(() => GG_NATIVE.remoteConfig.accept({ schema: 2, version: 50, flags: { ads: true }, ads: { memoryPerRun: 1, sealBonus: 1, cooldownSec: 0 } }, 'remote')); // no 30 s wait in a test
+  dev.phase('seal-tap'); await seal.tap(); await page.waitForFunction(() => GG_NATIVE.ads.pending().seal === 1);
   const capsBefore = JSON.parse(dev.prefs.get(K_CAPS));
   assert.equal(capsBefore.run, tid); assert.equal(capsBefore.memory, 1); assert.equal(capsBefore.seal, 1, 'both are in Preferences, keyed by the run id');
 
@@ -188,7 +193,8 @@ T('RELAUNCH with rewards in hand: the once-per-run Memory cap is not reset, the 
   const disk = () => page.evaluate(() => { const z = JSON.parse(localStorage.getItem('rw_resume')); return { i: z.i, xs: z.w ? z.w.xs | 0 : null, adxs: z.w ? z.w.adxs | 0 : null, lives: z.run.lives }; });
   const earnedIn = await page.evaluate(() => state.i), livesNow = l0 + 1;
 
-  // 1. killed on the chamber-cleared card. The game (rc9a) resumes the SAME chamber from its record made before the clear.
+  assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('rw_resume')).v), 2, 'the saved-dig record is version 2 (rc10)');
+  // 1. killed on the chamber-cleared card. The game resumes the SAME chamber from its record made before the clear.
   dev.phase('relaunch-1'); page = await dev.launch(); await resumeFromTitle(page);
   const r1 = await snap();
   assert.equal(r1.tid, tid, 'same run'); assert.equal(r1.i, earnedIn, 'the game resumed the chamber the seal was earned in');
@@ -200,6 +206,7 @@ T('RELAUNCH with rewards in hand: the once-per-run Memory cap is not reset, the 
   assert.equal((await page.evaluate(() => GG_NATIVE.ads.offer('memory'))).ok, false);
 
   // 2. on to the NEXT chamber: the seal lands there, once. Then the app dies before the game's next save (it saves within 600 ms).
+  // (Setup, not taps: the kill has to land in the same instant the chamber is built, which no tap can time.)
   await page.evaluate(() => { newChamber(state.i + 1); S15.hold = true; }); // S15.hold stops the game saving again: a hard kill
   const n2 = await snap(), d2 = await disk();
   assert.equal(n2.i, earnedIn + 1); assert.equal(n2.xs, 1, 'exactly one extra seal in the next chamber'); assert.equal(n2.budget, n2.free + 1); assert.equal(n2.seal, 0, 'no longer banked');
@@ -235,9 +242,8 @@ for (const [name, kill] of [
 ]) {
   T(`RELAUNCH after a rewarded Memory, ${name}: relaunch, relaunch again, and again: exactly +1 in total`, async () => {
     const dev = await device(); let page = await dev.launch();
-    await digPracticeWall(page); await page.locator('#overlay:not([hidden]) #go').click();
-    await page.waitForFunction(() => state && !state.train && document.getElementById('overlay').hidden, null, { timeout: 8000 });
-    // make the save hold 1 Memory, so the slip takes the run from 1 to 2 and the cap of 3 cannot hide a lost or doubled reward
+    await digPracticeWall(page); await beginChamber1(page);
+    // setup: make the save hold 1 Memory, so the slip takes the run from 1 to 2 and the cap of 3 cannot hide a lost or doubled reward
     await page.evaluate(() => { Q.speed = 12; run.lives = 1; newChamber(0); ui(); }); await page.waitForTimeout(900);
     const lives = () => page.evaluate(() => run.lives), onDisk = () => page.evaluate(() => JSON.parse(localStorage.getItem('rw_resume')).run.lives);
     assert.equal(await onDisk(), 1);
@@ -260,14 +266,13 @@ for (const [name, kill] of [
 T('AD-FREE owner in the real game: the slip is a free claim (no video, AdMob never started), under the same cap, and the cap survives a relaunch', async () => {
   const dev = await device({ owner: true }); let page = await dev.launch();
   assert.deepEqual(await page.evaluate(() => [GG_NATIVE.ads.owner(), document.body.classList.contains('gg-ads'), document.body.classList.contains('gg-adfree')]), [true, true, true]);
-  await digPracticeWall(page); await page.locator('#overlay:not([hidden]) #go').click();
-  await page.waitForFunction(() => state && !state.train && document.getElementById('overlay').hidden, null, { timeout: 8000 });
-  const tid = await page.evaluate(() => { Q.speed = 12; return run.tid; });
-  await page.evaluate(() => { _mercy = 99; collapse(); }); await page.waitForSelector('#card #go');
+  await digPracticeWall(page); await beginChamber1(page); await spendMercy(page);
+  const tid = await page.evaluate(() => run.tid);
+  await collapseByTap(page); await cardUp(page);
   const mem = page.locator('#card [data-gg-ad="memory"]'); await mem.waitFor({ state: 'visible' });
   await page.waitForFunction(() => document.querySelector('#card [data-gg-ad="memory"] .as-t b').textContent === 'Claim · +1 Memory');
   const l0 = await page.evaluate(() => run.lives);
-  await mem.click(); await page.waitForFunction(n => run.lives === n + 1, l0);
+  await mem.tap(); await page.waitForFunction(n => run.lives === n + 1, l0);
   assert.ok(dev.events.some(x => x.ev.event === 'ad_free_claim' && x.ev.reward === 'memory'));
   assert.ok(!dev.events.some(x => x.ev.event === 'ad_offered' || x.ev.event === 'ad_watched'), 'no video was offered or watched');
   page = await dev.launch();

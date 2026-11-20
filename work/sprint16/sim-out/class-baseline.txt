@@ -1,0 +1,30 @@
+  110 runs, 14 s
+  230 runs, 27 s
+  350 runs, 37 s
+  470 runs, 48 s
+  590 runs, 60 s
+  710 runs, 72 s
+  830 runs, 84 s
+  950 runs, 96 s
+  1070 runs, 109 s
+  1190 runs, 123 s
+  1310 runs, 134 s
+  1430 runs, 145 s
+  1550 runs, 155 s
+  1670 runs, 168 s
+  1790 runs, 180 s
+  1910 runs, 190 s
+  2030 runs, 201 s
+  2150 runs, 213 s
+  2270 runs, 224 s
+  2390 runs, 237 s
+  2400 runs, 238 s
+
+1200 runs a cell (6 classes: scholar, brute, medium, fence, cartographer, mystic), 238 s. Tomb clear rate.
+| Tomb:Stake | early | pick9 |
+|---|---|---|
+| 1:1 | 40.1% | 73.3% |
+
+detail: win, cleared ch1, cleared ch2, best seal median / 95th pct, seals a run, walls a run, crumbles a run, bare walls / collapses / walk-aways a run, strikes a run, by class
+1:1|early     40.1% 100.0% 100.0%   3060 /  6840  12.8  5.8  0.03  1.44/1.72/0.26  140  {"scholar":67.5,"brute":14.5,"medium":57,"fence":29,"cartographer":68.5,"mystic":4} died@ch [0,0,59.9,0] frac [0,0,0.74,0]
+1:1|pick9     73.3% 100.0% 100.0%   4644 /  9408  10.2  5.2  1.17  0.89/1.31/0.28  122  {"scholar":91,"brute":49,"medium":85,"fence":63,"cartographer":90.5,"mystic":61} died@ch [0,0,26.8,0] frac [0,0,0.81,0]

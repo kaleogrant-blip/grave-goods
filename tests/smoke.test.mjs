@@ -8,6 +8,7 @@ import { chromium } from 'playwright';
 import { ROOT } from './helpers.mjs';
 import { buildWww } from '../scripts/build-www.mjs';
 import { configFromGame } from '../scripts/extract-config.mjs';
+import { GUARD, tapSel, uncover, collapseByTap } from './play.mjs';
 
 const PLAIN = path.join(ROOT, 'www/index.html');
 const WIRED = path.join(ROOT, 'www/index.smoke.html'); // built with a PostHog key + config URL, for the telemetry and remote-config tests
@@ -193,11 +194,16 @@ T('config drift: config/config.json equals the values the game ships', async () 
 });
 
 T('remote config: fetched, applied to the live game objects, version stamped on telemetry; PostHog gets the batch', async () => {
-  const cfg = { schema: 1, version: 9, econ: { gold: { chest: 21 } }, skill: { targets: [310, 910, 4510] }, flags: { ads: false } };
+  const cfg = { schema: 2, version: 9, econ: { gold: { chest: 21 } }, skill: { targets: [930, 2730, 9030], long4: .6, first: { t3: 7200 }, bare: { free: 2 }, stakeT: [1, 1, 1, 1.05, 1.1, 1.1] }, flags: { ads: false } };
   const r = await open({ file: WIRED, routes: { config: cfg } });
   await r.page.waitForFunction(() => GG_NATIVE.rcLoaded, null, { timeout: 20000 });
-  const live = await r.page.evaluate(() => ({ chest: ECON.gold.chest, t: SKILL.targets.slice(), BASE: TARGETS_BASE.slice(), v: GG_NATIVE.remoteConfig.state.version }));
-  assert.deepEqual(live, { chest: 21, t: [310, 910, 4510], BASE: [310, 910, 4510], v: 9 });
+  const live = await r.page.evaluate(() => ({ chest: ECON.gold.chest, t: SKILL.targets.slice(), BASE: TARGETS_BASE.slice(), v: GG_NATIVE.remoteConfig.state.version,
+    long4: SKILL.long4, ft: FT.t3, bare: BARE.free, stake6: SKILL.stakeT[5], cap: [SKILL.cap.fame, SKILL.cap.reward].map(String), red: FT.red, tray: FT.tray }));
+  assert.deepEqual(live, { chest: 21, t: [930, 2730, 9030], BASE: [930, 2730, 9030], v: 9, long4: .6, ft: 7200, bare: 2, stake6: 1.1, cap: ['Infinity', 'Infinity'], red: .8, tray: 6 },
+    'the rc10 balance numbers reach the objects the game reads (FT and BARE are the game\'s own handles on SKILL.first and SKILL.bare); caps, red line and tray size are out of reach');
+  // and the game plays by them: the next chamber 1 wall of a seasoned profile asks the new base, Stake 6 asks 10% more
+  assert.deepEqual(await r.page.evaluate(() => { const out = []; ST.chambers = 9; run.train = false; run.tomb = 1;
+    for (const st of [1, 6]) { run.stake = st; newChamber(0); out.push(TARGETS[0]); } return out; }), [930, 1020], 'newChamber builds its target from the remote values (Tomb II chamber 1: 930, and 930 x 1.1 at Stake 6)');
   await r.page.evaluate(() => { telEmit('tutorial_step', { step: 'smoke' }); });
   await r.page.waitForTimeout(100);
   await r.page.evaluate(() => GG_NATIVE.telemetry.flush(true));
@@ -210,7 +216,7 @@ T('remote config: fetched, applied to the live game objects, version stamped on 
 });
 
 T('remote config: an invalid document changes nothing', async () => {
-  const r = await open({ file: WIRED, routes: { config: { schema: 1, version: 10, econ: { gold: { chest: 500 } }, hax: true } } });
+  const r = await open({ file: WIRED, routes: { config: { schema: 2, version: 10, econ: { gold: { chest: 500 } }, hax: true } } });
   await r.page.waitForTimeout(800);
   assert.deepEqual(await r.page.evaluate(() => ({ chest: ECON.gold.chest, v: GG_NATIVE.remoteConfig.state.version, rej: !!GG_NATIVE.remoteConfig.state.rejected })), { chest: 15, v: 0, rej: true });
   await r.ctx.close();
@@ -222,8 +228,29 @@ T('remote config unreachable: the shipped values stand and the game runs', async
   assert.equal(await r.page.evaluate(() => ECON.gold.chest), 15); assert.deepEqual(r.errors, []); await r.ctx.close();
 });
 
+// The upgrade from rc9b. Its last-good config (old key, schema 1, targets 300 / 900 / 4,500, the caps, ads switched on) sits in Preferences.
+// Applied to rc10 it would make every wall three times too easy. It must be ignored on the very first launch, with the server down and with the server still serving it.
+const RC9B_CACHED = { schema: 1, version: 2, flags: { ads: true, adMemory: true, adSeal: true }, ads: { memoryPerRun: 1, sealBonus: 1, cooldownSec: 30 },
+  skill: { targets: [300, 900, 4500], ch2T1: 400, firstReal: 200, deepMul: 1.6, long4: 0.75, seals: { free: 3, sack: 2, memory: 1 }, fever: { grace: 1, decay: 0.15 }, cap: { fame: 120, reward: 1.5 }, mercy: { free: 2 }, rel2: 1.5 },
+  econ: { gold: { sealDiv: 100, chest: 15, tomb: 5, daily: 50, fenceSalvage: 10, sieve: 5 } } };
+for (const [how, routes] of [['the config host is unreachable', {}], ['the config host still serves the rc9b file', { config: RC9B_CACHED }]]) {
+  T(`first launch of rc10 with rc9b's cached config in Preferences, ${how}: nothing of it is applied (targets stay 900 / 1,200 / 9,000, caps stay off, ads stay off) and the old cache is deleted`, async () => {
+    const kv = newKV(); kv.prefs.set('gg_remote_config_v1', JSON.stringify(RC9B_CACHED));
+    const r = await open({ file: WIRED, kv, routes });
+    await r.page.waitForFunction(() => GG_NATIVE.rcLoaded, null, { timeout: 20000 });
+    const live = await r.page.evaluate(() => { ST.chambers = 9; run.train = false; run.tomb = 0; run.stake = 1; const t = [0, 1, 2].map(i => { newChamber(i); return TARGETS[i]; });
+      const first3 = t[2]; bestPut(Object.assign(bestGet(), { wins: 1 })); newChamber(2); t[2] = TARGETS[2]; // a profile that has cleared a tomb asks the full sum
+      return { first3, skill: SKILL.targets.slice(), base: TARGETS_BASE.slice(), tombI: t, ch2T1: SKILL.ch2T1, firstReal: SKILL.firstReal, long4: SKILL.long4, cap: [SKILL.cap.fame, SKILL.cap.reward].map(String), sealDiv: ECON.gold.sealDiv,
+        v: GG_NATIVE.remoteConfig.state.version, src: GG_NATIVE.remoteConfig.state.source, ads: GG_NATIVE.ads.enabled(), flags: GG_NATIVE.flags }; });
+    assert.deepEqual(live, { first3: 7500, skill: [900, 2700, 9000], base: [900, 2700, 9000], tombI: [900, 1200, 9000], ch2T1: 1200, firstReal: 600, long4: 0.5, cap: ['Infinity', 'Infinity'], sealDiv: 300,
+      v: 0, src: 'shipped', ads: false, flags: { ads: false, adMemory: true, adSeal: true } });
+    assert.equal(kv.prefs.has('gg_remote_config_v1'), false, 'the rc9b cache is gone'); assert.equal(kv.prefs.has('gg_remote_config_v2'), false, 'and nothing of it was cached again');
+    assert.deepEqual(r.errors, []); await r.ctx.close();
+  });
+}
+
 T('telemetry opt-out in the game Settings stops uploads', async () => {
-  const r = await open({ file: WIRED, routes: { config: { schema: 1, version: 2 } } });
+  const r = await open({ file: WIRED, routes: { config: { schema: 2, version: 2 } } });
   await r.page.evaluate(() => { telEmit('settings_change', { key: 'play_log', value: false }); localStorage.setItem('rw_tel_off', '1'); });
   await r.page.waitForTimeout(100);
   await r.page.evaluate(() => { telEmit('tutorial_step', { step: 'after_opt_out' }); return GG_NATIVE.telemetry.flush(true); });
@@ -233,7 +260,7 @@ T('telemetry opt-out in the game Settings stops uploads', async () => {
 });
 
 T('ads off by remote flag: no .gg-ads, [data-gg-ad] buttons are hidden, AdMob untouched', async () => {
-  const r = await open({ file: WIRED, routes: { config: { schema: 1, version: 3, flags: { ads: false } } } });
+  const r = await open({ file: WIRED, routes: { config: { schema: 2, version: 3, flags: { ads: false } } } });
   await r.page.waitForFunction(() => GG_NATIVE.rcLoaded);
   const res = await r.page.evaluate(() => {
     const b = document.createElement('button'); b.setAttribute('data-gg-ad', 'memory'); b.textContent = 'Watch'; document.body.appendChild(b);
@@ -243,7 +270,7 @@ T('ads off by remote flag: no .gg-ads, [data-gg-ad] buttons are hidden, AdMob un
 });
 
 T('ads on via remote flag: slips appear, a tap grants +1 Memory (max once per run); finishing runs never prompts for tracking or shows an interstitial', async () => {
-  const r = await open({ file: WIRED, routes: { config: { schema: 1, version: 4, flags: { ads: true }, ads: { memoryPerRun: 1, sealBonus: 1, cooldownSec: 0 } } } });
+  const r = await open({ file: WIRED, routes: { config: { schema: 2, version: 4, flags: { ads: true }, ads: { memoryPerRun: 1, sealBonus: 1, cooldownSec: 0 } } } });
   await r.page.waitForFunction(() => GG_NATIVE.rcLoaded && GG_NATIVE.ads.enabled());
   const out = await r.page.evaluate(async () => {
     const b = document.createElement('button'); b.setAttribute('data-gg-ad', 'memory'); document.body.appendChild(b);
@@ -263,22 +290,26 @@ T('ads on via remote flag: slips appear, a tap grants +1 Memory (max once per ru
   assert.deepEqual(r.errors, []); await r.ctx.close();
 });
 
-T('real run: Dig -> Just dig -> a real Seal fires the medium impact; a real collapse fires error + heavy; no console errors', async () => {
+T('real run, real taps: Dig -> Just dig -> three finds uncovered with the pick -> a tap on Seal fires the medium impact; a strike that takes the wall past its limit fires error + heavy; no console errors', async () => {
   const r = await open(); const page = r.page;
-  await page.waitForTimeout(600);
-  await page.locator('#title button, #overlay:not([hidden]) button').filter({ hasText: /^Dig/ }).first().click();
-  await page.locator('#overlay:not([hidden]) #just').click({ timeout: 5000 });
+  await page.waitForTimeout(GUARD); await tapSel(page, '#title button.tl-dig');
+  await page.waitForSelector('#overlay:not([hidden]) #just'); await page.waitForTimeout(GUARD); await tapSel(page, '#overlay:not([hidden]) #just');
   await page.waitForFunction(() => typeof state !== 'undefined' && state && document.getElementById('overlay').hidden, null, { timeout: 5000 });
-  await page.evaluate(() => { for (let y = 0; y < 14 && !exposedFinds().length; y++) for (let x = 0; x < 9 && !exposedFinds().length; x++) strike(x, y); window.__plug = []; });
-  assert.ok(await page.evaluate(() => exposedFinds().length > 0), 'dug up something');
-  await page.waitForTimeout(300);
+  await uncover(page, 3);
+  assert.equal(await page.evaluate(() => exposedFinds().length), 3, 'three taps of the pick uncovered three finds');
+  await page.evaluate(() => { TARGETS[state.i] = 9e6; }); // setup: the practice wall must stay up after the seal, for the collapse below
+  await page.waitForTimeout(400);
   await page.evaluate(() => { window.__plug = []; });
-  await page.locator('#seal').click({ force: true }); await page.waitForTimeout(500);
+  await tapSel(page, '#seal'); await page.waitForTimeout(500);
   assert.ok(await page.evaluate(() => state.sealed >= 1), 'the seal landed');
   const h = () => page.evaluate(() => window.__plug.filter(p => /impact|notification/.test(p[0])).map(p => p[0] + ':' + (p[1].style || p[1].type)));
   assert.deepEqual(await h(), ['impact:MEDIUM']);
-  await page.evaluate(() => { window.__plug = []; collapse(); }); await page.waitForTimeout(500);
-  assert.deepEqual(await h(), ['notification:ERROR', 'impact:HEAVY']);
+  await page.waitForFunction(() => !state.sealing && !Q.busy, null, { timeout: 20000 }); await page.waitForTimeout(600);
+  assert.equal(await page.evaluate(() => exposedFinds().length), 0, 'the tray of three was banked');
+  await page.evaluate(() => { window.__plug = []; });
+  await collapseByTap(page); await page.waitForTimeout(500);
+  const hc = await h(); // the strike itself may tick first (it is a real strike now, not a direct call to collapse()); the fall is error then heavy, once, and last
+  assert.deepEqual(hc.slice(-2), ['notification:ERROR', 'impact:HEAVY'], JSON.stringify(hc)); assert.equal(hc.filter(x => /ERROR|HEAVY/.test(x)).length, 2, JSON.stringify(hc)); assert.ok(hc.length <= 3, JSON.stringify(hc));
   assert.deepEqual(r.errors, []); await r.ctx.close();
 });
 
@@ -363,7 +394,7 @@ T('cancelling the purchase sheet changes nothing', async () => {
 });
 
 T('contract surface: window.Payments.go, window.ggPaymentResult exist; a flag-off build shows no purchase UI at all', async () => {
-  const r = await open({ file: WIRED, routes: { config: { schema: 1, version: 8, flags: { ads: false } } } }); const page = r.page;
+  const r = await open({ file: WIRED, routes: { config: { schema: 2, version: 8, flags: { ads: false } } } }); const page = r.page;
   await page.waitForFunction(() => GG_NATIVE.rcLoaded); await waitStore(page);
   assert.deepEqual(await page.evaluate(() => [typeof Payments.go, typeof window.ggPaymentResult, Payments.last]), ['function', 'function', '']);
   await openSettings(page);
@@ -449,7 +480,7 @@ T('"Yes": from that moment events are sent with a fresh random ID; switching it 
 T('a build that can send nothing (no analytics key) does not ask, and adds no Privacy row; with a config URL the only pre-consent request is the config file, carrying no ID', async () => {
   const r = await open({ consent: null }); await r.page.waitForTimeout(600);
   assert.equal(await dialog(r.page).count(), 0); await openSettings(r.page); await r.page.waitForTimeout(200); assert.equal(await r.page.locator('#ggPrivacy').count(), 0); assert.deepEqual(r.net, []); await r.ctx.close();
-  const w = await open({ file: WIRED, consent: null, routes: { config: { schema: 1, version: 3 } } }); await dialog(w.page).waitFor({ state: 'visible' });
+  const w = await open({ file: WIRED, consent: null, routes: { config: { schema: 2, version: 3 } } }); await dialog(w.page).waitFor({ state: 'visible' });
   await w.page.waitForFunction(() => GG_NATIVE.rcLoaded); await play(w.page);
   assert.deepEqual([...new Set(w.net)], [CFG_URL], 'remote config is a plain file download; it is not analytics and is described in the privacy policy');
   assert.deepEqual(await w.page.evaluate(() => window.__fetches), [CFG_URL]); assert.deepEqual(w.posts, []); await w.ctx.close();

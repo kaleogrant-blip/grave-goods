@@ -1,0 +1,7 @@
+clsbase: | 1:1 | 40.1% | 73.3% | {"scholar":67.5,"brute":14.5,"medium":57,"fence":29,"cartographer":68.5,"mystic":4} {"scholar":91,"brute":49,"medium":85,"fence":63,"cartographer":90.5,"mystic":61} 
+brute24: | 1:1 | 30.0% | 53.5% | {"brute":30} {"brute":53.5} 
+brute22: | 1:1 | 37.0% | 63.5% | {"brute":37} {"brute":63.5} 
+brute20: | 1:1 | 53.0% | 75.0% | {"brute":53} {"brute":75} 
+fence11: | 1:1 | 39.5% | 70.0% | {"fence":39.5} {"fence":70} 
+fence10: | 1:1 | 60.0% | 79.0% | {"fence":60} {"fence":79} 
+CLSDONE

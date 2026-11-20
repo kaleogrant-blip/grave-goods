@@ -29,7 +29,7 @@ function rig({ flags = { ads: true }, ad = {}, config = { rewardedIdIos: 'ca-app
   const body = { on: null, owner: null };
   const ads = createAds({
     admob: ad.noPlugin ? null : fakeAdmob(log, ad), prefs, config, platform, resumeSnap, flags: () => world.flags, adsCfg: () => world.adsCfg, now: () => clock.t,
-    env: () => ({ run: world.run, state: world.state }), emit: (n, d) => events.push([n, d]), dispatch: (n, d) => events.push(['dispatch:' + n, d]),
+    env: () => ({ run: world.run, state: world.state, gear: world.gear }), emit: (n, d) => events.push([n, d]), dispatch: (n, d) => events.push(['dispatch:' + n, d]),
     setActive: (v, o) => { body.on = v; body.owner = o; }, paintLives: () => {}
   });
   return { ads, log, events, world, prefs, body, clock, tick: ms => (clock.t += ms), caps: async () => JSON.parse((await prefs.get(K_CAPS)) || 'null') };
@@ -269,4 +269,18 @@ test('Ad-free owner: works with no AdMob plugin and no unit id; off when rewarde
   assert.deepEqual(await again.ads.offer('memory'), { ok: false, reason: 'run_cap' });
   const off = rig(); off.world.flags = af.effectiveFlags({ ads: false }); assert.equal(off.ads.enabled(), false); assert.deepEqual(await off.ads.offer('memory'), { ok: false, reason: 'off' });
   const kind = rig(); kind.world.flags = af.effectiveFlags({ ads: true, adSeal: false }); assert.deepEqual(await kind.ads.offer('seal'), { ok: false, reason: 'off' });
+});
+
+test('rc10: the seal slip is not offered while the Looter\'s Sack is packed (the Sack fixes a chamber at two seals, so the reward would do nothing); every other gear, and the Memory slip, are unaffected', async () => {
+  const r = rig({ adsCfg: { cooldownSec: 0 } }); await r.ads.load();
+  r.world.gear = { id: 'sack' };
+  assert.equal(r.ads.canOffer('seal'), 'not_applicable'); assert.deepEqual(await r.ads.offer('seal'), { ok: false, reason: 'not_applicable' });
+  assert.deepEqual(r.log, [], 'no video is prepared or shown for a reward that cannot apply'); assert.equal(r.ads.pending().seal, 0);
+  assert.equal(r.ads.canOffer('memory'), '', 'the Memory slip does not depend on gear');
+  for (const id of ['knuckle', 'glass', 'dowser', 'candle', 'compass']) { r.world.gear = { id }; assert.equal(r.ads.canOffer('seal'), '', id); }
+  r.world.gear = null; assert.equal(r.ads.canOffer('seal'), '', 'no gear object at all (an older wrapper page): offered as before');
+  r.world.gear = { id: 'knuckle' }; assert.equal((await r.ads.offer('seal')).ok, true); assert.equal(r.ads.pending().seal, 1);
+  // an Ad-free owner's free claim is refused the same way
+  const o = rig({ flags: { ads: true, adFree: true } }); await o.ads.load(); o.world.gear = { id: 'sack' };
+  assert.deepEqual(await o.ads.offer('seal'), { ok: false, reason: 'not_applicable' }); assert.equal(o.ads.pending().seal, 0);
 });

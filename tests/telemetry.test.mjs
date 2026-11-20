@@ -17,11 +17,11 @@ function rig(over = {}) {
   const tel = createTelemetry({
     fetch: fetchSpy, prefs, ls, key: 'phc_test', host: 'https://us.i.posthog.com/', now: () => t, online: () => online,
     setInterval: (f, ms) => { timers.push({ f, ms }); return timers.length; }, clearInterval: () => {},
-    meta: () => ({ app_build: 'v1.0-rc5a', remote_config_version: 7, platform: 'ios' }), ...over.deps
+    meta: () => ({ app_build: 'v1.0-rc10', remote_config_version: 7, platform: 'ios' }), ...over.deps
   });
   return { tel, prefs, ls, calls, fetchAll, timers, setStatus: s => (status = s), setOnline: v => (online = v), tick: ms => (t += ms), now: () => t };
 }
-const ev = (n, extra = {}) => ({ event: 'seal', event_id: 's-' + n, run_id: 'r1', session_id: 's', ts_client: 1_700_000_000_000 + n, config_version: 10, build: 'v1.0-rc5a', ...extra });
+const ev = (n, extra = {}) => ({ event: 'seal', event_id: 's-' + n, run_id: 'r1', session_id: 's', ts_client: 1_700_000_000_000 + n, config_version: 11, build: 'v1.0-rc10', ...extra });
 
 test('flushes at 50 events, in one batch, to the PostHog /batch/ endpoint', async () => {
   const r = rig();
@@ -50,7 +50,7 @@ test('events are anonymous, carry the config version and build, and keep the gam
   const r = rig(); await r.tel.ingest(ev(1, { chapter: 3 })); await r.tel.flush(true);
   const e = r.calls[0].body.batch[0], p = e.properties;
   assert.equal(e.event, 'seal');
-  assert.equal(p.remote_config_version, 7); assert.equal(p.app_build, 'v1.0-rc5a'); assert.equal(p.chapter, 3); assert.equal(p.run_id, 'r1');
+  assert.equal(p.remote_config_version, 7); assert.equal(p.app_build, 'v1.0-rc10'); assert.equal(p.config_version, 11); assert.equal(p.build, 'v1.0-rc10'); assert.equal(p.chapter, 3); assert.equal(p.run_id, 'r1');
   assert.equal(p.$geoip_disable, true); assert.equal(p.$process_person_profile, false);
   assert.match(p.distinct_id, /^[0-9a-f-]{20,}$/);
   assert.equal(p.event, undefined, 'event name is not duplicated into properties');

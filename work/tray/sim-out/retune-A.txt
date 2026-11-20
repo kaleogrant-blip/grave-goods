@@ -1,0 +1,30 @@
+  30 runs, 29 s
+  60 runs, 53 s
+  90 runs, 67 s
+  120 runs, 99 s
+  150 runs, 121 s
+  180 runs, 145 s
+  210 runs, 166 s
+  240 runs, 184 s
+  270 runs, 206 s
+  300 runs, 229 s
+  330 runs, 259 s
+  360 runs, 275 s
+  390 runs, 291 s
+  420 runs, 319 s
+  450 runs, 349 s
+  480 runs, 373 s
+  510 runs, 397 s
+  540 runs, 427 s
+  570 runs, 455 s
+  600 runs, 479 s
+
+300 runs a cell (5 classes), 480 s. Tomb clear rate.
+| Tomb:Stake | early | pick9 |
+|---|---|---|
+| 5:6 | 0.7% | 0.3% |
+
+detail: win, cleared ch1, cleared ch2, best seal median / 95th pct, seals a run, walls a run, crumbles a run, bare walls / collapses / walk-aways a run, strikes a run, by class
+5:6|early      0.7%  99.7%  96.3%   2688 /  6480  13.2  6.2  0.00  0.04/4.15/0.01  144  {"scholar":0,"brute":0,"medium":3.3,"fence":0,"cartographer":0}
+5:6|pick9      0.3%  99.7%  97.0%   4320 /  9072  12.3  5.8  0.18  0.01/3.82/0.01  137  {"scholar":1.7,"brute":0,"medium":0,"fence":0,"cartographer":0}
+cards closed by the fallback rule: {"A Cursed Offer|otake,oleave":38}

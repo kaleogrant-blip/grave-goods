@@ -1,0 +1,1 @@
+SEEDS PASS: 60 walls over 20 seeds identical to rc9b (dirt, finds, ores, tell, generator state)

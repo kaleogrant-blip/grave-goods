@@ -1,0 +1,40 @@
+  80 runs, 10 s
+  170 runs, 20 s
+  260 runs, 30 s
+  350 runs, 40 s
+  440 runs, 49 s
+  530 runs, 60 s
+  620 runs, 70 s
+  710 runs, 81 s
+  800 runs, 92 s
+  890 runs, 107 s
+  980 runs, 119 s
+  1070 runs, 132 s
+  1160 runs, 144 s
+  1250 runs, 156 s
+  1340 runs, 167 s
+  1430 runs, 178 s
+  1520 runs, 190 s
+  1610 runs, 201 s
+  1700 runs, 214 s
+  1790 runs, 229 s
+  1800 runs, 230 s
+
+300 runs a cell (6 classes: scholar, brute, medium, fence, cartographer, mystic), 231 s. Tomb clear rate. SET {"SKILL.long4":0.5}
+| Tomb:Stake | pick9 |
+|---|---|
+| 1:4 | 52.3% |
+| 1:5 | 45.0% |
+| 1:6 | 17.7% |
+| 3:6 | 9.7% |
+| 5:6 | 7.3% |
+| 7:6 | 6.0% |
+
+detail: win, cleared ch1, cleared ch2, best seal median / 95th pct, seals a run, walls a run, crumbles a run, bare walls / collapses / walk-aways a run, strikes a run, by class
+1:4|pick9     52.3% 100.0% 100.0%   4752 /  9990  10.9  5.3  1.03  0.53/2.10/0.17  122  {"scholar":62,"brute":36,"medium":64,"fence":44,"cartographer":64,"mystic":44} died@ch [0,0,47.7,0] frac [0,0,0.79,0]
+1:5|pick9     45.0% 100.0% 100.0%   4680 /  9180  11.4  5.5  1.22  0.45/2.44/0.15  135  {"scholar":46,"brute":24,"medium":58,"fence":38,"cartographer":60,"mystic":44} died@ch [0,0,55,0] frac [0,0,0.73,0]
+1:6|pick9     17.7% 100.0% 100.0%   4752 /  9072  14.4  6.6  1.44  0.65/3.09/0.23  166  {"scholar":26,"brute":4,"medium":32,"fence":8,"cartographer":18,"mystic":18} died@ch [0,0,54.7,27.7] frac [0,0,0.73,0.72]
+3:6|pick9      9.7% 100.0%  99.7%   4752 / 10773  12.9  6.4  0.72  0.23/3.76/0.03  138  {"scholar":16,"brute":4,"medium":10,"fence":8,"cartographer":14,"mystic":6} died@ch [0,0.3,76,14] frac [0,0.95,0.53,0.72]
+5:6|pick9      7.3% 100.0%  99.0%   4320 /  8775  13.4  6.2  0.84  0.19/3.78/0.04  145  {"scholar":16,"brute":0,"medium":12,"fence":4,"cartographer":8,"mystic":4} died@ch [0,1,85.3,6.3] frac [0,0.84,0.57,0.76]
+7:6|pick9      6.0% 100.0%  99.0%   4230 /  8160  12.8  6.6  0.44  0.92/3.42/0.06  176  {"scholar":12,"brute":4,"medium":2,"fence":0,"cartographer":12,"mystic":6} died@ch [0,1,83.3,9.7] frac [0,0.96,0.57,0.68]
+cards closed by the fallback rule: {"A Cursed Offer|otake,oleave":21}

@@ -1,0 +1,25 @@
+PASS title shows v1.0-tray1 and the TRAY TEST tag (390x844) TRAY TEST · v1.0-tray1 | Grave Goods: Tray Test
+PASS the tag stays up during a dig and under a card (390x844) 13 cards
+PASS title shows v1.0-tray1 and the TRAY TEST tag (360x640) TRAY TEST · v1.0-tray1 | Grave Goods: Tray Test
+PASS the tag stays up during a dig and under a card (360x640) 13 cards
+PASS title shows v1.0-tray1 and the TRAY TEST tag (844x390) TRAY TEST · v1.0-tray1 | Grave Goods: Tray Test
+PASS the tag stays up during a dig and under a card (844x390) 13 cards
+PASS relics that count finds Rhind 5 ("A Hoard needs 5 finds, not a full tray of 6."), Draupnir +9 a find, Cyrus +24, Terracotta Warrior unchanged
+PASS Gold and XP are paid on a third of the x3 points; no payout cap 9,000 banked pays 30 Gold (rc9b: 3,000 pays 30); knucklebone from 2,700; second-bone gold 1,500; full-Memory gift 75; training target 90
+PASS targets of the tombs {"1:1":[900,1200,9000],"1:3":[900,1200,9000],"3:1":[900,2700,10350],"5:1":[900,2700,11700],"5:6":[1040,3100,13450,12070]}
+PASS training wall still clears with one seal of five 5 finds score 324 against 90
+
+| Check | Result | Note |
+|---|---|---|
+| title shows v1.0-tray1 and the TRAY TEST tag (390x844) | PASS | TRAY TEST · v1.0-tray1 | Grave Goods: Tray Test |
+| the tag stays up during a dig and under a card (390x844) | PASS | 13 cards |
+| title shows v1.0-tray1 and the TRAY TEST tag (360x640) | PASS | TRAY TEST · v1.0-tray1 | Grave Goods: Tray Test |
+| the tag stays up during a dig and under a card (360x640) | PASS | 13 cards |
+| title shows v1.0-tray1 and the TRAY TEST tag (844x390) | PASS | TRAY TEST · v1.0-tray1 | Grave Goods: Tray Test |
+| the tag stays up during a dig and under a card (844x390) | PASS | 13 cards |
+| tap sizes (reported, not judged) | INFO | {"390x844":{"tile":42,"seal":"97x67","pick":"64x67","hammer":"71x67"},"360x640":{"tile":36,"seal":"88x59","pick":"59x59","hammer":"65x59"},"844x390":{"tile":28,"seal":"67x59","pick":"67x59","hammer":"67x59"}} |
+| relics that count finds | PASS | Rhind 5 ("A Hoard needs 5 finds, not a full tray of 6."), Draupnir +9 a find, Cyrus +24, Terracotta Warrior unchanged |
+| Gold and XP are paid on a third of the x3 points; no payout cap | PASS | 9,000 banked pays 30 Gold (rc9b: 3,000 pays 30); knucklebone from 2,700; second-bone gold 1,500; full-Memory gift 75; training target 90 |
+| targets of the tombs | PASS | {"1:1":[900,1200,9000],"1:3":[900,1200,9000],"3:1":[900,2700,10350],"5:1":[900,2700,11700],"5:6":[1040,3100,13450,12070]} |
+| training wall still clears with one seal of five | PASS | 5 finds score 324 against 90 |
+EXTRAS PASS

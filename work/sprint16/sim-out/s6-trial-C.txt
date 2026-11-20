@@ -1,0 +1,36 @@
+  50 runs, 8 s
+  110 runs, 16 s
+  170 runs, 24 s
+  230 runs, 32 s
+  290 runs, 41 s
+  350 runs, 48 s
+  410 runs, 55 s
+  470 runs, 63 s
+  530 runs, 71 s
+  590 runs, 79 s
+  650 runs, 86 s
+  710 runs, 93 s
+  770 runs, 100 s
+  830 runs, 108 s
+  890 runs, 116 s
+  950 runs, 124 s
+  1010 runs, 131 s
+  1070 runs, 140 s
+  1130 runs, 147 s
+  1190 runs, 157 s
+  1200 runs, 158 s
+
+300 runs a cell (6 classes: scholar, brute, medium, fence, cartographer, mystic), 158 s. Tomb clear rate. SET {"SKILL.long4":0.5}
+| Tomb:Stake | pick9 |
+|---|---|
+| 1:6 | 54.3% |
+| 3:6 | 28.3% |
+| 5:6 | 22.0% |
+| 7:6 | 18.0% |
+
+detail: win, cleared ch1, cleared ch2, best seal median / 95th pct, seals a run, walls a run, crumbles a run, bare walls / collapses / walk-aways a run, strikes a run, by class
+1:6|pick9     54.3% 100.0% 100.0%   4896 /  9936  13.8  6.8  1.68  0.61/2.73/0.17  161  {"scholar":56,"brute":26,"medium":66,"fence":44,"cartographer":58,"mystic":76} died@ch [0,0,28.3,17.3] frac [0,0,0.78,0.76]
+3:6|pick9     28.3% 100.0% 100.0%   4950 / 10935  12.4  6.3  0.95  0.27/3.34/0.06  134  {"scholar":38,"brute":8,"medium":28,"fence":22,"cartographer":28,"mystic":46} died@ch [0,0,62.3,9.3] frac [0,0,0.56,0.84]
+5:6|pick9     22.0% 100.0% 100.0%   4320 /  9072  12.9  6.2  0.98  0.19/3.49/0.04  141  {"scholar":40,"brute":4,"medium":28,"fence":12,"cartographer":24,"mystic":24} died@ch [0,0,69,9] frac [0,0,0.64,0.75]
+7:6|pick9     18.0% 100.0% 100.0%   4032 /  8100  12.4  6.5  0.59  0.82/3.22/0.05  169  {"scholar":20,"brute":8,"medium":10,"fence":10,"cartographer":26,"mystic":34} died@ch [0,0,75.7,6.3] frac [0,0,0.61,0.68]
+cards closed by the fallback rule: {"A Cursed Offer|otake,oleave":55}

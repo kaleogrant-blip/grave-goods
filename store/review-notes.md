@@ -20,12 +20,15 @@ The app does NOT show the App Tracking Transparency prompt. It does not track an
 
 ADVERTISING: Google AdMob, rewarded video only.
 - There are exactly two offers, each a button the player must tap: "Watch a short video · +1 Memory" (on the card shown
-  after a wall collapses, at most once per run) and "Watch a short video · +1 free seal next chamber" (on the
-  chamber-cleared card, one banked at a time).
+  after a wall collapses or is dug bare, when the player has fewer than three Memories; at most once per run) and
+  "Watch a short video · +1 free seal next chamber" (on the chamber-cleared card, one banked at a time; not shown
+  while the Looter's Sack is packed, because the Sack allows two seals a chamber and no more).
 - Nothing plays on its own. There is no interstitial, no banner, no ad between runs, and no ad during the practice wall.
 - Videos are requested as non-personalised ads.
-- To see one: start a run, let a wall collapse (keep digging until the crack bar is full), and tap the video button
-  on the card that follows.
+- To see the seal offer: start a run and clear the first chamber. A seal banks one tray of up to six finds; on a new
+  player's first tomb the Seal button waits until six finds are on the tray. The offer is on the "Chamber cleared" card.
+- To see the Memory offer: let a wall collapse (keep digging until the crack bar is full). A new player's first two
+  collapses cost no Memory, so the offer appears on the card after the third collapse, when a Memory has been lost.
 - Current state of video offers in this build: [ON / OFF]. [If test mode: these are Google's sample ads.]
 
 IN-APP PURCHASE: one non-consumable, "Ad-free" (product ID gg_adfree).
@@ -58,7 +61,8 @@ CONTACT: [NAME], [PHONE], [CONTACT EMAIL]
 
 Checklist before pressing Submit for Review:
 - **People have played it.** A TestFlight round with real testers has happened and its fixes are in this build (LAUNCH.md). Do not submit a build only bots have played.
-- Fill the CHEST REVEAL line in the block above from the build you submit, and from nothing else. rc9b (the build in this repo, 13 Nov) shows an oracle-bone reading on sarcophagi and after the fourth full Fever: three taps, the chances printed before the first, the result decided and saved before the panel opens, no reels, no wheel, no staged near-miss. Older builds (rc9a and before) show a three-reel reveal and a wheel. If the build still has reels and a wheel, say so in that line; if it has the oracle-bone reading, describe that. Never describe the one the build does not have. The knucklebone stays as written (owner ruling).
+- The two "To see" lines in the block were written for v1.0-rc10 (the build in this repo): a seal is a tray of six, the first-tomb Seal button waits for a full tray, and a new profile has two free collapses. Check them against the build you submit.
+- Fill the CHEST REVEAL line in the block above from the build you submit, and from nothing else. rc10 (the build in this repo; the reading is unchanged since rc9b, 13 Nov) shows an oracle-bone reading on sarcophagi and after the fourth full Fever: three taps, the chances printed before the first, the result decided and saved before the panel opens, no reels, no wheel, no staged near-miss. Older builds (rc9a and before) show a three-reel reveal and a wheel. If the build still has reels and a wheel, say so in that line; if it has the oracle-bone reading, describe that. Never describe the one the build does not have. The knucklebone stays as written (owner ruling).
 - Rewarded videos are ON for the submitted build and the AdMob ids are the real ones (`docs/OWNER-TODO.md`), or the reviewer will not find the Ad-free row.
 - The IAP `gg_adfree` shows "Ready to Submit" and is attached to this version (App Store Connect > the version > In-App Purchases and Subscriptions > add it). Apple reviews the first IAP together with the app; it must have a review screenshot (a picture of Settings with the Ad-free row) and a review note, both filled in by `scripts/asc-products.mjs` only as far as the API allows. The screenshot is done by hand.
 - The Paid Apps agreement, banking and tax forms are Active (TRACK-B step 11).
