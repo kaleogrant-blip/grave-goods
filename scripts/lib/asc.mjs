@@ -14,7 +14,18 @@ export function credsFromEnv(env = process.env) {
   let p8 = env.P8 || env.APP_STORE_CONNECT_PRIVATE_KEY;
   if (!p8 && env.P8_PATH && fs.existsSync(env.P8_PATH)) p8 = fs.readFileSync(env.P8_PATH, 'utf8');
   if (!issuer || !kid || !p8) return null;
-  return { issuer, kid, p8: p8.replace(/\\n/g, '\n') };
+  return { issuer, kid, p8: normalizeP8(p8) };
+}
+
+/** Repairs the usual paste damage in a .p8: Windows line ends, a byte-order mark, quotes, literal \\n, lost line breaks,
+ *  missing BEGIN/END lines. Rebuilds a clean PEM from the base64 body. Never logs the key. */
+export function normalizeP8(text) {
+  const body = p8Body(text);
+  return '-----BEGIN PRIVATE KEY-----\n' + (body.match(/.{1,64}/g) || []).join('\n') + '\n-----END PRIVATE KEY-----\n';
+}
+/** The base64 body only (no header, footer or whitespace). A real App Store Connect key is about 200 characters. */
+export function p8Body(text) {
+  return String(text || '').replace(/^\uFEFF/, '').replace(/\\r|\\n/g, '\n').replace(/-----[^-]*-----/g, '').replace(/[^A-Za-z0-9+/=]/g, '');
 }
 
 export function makeJwt({ issuer, kid, p8 }, now = Math.floor(Date.now() / 1000)) {

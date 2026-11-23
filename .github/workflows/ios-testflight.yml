@@ -50,7 +50,6 @@ jobs:
             exit 1
           fi
           case "$APPLE_TEAM_ID" in [A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9]) ;; *) echo "::error title=APPLE_TEAM_ID looks wrong::The Team ID is exactly 10 letters and digits (for example ABCDE12345). Check developer.apple.com/account > Membership details."; exit 1;; esac
-          case "$APP_STORE_CONNECT_PRIVATE_KEY" in *"PRIVATE KEY"*) ;; *) echo "::error title=APP_STORE_CONNECT_PRIVATE_KEY looks wrong::Paste the whole .p8 file, including the BEGIN PRIVATE KEY and END PRIVATE KEY lines."; exit 1;; esac
           echo "All four secrets are present."
 
       - uses: actions/checkout@v4
@@ -95,9 +94,8 @@ jobs:
           set -euo pipefail
           umask 077
           KEY_PATH="$RUNNER_TEMP/AuthKey_${APP_STORE_CONNECT_KEY_IDENTIFIER}.p8"
-          printf '%s\n' "$APP_STORE_CONNECT_PRIVATE_KEY" > "$KEY_PATH"
-          # a key pasted on one line with literal \n sequences: expand them
-          if [ "$(wc -l < "$KEY_PATH" | tr -d ' ')" -lt 3 ]; then printf '%b\n' "$APP_STORE_CONNECT_PRIVATE_KEY" > "$KEY_PATH"; fi
+          # rebuild a clean PEM from whatever was pasted (Windows line ends, lost line breaks, missing BEGIN/END lines)
+          node --input-type=module -e "import {normalizeP8} from './scripts/lib/asc.mjs'; import fs from 'node:fs'; fs.writeFileSync(process.argv[1], normalizeP8(process.env.APP_STORE_CONNECT_PRIVATE_KEY));" "$KEY_PATH"
           openssl pkey -in "$KEY_PATH" -noout || { echo "::error title=Unreadable .p8::APP_STORE_CONNECT_PRIVATE_KEY is not a valid private key. Paste the whole .p8 file text."; rm -f "$KEY_PATH"; exit 1; }
           echo "KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
 

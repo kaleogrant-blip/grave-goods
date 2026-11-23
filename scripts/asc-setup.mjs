@@ -10,12 +10,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { credsFromEnv, makeClient, makeJwt, AscError } from './lib/asc.mjs';
+import { credsFromEnv, makeClient, makeJwt, p8Body, AscError } from './lib/asc.mjs';
 import { readAppId } from './patch-ios.mjs';
 import { run as runProducts } from './asc-products.mjs';
 import { EU_CODES, EU_MEMBERS } from './lib/territories.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+/** A safe description of what was pasted (sizes only, never the key). */
+export function p8Hint(text) {
+  const n = p8Body(text).length, raw = String(text || '').length;
+  if (n < 150) return `What was pasted holds ${n} key characters (${raw} in all). A real key holds about 200, so this paste is cut short or is not the .p8 file. If it is about 10, the Key ID was pasted here by mistake.`;
+  if (n > 260) return `What was pasted holds ${n} key characters. A real key holds about 200, so something extra was pasted with it (pasted twice, or a different file).`;
+  return `What was pasted is the right size (${n} key characters) but is not a valid key. Open the .p8 again in Notepad, Select all, Copy, and paste it once.`;
+}
 export const SECRET_NAMES = ['APP_STORE_CONNECT_ISSUER_ID', 'APP_STORE_CONNECT_KEY_IDENTIFIER', 'APP_STORE_CONNECT_PRIVATE_KEY'];
 export const APP_NAME = 'Grave Goods';
 export const SUGGESTED_SKU = 'gravegoods001';
@@ -113,7 +120,7 @@ export async function run({ env = process.env, log = console.log, fetchImpl, sum
   }
   const creds = credsFromEnv(env);
   try { makeJwt(creds); } catch (e) {
-    add('Secrets', 'fail', ['The .p8 text in `APP_STORE_CONNECT_PRIVATE_KEY` could not be read as a key. Paste the whole file, including the BEGIN PRIVATE KEY and END PRIVATE KEY lines.', `(${e.message.split('\n')[0]})`], 'Re-enter APP_STORE_CONNECT_PRIVATE_KEY with the full .p8 text');
+    add('Secrets', 'fail', ['The .p8 text in `APP_STORE_CONNECT_PRIVATE_KEY` could not be read as a key. Paste the whole file, including the BEGIN PRIVATE KEY and END PRIVATE KEY lines.', `(${e.message.split('\n')[0]})`, p8Hint(env.APP_STORE_CONNECT_PRIVATE_KEY || env.P8)], 'Re-enter APP_STORE_CONNECT_PRIVATE_KEY with the full .p8 text');
     return finish();
   }
   const api = makeClient({ creds, fetchImpl });
