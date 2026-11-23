@@ -24,6 +24,7 @@ function fake({ bundle = false, caps = [], app = false, status = 200 } = {}) {
     if (p === '/v1/apps') return res(200, { data: [] });
     if (p === '/v1/bundleIds' && m === 'GET') return res(200, { data: st.bundle ? [{ id: 'B1', attributes: { identifier: BID } }] : [] });
     if (p === '/v1/bundleIds' && m === 'POST') { st.bundle = true; return res(201, { data: { id: 'B1', attributes: JSON.parse(opt.body).data.attributes } }); }
+    if (p === '/v1/bundleIds/B1/bundleIdCapabilities' && u.searchParams.has('limit')) return res(400, { errors: [{ title: 'limit is not allowed on this relationship' }] }); // Apple really does this
     if (p === '/v1/bundleIds/B1/bundleIdCapabilities') return res(200, { data: st.caps.map(c => ({ attributes: { capabilityType: c } })) });
     if (p === '/v1/bundleIdCapabilities') { const a = JSON.parse(opt.body).data.attributes; st.caps.push(a.capabilityType); st.lastCap = a; return res(201, { data: {} }); }
     if (p === '/v1/territories') return res(200, { data: TERRITORIES.map(id => ({ id })) });

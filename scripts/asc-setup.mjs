@@ -51,7 +51,7 @@ async function bundleStep(api, bundleId) {
     const r = await api.post('/v1/bundleIds', { data: { type: 'bundleIds', attributes: { identifier: bundleId, name: APP_NAME, platform: 'IOS' } } });
     b = r.data; created = true;
   }
-  const caps = await api.all(`/v1/bundleIds/${b.id}/bundleIdCapabilities?limit=200`);
+  const caps = await api.all(`/v1/bundleIds/${b.id}/bundleIdCapabilities`);
   const have = new Set(caps.data.map(c => c.attributes && c.attributes.capabilityType));
   const rel = { bundleId: { data: { type: 'bundleIds', id: b.id } } };
   const added = [], notes = [];
@@ -139,7 +139,7 @@ export async function run({ env = process.env, log = console.log, fetchImpl, sum
     lines.push(b.added.length ? `Switched on: ${b.added.join(', ')}.` : 'iCloud and In-App Purchase were already on.');
     add('Bundle ID and iCloud', b.created || b.added.length ? 'changed' : 'ok', [...lines, ...b.notes]);
   } catch (e) {
-    add('Bundle ID and iCloud', 'fail', ['Apple refused the request: ' + e.message, 'Most likely the key role is too low. Make a new key with the Admin role (docs/TRACK-B.md, step A1), or register the ID by hand: developer.apple.com/account > Certificates, Identifiers & Profiles > Identifiers > + > App IDs > App, tick iCloud.'], 'Fix the bundle ID step (see its message above)');
+    add('Bundle ID and iCloud', 'fail', ['Apple refused the request: ' + e.message, (e.status === 401 || e.status === 403) ? 'The key role is too low. Make a new key with the Admin role (docs/TRACK-B.md, step A1), or register the ID by hand: developer.apple.com/account > Certificates, Identifiers & Profiles > Identifiers > + > App IDs > App, tick iCloud.' : 'This is a fault in the setup script, not in your key or account. Send the message above to the developer seat.'], 'Fix the bundle ID step (see its message above)');
   }
 
   let app = { exists: false };
